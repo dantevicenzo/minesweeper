@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { supabase } from '../utils/supabase'
+import { query, queryOne } from '../utils/supabase'
 import { requireAuth } from '../middleware/auth'
 import type { AuthenticatedRequest } from '../middleware/auth'
 import type { Response } from 'express'
@@ -7,14 +7,12 @@ import type { Response } from 'express'
 const router = Router()
 
 async function requireAdmin(req: AuthenticatedRequest, res: Response): Promise<boolean> {
-  const userId = req.userId!
-  const { data } = await supabase
-    .from('profiles')
-    .select('is_admin')
-    .eq('id', userId)
-    .single()
+  const profile = await queryOne<any>(
+    `select is_admin from public.profiles where id = $1`,
+    [req.userId!]
+  )
 
-  if (!data?.is_admin) {
+  if (!profile?.is_admin) {
     res.status(403).json({ error: 'Admin access required' })
     return false
   }
@@ -25,37 +23,44 @@ router.get('/users', requireAuth, async (req: AuthenticatedRequest, res: Respons
   const isAdmin = await requireAdmin(req, res)
   if (!isAdmin) return
 
-  const page = Math.max(1, parseInt(req.query.page as string) ?? 1)
-  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) ?? 20))
+  const page = Math.max(1, parseInt(req.query.page as string) || 1)
+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20))
   const offset = (page - 1) * limit
   const search = req.query.search as string | undefined
 
-  let query = supabase
-    .from('profiles')
-    .select('*', { count: 'exact' })
-    .order('created_at', { ascending: false })
-    .range(offset, offset + limit - 1)
+  try {
+    let sql: string
+    let params: any[]
+    let countSql: string
+    let countParams: any[]
 
-  if (search) {
-    query = query.ilike('display_name', `%${search}%`)
+    if (search) {
+      sql = `select * from public.profiles where display_name ilike $1 order by created_at desc limit $2 offset $3`
+      params = [`%${search}%`, limit, offset]
+      countSql = `select count(*)::int as count from public.profiles where display_name ilike $1`
+      countParams = [`%${search}%`]
+    } else {
+      sql = `select * from public.profiles order by created_at desc limit $1 offset $2`
+      params = [limit, offset]
+      countSql = `select count(*)::int as count from public.profiles`
+      countParams = []
+    }
+
+    const data = await query(sql, params)
+    const countResult = await queryOne<{ count: number }>(countSql, countParams)
+
+    res.json({
+      data,
+      pagination: {
+        page,
+        limit,
+        total: countResult?.count ?? 0,
+        totalPages: countResult ? Math.ceil(countResult.count / limit) : 0,
+      },
+    })
+  } catch (err: any) {
+    res.status(500).json({ error: err.message })
   }
-
-  const { data, error, count } = await query
-
-  if (error) {
-    res.status(500).json({ error: error.message })
-    return
-  }
-
-  res.json({
-    data,
-    pagination: {
-      page,
-      limit,
-      total: count ?? 0,
-      totalPages: count ? Math.ceil(count / limit) : 0,
-    },
-  })
 })
 
 router.put('/users/:id', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
@@ -65,60 +70,62 @@ router.put('/users/:id', requireAuth, async (req: AuthenticatedRequest, res: Res
   const { id } = req.params
   const { display_name, is_admin } = req.body
 
-  const update: Record<string, unknown> = {}
-  if (display_name !== undefined) update.display_name = display_name
-  if (is_admin !== undefined) update.is_admin = is_admin
-  update.updated_at = new Date().toISOString()
+  try {
+    const data = await queryOne(
+      `update public.profiles set
+        display_name = coalesce($1, display_name),
+        is_admin = coalesce($2, is_admin),
+        updated_at = now()
+       where id = $3
+       returning *`,
+      [display_name, is_admin, id]
+    )
 
-  const { data, error } = await supabase
-    .from('profiles')
-    .update(update)
-    .eq('id', id)
-    .select()
-    .single()
-
-  if (error) {
-    res.status(500).json({ error: error.message })
-    return
+    res.json(data)
+  } catch (err: any) {
+    res.status(500).json({ error: err.message })
   }
-
-  res.json(data)
 })
 
 router.get('/stats', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   const isAdmin = await requireAdmin(req, res)
   if (!isAdmin) return
 
-  const [usersResult, gamesResult, profilesResult] = await Promise.all([
-    supabase.from('profiles').select('*', { count: 'exact', head: true }),
-    supabase.from('games').select('status, difficulty'),
-    supabase
-      .from('profiles')
-      .select('xp')
-      .order('xp', { ascending: false })
-      .limit(10),
-  ])
+  try {
+    const totalUsers = await queryOne<{ count: number }>(
+      `select count(*)::int as count from public.profiles`
+    )
 
-  const games = gamesResult.data ?? []
-  const won = games.filter(g => g.status === 'won').length
-  const lost = games.filter(g => g.status === 'lost').length
+    const gameStats = await queryOne<any>(
+      `select
+         count(*)::int as total_games,
+         count(*) filter (where status = 'won')::int as won_games,
+         count(*) filter (where status = 'lost')::int as lost_games
+       from public.games`
+    )
 
-  const difficultyCounts: Record<string, number> = {}
-  for (const g of games) {
-    difficultyCounts[g.difficulty] = (difficultyCounts[g.difficulty] ?? 0) + 1
+    const gamesByDifficulty = await query<{ difficulty: string; count: number }>(
+      `select difficulty, count(*)::int as count from public.games group by difficulty`
+    )
+
+    const topPlayers = await query<{ display_name: string; xp: number }>(
+      `select display_name, xp from public.profiles order by xp desc limit 10`
+    )
+
+    const total = gameStats?.total_games ?? 0
+
+    res.json({
+      totalUsers: totalUsers?.count ?? 0,
+      totalGames: total,
+      wonGames: gameStats?.won_games ?? 0,
+      lostGames: gameStats?.lost_games ?? 0,
+      winRate: total > 0 ? Math.round(((gameStats?.won_games ?? 0) / total) * 100) : 0,
+      gamesByDifficulty: Object.fromEntries(gamesByDifficulty.map(g => [g.difficulty, g.count])),
+      topPlayers,
+    })
+  } catch (err: any) {
+    res.status(500).json({ error: err.message })
   }
-
-  res.json({
-    totalUsers: usersResult.count ?? 0,
-    totalGames: games.length,
-    wonGames: won,
-    lostGames: lost,
-    winRate: games.length > 0 ? Math.round((won / games.length) * 100) : 0,
-    gamesByDifficulty: difficultyCounts,
-    topPlayers: (profilesResult.data ?? []).map(p => ({
-      xp: p.xp,
-    })),
-  })
 })
 
 export default router

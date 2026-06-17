@@ -1,3 +1,8 @@
+import { config } from 'dotenv'
+import { resolve } from 'path'
+
+config({ path: resolve(process.cwd(), '../../.env.local') })
+
 import express from 'express'
 import cors from 'cors'
 import gamesRouter from './routes/games'
@@ -23,8 +28,11 @@ app.use('/api/admin', adminRouter)
 
 const port = process.env.PORT ?? 3001
 
-app.listen(port, () => {
-  console.log(`API running on port ${port}`)
-})
+const isTest = process.env.NODE_ENV === 'test' || process.env.VITEST === 'true'
+if (!isTest) {
+  app.listen(port, () => {
+    console.log(`API running on port ${port}`)
+  })
+}
 
 export default app

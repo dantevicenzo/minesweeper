@@ -1,11 +1,22 @@
 import type { Request, Response, NextFunction } from 'express'
-import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.SUPABASE_URL ?? ''
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY ?? ''
+const authUrl = `${process.env.SUPABASE_URL ?? 'http://127.0.0.1:54321'}/auth/v1`
 
 export interface AuthenticatedRequest extends Request {
   userId?: string
+}
+
+async function getUserFromToken(token: string): Promise<{ id: string } | null> {
+  try {
+    const res = await fetch(`${authUrl}/user`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    if (!res.ok) return null
+    const user = await res.json() as { id: string }
+    return user
+  } catch {
+    return null
+  }
 }
 
 export async function requireAuth(
@@ -20,15 +31,13 @@ export async function requireAuth(
     return
   }
 
-  const supabase = createClient(supabaseUrl, supabaseAnonKey)
-  const { data, error } = await supabase.auth.getUser(token)
-
-  if (error || !data.user) {
+  const user = await getUserFromToken(token)
+  if (!user) {
     res.status(401).json({ error: 'Invalid or expired token' })
     return
   }
 
-  req.userId = data.user.id
+  req.userId = user.id
   next()
 }
 
@@ -40,10 +49,9 @@ export async function optionalAuth(
   const token = req.headers.authorization?.replace('Bearer ', '')
 
   if (token) {
-    const supabase = createClient(supabaseUrl, supabaseAnonKey)
-    const { data } = await supabase.auth.getUser(token)
-    if (data.user) {
-      req.userId = data.user.id
+    const user = await getUserFromToken(token)
+    if (user) {
+      req.userId = user.id
     }
   }
 

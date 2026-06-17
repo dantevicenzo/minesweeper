@@ -1,16 +1,17 @@
-import { createClient } from '@supabase/supabase-js'
+import pkg from 'pg'
 
-const supabaseUrl = process.env.SUPABASE_URL ?? ''
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY ?? ''
+const { Pool } = pkg
 
-function createSupabaseClient() {
-  if (!supabaseUrl || !supabaseServiceKey) {
-    return createClient(
-      supabaseUrl || 'http://localhost:54321',
-      supabaseServiceKey || 'placeholder-key'
-    )
-  }
-  return createClient(supabaseUrl, supabaseServiceKey)
+export const pool = new Pool({
+  connectionString: 'postgresql://postgres:postgres@127.0.0.1:54322/postgres',
+})
+
+export async function query<T = any>(sql: string, params?: any[]): Promise<T[]> {
+  const result = await pool.query(sql, params)
+  return result.rows as T[]
 }
 
-export const supabase = createSupabaseClient()
+export async function queryOne<T = any>(sql: string, params?: any[]): Promise<T | null> {
+  const rows = await query<T>(sql, params)
+  return rows[0] ?? null
+}

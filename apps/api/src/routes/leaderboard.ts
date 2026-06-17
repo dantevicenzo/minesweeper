@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { supabase } from '../utils/supabase'
+import { query, queryOne } from '../utils/supabase'
 import { requireAuth } from '../middleware/auth'
 import type { AuthenticatedRequest } from '../middleware/auth'
 import type { Response } from 'express'
@@ -8,65 +8,70 @@ const router = Router()
 
 router.get('/', async (req, res: Response) => {
   const difficulty = (req.query.difficulty as string) ?? 'easy'
-  const page = Math.max(1, parseInt(req.query.page as string) ?? 1)
-  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) ?? 20))
+  const page = Math.max(1, parseInt(req.query.page as string) || 1)
+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20))
   const offset = (page - 1) * limit
 
-  const { data, error, count } = await supabase
-    .from('leaderboard_entries')
-    .select(`
-      *,
-      profiles!inner(display_name, avatar_url)
-    `, { count: 'exact' })
-    .eq('difficulty', difficulty)
-    .order('duration_ms', { ascending: true })
-    .range(offset, offset + limit - 1)
+  try {
+    const data = await query(
+      `select le.*, p.display_name, p.avatar_url
+       from public.leaderboard_entries le
+       join public.profiles p on p.id = le.user_id
+       where le.difficulty = $1
+       order by le.duration_ms asc
+       limit $2 offset $3`,
+      [difficulty, limit, offset]
+    )
 
-  if (error) {
-    res.status(500).json({ error: error.message })
-    return
+    const countResult = await queryOne<{ count: number }>(
+      `select count(*)::int as count from public.leaderboard_entries where difficulty = $1`,
+      [difficulty]
+    )
+
+    const total = countResult?.count ?? 0
+
+    res.json({
+      data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    })
+  } catch (err: any) {
+    res.status(500).json({ error: err.message })
   }
-
-  res.json({
-    data,
-    pagination: {
-      page,
-      limit,
-      total: count ?? 0,
-      totalPages: count ? Math.ceil(count / limit) : 0,
-    },
-  })
 })
 
 router.get('/me', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   const difficulty = (req.query.difficulty as string) ?? 'easy'
 
-  const { data, error } = await supabase
-    .from('leaderboard_entries')
-    .select('*')
-    .eq('user_id', req.userId)
-    .eq('difficulty', difficulty)
-    .order('duration_ms', { ascending: true })
-    .limit(1)
-    .maybeSingle()
+  try {
+    const data = await queryOne<any>(
+      `select * from public.leaderboard_entries
+       where user_id = $1 and difficulty = $2
+       order by duration_ms asc
+       limit 1`,
+      [req.userId, difficulty]
+    )
 
-  if (error) {
-    res.status(500).json({ error: error.message })
-    return
+    if (!data) {
+      res.status(404).json({ error: 'No entries found' })
+      return
+    }
+
+    const rankResult = await queryOne<{ rank: number }>(
+      `select count(*)::int + 1 as rank
+       from public.leaderboard_entries
+       where difficulty = $1 and duration_ms < $2`,
+      [difficulty, data.duration_ms]
+    )
+
+    res.json({ ...data, rank: rankResult?.rank ?? 1 })
+  } catch (err: any) {
+    res.status(500).json({ error: err.message })
   }
-
-  if (!data) {
-    res.status(404).json({ error: 'No entries found' })
-    return
-  }
-
-  const { count } = await supabase
-    .from('leaderboard_entries')
-    .select('*', { count: 'exact', head: true })
-    .eq('difficulty', difficulty)
-    .lt('duration_ms', data.duration_ms)
-
-  res.json({ ...data, rank: (count ?? 0) + 1 })
 })
 
 export default router

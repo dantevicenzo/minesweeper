@@ -6,6 +6,7 @@
   "main": ".vercel/output/static/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
+    "seed": "tsx src/seed.ts",
     "build": "echo ok",
     "start": "node dist/index.js",
     "lint": "tsc --noEmit",
@@ -14,15 +15,18 @@
   },
   "dependencies": {
     "@minesweeper/engine": "workspace:*",
-    "express": "^5.1.0",
     "@supabase/supabase-js": "^2.49.0",
-    "zod": "^3.24.0",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
+    "express": "^5.1.0",
+    "pg": "^8.21.0",
+    "zod": "^3.24.0"
   },
   "devDependencies": {
-    "@types/express": "^5.0.0",
     "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
     "@types/node": "^22.0.0",
+    "@types/pg": "^8.20.0",
     "tsx": "^4.19.0",
     "typescript": "^5.8.0",
     "vitest": "^3.1.0"

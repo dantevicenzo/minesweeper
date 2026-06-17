@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { supabase } from '../utils/supabase'
+import { query } from '../utils/supabase'
 import { requireAuth } from '../middleware/auth'
 import type { AuthenticatedRequest } from '../middleware/auth'
 import type { Response } from 'express'
@@ -7,44 +7,36 @@ import type { Response } from 'express'
 const router = Router()
 
 router.get('/', async (_req, res: Response) => {
-  const { data, error } = await supabase
-    .from('achievements')
-    .select('*')
-    .order('key')
-
-  if (error) {
-    res.status(500).json({ error: error.message })
-    return
+  try {
+    const data = await query(`select * from public.achievements order by key`)
+    res.json(data)
+  } catch (err: any) {
+    res.status(500).json({ error: err.message })
   }
-
-  res.json(data)
 })
 
 router.get('/me', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
-  const userId = req.userId!
+  try {
+    const all = await query<any>(`select * from public.achievements order by key`)
 
-  const [allResult, earnedResult] = await Promise.all([
-    supabase.from('achievements').select('*').order('key'),
-    supabase
-      .from('user_achievements')
-      .select('achievement_id, unlocked_at')
-      .eq('user_id', userId),
-  ])
+    const earned = await query<{ achievement_id: string; unlocked_at: string }>(
+      `select achievement_id, unlocked_at from public.user_achievements where user_id = $1`,
+      [req.userId]
+    )
 
-  if (allResult.error) {
-    res.status(500).json({ error: allResult.error.message })
-    return
+    const earnedSet = new Set(earned.map(e => e.achievement_id))
+    const earnedMap = new Map(earned.map(e => [e.achievement_id, e.unlocked_at]))
+
+    const data = all.map(a => ({
+      ...a,
+      unlocked: earnedSet.has(a.id),
+      unlockedAt: earnedMap.get(a.id) ?? null,
+    }))
+
+    res.json(data)
+  } catch (err: any) {
+    res.status(500).json({ error: err.message })
   }
-
-  const earned = new Set(earnedResult.data?.map(e => e.achievement_id) ?? [])
-
-  const data = allResult.data.map(a => ({
-    ...a,
-    unlocked: earned.has(a.id),
-    unlockedAt: earnedResult.data?.find(e => e.achievement_id === a.id)?.unlocked_at ?? null,
-  }))
-
-  res.json(data)
 })
 
 export default router

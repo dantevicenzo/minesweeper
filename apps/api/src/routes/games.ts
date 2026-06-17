@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { supabase } from '../utils/supabase'
+import { query, queryOne } from '../utils/supabase'
 import { requireAuth, optionalAuth } from '../middleware/auth'
 import type { AuthenticatedRequest } from '../middleware/auth'
 import type { Response } from 'express'
@@ -14,124 +14,103 @@ router.post('/', requireAuth, async (req: AuthenticatedRequest, res: Response) =
     return
   }
 
-  const { data, error } = await supabase
-    .from('games')
-    .insert({
-      user_id: req.userId,
-      width,
-      height,
-      mine_count: mineCount,
-      difficulty,
-      state,
-    })
-    .select()
-    .single()
-
-  if (error) {
-    res.status(500).json({ error: error.message })
-    return
+  try {
+    const data = await queryOne(
+      `insert into public.games (user_id, width, height, mine_count, difficulty, state)
+       values ($1, $2, $3, $4, $5, $6)
+       returning *`,
+      [req.userId, width, height, mineCount, difficulty, JSON.stringify(state)]
+    )
+    res.status(201).json(data)
+  } catch (err: any) {
+    res.status(500).json({ error: err.message })
   }
-
-  res.status(201).json(data)
 })
 
 router.get('/', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   const status = req.query.status as string | undefined
 
-  let query = supabase
-    .from('games')
-    .select('*')
-    .eq('user_id', req.userId)
-    .order('updated_at', { ascending: false })
-
-  if (status) {
-    query = query.eq('status', status)
+  try {
+    let sql = `select * from public.games where user_id = $1 order by updated_at desc`
+    const params: any[] = [req.userId]
+    if (status) {
+      sql = `select * from public.games where user_id = $1 and status = $2 order by updated_at desc`
+      params.push(status)
+    }
+    const data = await query(sql, params)
+    res.json(data)
+  } catch (err: any) {
+    res.status(500).json({ error: err.message })
   }
-
-  const { data, error } = await query
-
-  if (error) {
-    res.status(500).json({ error: error.message })
-    return
-  }
-
-  res.json(data)
 })
 
 router.get('/:id', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
   const { id } = req.params
 
-  const { data, error } = await supabase
-    .from('games')
-    .select('*')
-    .eq('id', id)
-    .maybeSingle()
+  try {
+    const data = await queryOne(`select * from public.games where id = $1`, [id])
+    if (!data) {
+      res.status(404).json({ error: 'Game not found' })
+      return
+    }
 
-  if (error) {
-    res.status(500).json({ error: error.message })
-    return
+    const game = data as any
+    if (game.user_id && game.user_id !== req.userId) {
+      res.status(403).json({ error: 'Not authorized' })
+      return
+    }
+
+    res.json(data)
+  } catch (err: any) {
+    res.status(500).json({ error: err.message })
   }
-
-  if (!data) {
-    res.status(404).json({ error: 'Game not found' })
-    return
-  }
-
-  if (data.user_id && data.user_id !== req.userId) {
-    res.status(403).json({ error: 'Not authorized' })
-    return
-  }
-
-  res.json(data)
 })
 
 router.put('/:id', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   const { id } = req.params
   const { state, status, completed_at, duration_ms } = req.body
 
-  const update: Record<string, unknown> = {}
-  if (state !== undefined) update.state = state
-  if (status !== undefined) update.status = status
-  if (completed_at !== undefined) update.completed_at = completed_at
-  if (duration_ms !== undefined) update.duration_ms = duration_ms
-  update.updated_at = new Date().toISOString()
+  try {
+    const existing = await queryOne<any>(
+      `select * from public.games where id = $1 and user_id = $2`,
+      [id, req.userId]
+    )
 
-  const { data, error } = await supabase
-    .from('games')
-    .update(update)
-    .eq('id', id)
-    .eq('user_id', req.userId)
-    .select()
-    .single()
+    if (!existing) {
+      res.status(404).json({ error: 'Game not found or not authorized' })
+      return
+    }
 
-  if (error) {
-    res.status(500).json({ error: error.message })
-    return
+    const data = await queryOne(
+      `update public.games set
+        state = $1, status = $2, completed_at = $3, duration_ms = $4, updated_at = now()
+       where id = $5 and user_id = $6
+       returning *`,
+      [
+        state ? JSON.stringify(state) : existing.state,
+        status ?? existing.status,
+        completed_at ?? existing.completed_at,
+        duration_ms ?? existing.duration_ms,
+        id,
+        req.userId,
+      ]
+    )
+
+    res.json(data)
+  } catch (err: any) {
+    res.status(500).json({ error: err.message })
   }
-
-  if (!data) {
-    res.status(404).json({ error: 'Game not found or not authorized' })
-    return
-  }
-
-  res.json(data)
 })
 
 router.delete('/:id', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   const { id } = req.params
 
-  const { error } = await supabase
-    .from('games')
-    .delete()
-    .eq('id', id)
-    .eq('user_id', req.userId)
-
-  if (error) {
-    res.status(500).json({ error: error.message })
-    return
+  try {
+    await query(`delete from public.games where id = $1 and user_id = $2`, [id, req.userId])
+    res.status(204).send()
+  } catch (err: any) {
+    res.status(500).json({ error: err.message })
   }
-
-  res.status(204).send()
 })
 
 export default router

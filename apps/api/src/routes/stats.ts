@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { supabase } from '../utils/supabase'
+import { query, queryOne } from '../utils/supabase'
 import { requireAuth } from '../middleware/auth'
 import type { AuthenticatedRequest } from '../middleware/auth'
 import type { Response } from 'express'
@@ -7,83 +7,78 @@ import type { Response } from 'express'
 const router = Router()
 
 router.get('/me', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
-  const userId = req.userId!
+  try {
+    const profile = await queryOne<any>(
+      `select * from public.profiles where id = $1`,
+      [req.userId]
+    )
 
-  const [gamesResult, profileResult] = await Promise.all([
-    supabase
-      .from('games')
-      .select('status, difficulty, duration_ms')
-      .eq('user_id', userId),
-    supabase
-      .from('profiles')
-      .select('xp, level')
-      .eq('id', userId)
-      .single(),
-  ])
-
-  if (gamesResult.error) {
-    res.status(500).json({ error: gamesResult.error.message })
-    return
-  }
-
-  const games = gamesResult.data
-  const total = games.length
-  const won = games.filter(g => g.status === 'won').length
-  const lost = games.filter(g => g.status === 'lost').length
-
-  const bestTimes: Record<string, number | null> = { easy: null, medium: null, hard: null }
-  for (const g of games) {
-    if (g.status === 'won' && g.duration_ms && g.difficulty in bestTimes) {
-      const diff = g.difficulty as keyof typeof bestTimes
-      if (bestTimes[diff] === null || g.duration_ms < bestTimes[diff]!) {
-        bestTimes[diff] = g.duration_ms
-      }
+    if (!profile) {
+      res.status(404).json({ error: 'Profile not found' })
+      return
     }
-  }
 
-  res.json({
-    total,
-    won,
-    lost,
-    winRate: total > 0 ? Math.round((won / total) * 100) : 0,
-    bestTimes,
-    xp: profileResult.data?.xp ?? 0,
-    level: profileResult.data?.level ?? 1,
-  })
+    const gameStats = await queryOne<any>(
+      `select
+         count(*)::int as total_games,
+         count(*) filter (where status = 'won')::int as wins,
+         count(*) filter (where status = 'lost')::int as losses,
+         coalesce(avg(duration_ms) filter (where status = 'won'), 0)::int as avg_win_time_ms,
+         coalesce(min(duration_ms) filter (where status = 'won'), 0)::int as best_time_ms
+       from public.games where user_id = $1`,
+      [req.userId]
+    )
+
+    const recentGames = await query(
+      `select * from public.games where user_id = $1 order by updated_at desc limit 10`,
+      [req.userId]
+    )
+
+    const xpHistory = await query(
+      `select * from public.xp_events where user_id = $1 order by created_at desc limit 20`,
+      [req.userId]
+    )
+
+    res.json({
+      profile,
+      games: gameStats,
+      recentGames,
+      xpHistory,
+    })
+  } catch (err: any) {
+    res.status(500).json({ error: err.message })
+  }
 })
 
 router.get('/:userId', async (req, res: Response) => {
   const { userId } = req.params
 
-  const { data: games, error } = await supabase
-    .from('games')
-    .select('status, difficulty, duration_ms')
-    .eq('user_id', userId)
+  try {
+    const profile = await queryOne<any>(
+      `select id, display_name, avatar_url, xp, level from public.profiles where id = $1`,
+      [userId]
+    )
 
-  if (error) {
-    res.status(500).json({ error: error.message })
-    return
-  }
-
-  const total = games?.length ?? 0
-  const won = games?.filter(g => g.status === 'won').length ?? 0
-
-  const bestTimes: Record<string, number | null> = { easy: null, medium: null, hard: null }
-  for (const g of games ?? []) {
-    if (g.status === 'won' && g.duration_ms && g.difficulty in bestTimes) {
-      const diff = g.difficulty as keyof typeof bestTimes
-      if (bestTimes[diff] === null || g.duration_ms < bestTimes[diff]!) {
-        bestTimes[diff] = g.duration_ms
-      }
+    if (!profile) {
+      res.status(404).json({ error: 'Profile not found' })
+      return
     }
-  }
 
-  res.json({
-    total,
-    won,
-    winRate: total > 0 ? Math.round((won / total) * 100) : 0,
-    bestTimes,
-  })
+    const gameStats = await queryOne<any>(
+      `select
+         count(*)::int as total_games,
+         count(*) filter (where status = 'won')::int as wins,
+         count(*) filter (where status = 'lost')::int as losses,
+         coalesce(avg(duration_ms) filter (where status = 'won'), 0)::int as avg_win_time_ms,
+         coalesce(min(duration_ms) filter (where status = 'won'), 0)::int as best_time_ms
+       from public.games where user_id = $1 and status != 'in_progress'`,
+      [userId]
+    )
+
+    res.json({ profile, games: gameStats })
+  } catch (err: any) {
+    res.status(500).json({ error: err.message })
+  }
 })
 
 export default router
