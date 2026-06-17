@@ -3,7 +3,7 @@ import pkg from 'pg'
 const { Pool } = pkg
 
 export const pool = new Pool({
-  connectionString: 'postgresql://postgres:postgres@127.0.0.1:54322/postgres',
+  connectionString: process.env.SUPABASE_DB_URL ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres',
 })
 
 export async function query<T = any>(sql: string, params?: any[]): Promise<T[]> {

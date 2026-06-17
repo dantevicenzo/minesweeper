@@ -1,9 +1,10 @@
 {
+  "version": 2,
   "rewrites": [
-    { "source": "/(.*)", "destination": "/api/index" }
+    { "source": "/(.*)", "destination": "/api/bundle" }
   ],
   "functions": {
-    "api/index.ts": {
+    "api/bundle.mjs": {
       "memory": 256,
       "maxDuration": 10
     }

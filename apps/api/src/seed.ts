@@ -8,7 +8,7 @@ const { Pool } = pkg
 
 async function seed() {
   const pool = new Pool({
-    connectionString: 'postgresql://postgres:postgres@127.0.0.1:54322/postgres',
+    connectionString: process.env.SUPABASE_DB_URL ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres',
   })
 
   console.log('Seeding database...')
@@ -33,7 +33,7 @@ async function seed() {
   )
 
   if (proExists.length === 0) {
-    const adminUrl = 'http://127.0.0.1:54321'
+    const adminUrl = process.env.SUPABASE_URL ?? 'http://127.0.0.1:54321'
 
     const res = await fetch(`${adminUrl}/auth/v1/admin/users`, {
       method: 'POST',

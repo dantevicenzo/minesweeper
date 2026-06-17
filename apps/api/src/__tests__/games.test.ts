@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest'
 import { createServer } from 'node:http'
 import type { Server } from 'node:http'
 
-vi.mock('../utils/supabase', () => {
+vi.mock('../../api/utils/supabase', () => {
   const mockQuery = {
     select: vi.fn().mockReturnThis(),
     insert: vi.fn().mockReturnThis(),
@@ -23,7 +23,7 @@ vi.mock('../utils/supabase', () => {
 })
 
 async function createTestServer() {
-  const { default: app } = await import('../index')
+  const { default: app } = await import('../../api/index')
   return new Promise<{ server: Server; port: number; url: string }>((resolve, reject) => {
     const server = createServer(app)
     server.listen(0, () => {

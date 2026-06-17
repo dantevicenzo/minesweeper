@@ -1,4 +1,4 @@
-import type { Request, Response, NextFunction } from 'express'
+import type { Request, NextFunction } from 'express'
 
 const authUrl = `${process.env.SUPABASE_URL ?? 'http://127.0.0.1:54321'}/auth/v1`
 
@@ -8,11 +8,11 @@ export interface AuthenticatedRequest extends Request {
 
 async function getUserFromToken(token: string): Promise<{ id: string } | null> {
   try {
-    const res = await fetch(`${authUrl}/user`, {
+    const resp = await fetch(`${authUrl}/user`, {
       headers: { Authorization: `Bearer ${token}` },
     })
-    if (!res.ok) return null
-    const user = await res.json() as { id: string }
+    if (!resp.ok) return null
+    const user = await resp.json() as { id: string }
     return user
   } catch {
     return null
@@ -21,7 +21,7 @@ async function getUserFromToken(token: string): Promise<{ id: string } | null> {
 
 export async function requireAuth(
   req: AuthenticatedRequest,
-  res: Response,
+  res: import('express').Response,
   next: NextFunction
 ): Promise<void> {
   const token = req.headers.authorization?.replace('Bearer ', '')
@@ -43,7 +43,7 @@ export async function requireAuth(
 
 export async function optionalAuth(
   req: AuthenticatedRequest,
-  _res: Response,
+  _res: import('express').Response,
   next: NextFunction
 ): Promise<void> {
   const token = req.headers.authorization?.replace('Bearer ', '')

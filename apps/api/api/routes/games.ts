@@ -144,7 +144,7 @@ router.put('/:id', requireAuth, async (req: AuthenticatedRequest, res: Response)
         .length
 
       await processGameCompletion({
-        id,
+        id: id as string,
         userId: req.userId!,
         difficulty: existing.difficulty,
         durationMs: duration_ms ?? existing.duration_ms,

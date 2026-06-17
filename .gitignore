@@ -7,6 +7,7 @@ dist/
 .env.local
 .DS_Store
 *.tsbuildinfo
+apps/api/api/bundle.mjs
 
 
 ARCHITECTURE.md
@@ -16,4 +17,6 @@ FOLDER_STRUCTURE.md
 SPEC.md
 AGENTS.md
 CLAUDE.md
+DESIGN.md
 Prompts/*
+.vercel
