@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.next/
+*.local
+.env
+.env.local
+.DS_Store
+
+
+ARCHITECTURE.md
+DEVELOPMENT_GUIDELINES.md
+STYLING_GUIDELINES.md
+FOLDER_STRUCTURE.md
+SPEC.md
+AGENTS.md
+CLAUDE.md
+Prompts/*
