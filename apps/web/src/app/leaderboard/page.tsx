@@ -1,8 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { api } from '../../lib/api'
 import { useI18n } from '../../contexts/I18nContext'
+import styles from '../page.module.css'
 
 interface Entry {
   id: string
@@ -20,29 +22,34 @@ export default function LeaderboardPage() {
 
   useEffect(() => {
     setLoading(true)
-    api.leaderboard.list(difficulty).then(data => {
-      setEntries((data as { data: Entry[] }).data)
-      setLoading(false)
-    }).catch(() => setLoading(false))
+    api.leaderboard.list(difficulty)
+      .then(data => setEntries((data as { data: Entry[] }).data))
+      .catch(() => {})
+      .finally(() => setLoading(false))
   }, [difficulty])
 
   return (
-    <main>
+    <main className={styles.page}>
+      <Link href="/" className={styles.backLink}>{'< Back'}</Link>
       <h1>{t.leaderboard.title}</h1>
       <div>
         <label>{t.leaderboard.difficulty}</label>
-        <select value={difficulty} onChange={e => setDifficulty(e.target.value)}>
+        <select
+          className={styles.select}
+          value={difficulty}
+          onChange={e => setDifficulty(e.target.value)}
+        >
           <option value="easy">Easy</option>
           <option value="medium">Medium</option>
           <option value="hard">Hard</option>
         </select>
       </div>
       {loading ? (
-        <p>Loading...</p>
+        <p className={styles.empty}>Loading...</p>
       ) : entries.length === 0 ? (
-        <p>{t.leaderboard.noEntries}</p>
+        <p className={styles.empty}>{t.leaderboard.noEntries}</p>
       ) : (
-        <table>
+        <table className={styles.table}>
           <thead>
             <tr>
               <th>{t.leaderboard.rank}</th>

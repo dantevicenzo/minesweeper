@@ -1,9 +1,11 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '../../contexts/AuthContext'
 import { useI18n } from '../../contexts/I18nContext'
+import styles from '../page.module.css'
 
 export default function AuthPage() {
   const { t } = useI18n()
@@ -30,10 +32,12 @@ export default function AuthPage() {
   }
 
   return (
-    <main>
+    <main className={styles.page}>
+      <Link href="/" className={styles.backLink}>{'< Back'}</Link>
       <h1>{isSignUp ? t.auth.signUp : t.auth.signIn}</h1>
-      <form onSubmit={handleSubmit}>
+      <form className={styles.form} onSubmit={handleSubmit}>
         <input
+          className={styles.input}
           type="email"
           placeholder={t.auth.email}
           value={email}
@@ -41,26 +45,31 @@ export default function AuthPage() {
           required
         />
         <input
+          className={styles.input}
           type="password"
           placeholder={t.auth.password}
           value={password}
           onChange={e => setPassword(e.target.value)}
           required
         />
-        <button type="submit">
+        <button className={styles.submitBtn} type="submit">
           {isSignUp ? t.auth.signUp : t.auth.signIn}
         </button>
       </form>
-      {error && <p>{error}</p>}
-      <hr />
-      <button onClick={() => signInWithProvider('google')}>
+      {error && <p className={styles.error}>{error}</p>}
+      <hr className={styles.divider} />
+      <button className={styles.oauthBtn} onClick={() => signInWithProvider('google')}>
         {t.auth.google}
       </button>
-      <button onClick={() => signInWithProvider('github')}>
+      <button className={styles.oauthBtn} onClick={() => signInWithProvider('github')}>
         {t.auth.github}
       </button>
       <p>
-        <button onClick={() => setIsSignUp(!isSignUp)}>
+        <button
+          className={styles.navBtn}
+          style={{ marginTop: 16, background: 'transparent', border: 'none', color: '#2563eb' }}
+          onClick={() => setIsSignUp(!isSignUp)}
+        >
           {isSignUp ? t.auth.hasAccount : t.auth.noAccount}
         </button>
       </p>
