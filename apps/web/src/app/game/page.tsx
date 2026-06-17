@@ -23,7 +23,6 @@ export default function GamePage() {
         <label>{t.leaderboard.difficulty}</label>
         <select
           className={styles.select}
-          style={{ marginLeft: 8 }}
           value={difficulty.key}
           onChange={e => {
             const diff = DIFFICULTIES.find(d => d.key === e.target.value)
@@ -37,7 +36,7 @@ export default function GamePage() {
           ))}
         </select>
       </div>
-      <div style={{ marginTop: 16 }}>
+      <div className={styles.gameArea}>
         <GameBoard
           key={difficulty.key}
           width={difficulty.width}

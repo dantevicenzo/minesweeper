@@ -36,7 +36,7 @@
 }
 
 .navBtn:hover {
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: var(--shadow-md, 0 4px 6px rgba(0, 0, 0, 0.1));
   transform: translateY(-1px);
 }
 
@@ -113,7 +113,7 @@
 }
 
 .oauthBtn:hover {
-  background: #f5f5f5;
+  background: var(--color-bg, #f5f5f5);
 }
 
 .error {
@@ -132,15 +132,15 @@
 .statGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 12px;
-  margin: 16px 0;
+  gap: var(--space-3, 12px);
+  margin: var(--space-4, 16px) 0;
 }
 
 .statCard {
-  padding: 16px;
+  padding: var(--space-4, 16px);
   border: 1px solid var(--color-border, #d4d4d4);
-  border-radius: 8px;
-  background: white;
+  border-radius: var(--radius-md, 8px);
+  background: var(--color-surface, white);
   text-align: center;
 }
 
@@ -151,9 +151,9 @@
 }
 
 .statLabel {
-  font-size: 12px;
-  color: #666;
-  margin-top: 4px;
+  font-size: var(--font-size-xs, 12px);
+  color: var(--color-text-secondary, #666);
+  margin-top: var(--space-1, 4px);
 }
 
 .table {
@@ -172,11 +172,50 @@
 
 .table th {
   font-weight: 600;
-  color: #666;
+  color: var(--color-text-secondary, #666);
 }
 
 .empty {
   text-align: center;
-  color: #999;
-  padding: 32px;
+  color: var(--color-text-secondary, #999);
+  padding: var(--space-8, 32px);
+}
+
+.toggleBtn {
+  margin-top: 16px;
+  background: transparent;
+  border: none;
+  color: var(--color-primary, #2563eb);
+  cursor: pointer;
+  font-size: var(--font-size-sm, 14px);
+}
+
+.toggleBtn:hover {
+  text-decoration: underline;
+}
+
+.gameArea {
+  margin-top: var(--space-4, 16px);
+}
+
+.emailLabel {
+  color: var(--color-text-secondary, #666);
+  margin-bottom: var(--space-4, 16px);
+  font-size: var(--font-size-sm, 14px);
+}
+
+.sectionTitle {
+  margin-top: var(--space-6, 24px);
+  font-size: 18px;
+}
+
+.signOutBtn {
+  margin-top: var(--space-6, 24px);
+  background: var(--color-text-secondary, #666);
+  color: white;
+  border: none;
+  padding: var(--space-2, 8px) var(--space-4, 16px);
+  border-radius: var(--radius-sm, 4px);
+  cursor: pointer;
+  font-size: var(--font-size-sm, 14px);
 }

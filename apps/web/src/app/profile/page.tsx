@@ -38,7 +38,7 @@ export default function ProfilePage() {
     <main className={styles.page}>
       <Link href="/" className={styles.backLink}>{'< Back'}</Link>
       <h1>{t.profile.title}</h1>
-      <p style={{ color: 'var(--color-text-secondary, #666)', marginBottom: 16 }}>{user.email}</p>
+      <p className={styles.emailLabel}>{user.email}</p>
       <div className={styles.statGrid}>
         <div className={styles.statCard}>
           <div className={styles.statValue}>{profile.level}</div>
@@ -57,10 +57,9 @@ export default function ProfilePage() {
           <div className={styles.statLabel}>{t.profile.winRate}</div>
         </div>
       </div>
-      <h2 style={{ marginTop: 24, fontSize: 18 }}>{t.profile.achievements}</h2>
+      <h2 className={styles.sectionTitle}>{t.profile.achievements}</h2>
       <button
-        className={styles.submitBtn}
-        style={{ marginTop: 24, background: 'var(--color-text-secondary, #666)' }}
+        className={styles.signOutBtn}
         onClick={() => signOut()}
       >
         {t.auth.signOut}

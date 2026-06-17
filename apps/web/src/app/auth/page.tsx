@@ -66,8 +66,7 @@ export default function AuthPage() {
       </button>
       <p>
         <button
-          className={styles.navBtn}
-          style={{ marginTop: 16, background: 'transparent', border: 'none', color: '#2563eb' }}
+          className={styles.toggleBtn}
           onClick={() => setIsSignUp(!isSignUp)}
         >
           {isSignUp ? t.auth.hasAccount : t.auth.noAccount}
