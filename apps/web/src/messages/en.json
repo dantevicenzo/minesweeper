@@ -1,0 +1,64 @@
+{
+  "home": {
+    "title": "Minesweeper",
+    "newGame": "New Game",
+    "continue": "Continue",
+    "leaderboard": "Leaderboard",
+    "profile": "Profile",
+    "settings": "Settings"
+  },
+  "game": {
+    "mines": "Mines",
+    "time": "Time",
+    "win": "You Win!",
+    "lose": "Game Over",
+    "newGame": "New Game",
+    "back": "Back to Menu",
+    "difficulty": {
+      "easy": "Easy",
+      "medium": "Medium",
+      "hard": "Hard",
+      "custom": "Custom"
+    }
+  },
+  "leaderboard": {
+    "title": "Leaderboard",
+    "rank": "Rank",
+    "player": "Player",
+    "time": "Time",
+    "date": "Date",
+    "noEntries": "No entries yet",
+    "difficulty": "Difficulty"
+  },
+  "profile": {
+    "title": "Profile",
+    "stats": "Statistics",
+    "gamesPlayed": "Games Played",
+    "won": "Won",
+    "lost": "Lost",
+    "winRate": "Win Rate",
+    "bestTime": "Best Time",
+    "xp": "XP",
+    "level": "Level",
+    "achievements": "Achievements"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signOut": "Sign Out",
+    "email": "Email",
+    "password": "Password",
+    "google": "Continue with Google",
+    "apple": "Continue with Apple",
+    "github": "Continue with GitHub",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark"
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "home": {
+    "title": "Campo Minado",
+    "newGame": "Novo Jogo",
+    "continue": "Continuar",
+    "leaderboard": "Ranking",
+    "profile": "Perfil",
+    "settings": "Configurações"
+  },
+  "game": {
+    "mines": "Minas",
+    "time": "Tempo",
+    "win": "Você Venceu!",
+    "lose": "Fim de Jogo",
+    "newGame": "Novo Jogo",
+    "back": "Voltar ao Menu",
+    "difficulty": {
+      "easy": "Fácil",
+      "medium": "Médio",
+      "hard": "Difícil",
+      "custom": "Personalizado"
+    }
+  },
+  "leaderboard": {
+    "title": "Ranking",
+    "rank": "Posição",
+    "player": "Jogador",
+    "time": "Tempo",
+    "date": "Data",
+    "noEntries": "Nenhuma entrada ainda",
+    "difficulty": "Dificuldade"
+  },
+  "profile": {
+    "title": "Perfil",
+    "stats": "Estatísticas",
+    "gamesPlayed": "Partidas Jogadas",
+    "won": "Vitórias",
+    "lost": "Derrotas",
+    "winRate": "Taxa de Vitórias",
+    "bestTime": "Melhor Tempo",
+    "xp": "EXP",
+    "level": "Nível",
+    "achievements": "Conquistas"
+  },
+  "auth": {
+    "signIn": "Entrar",
+    "signUp": "Cadastrar",
+    "signOut": "Sair",
+    "email": "Email",
+    "password": "Senha",
+    "google": "Continuar com Google",
+    "apple": "Continuar com Apple",
+    "github": "Continuar com GitHub",
+    "noAccount": "Não tem conta?",
+    "hasAccount": "Já tem conta?"
+  },
+  "settings": {
+    "title": "Configurações",
+    "language": "Idioma",
+    "theme": "Tema",
+    "light": "Claro",
+    "dark": "Escuro"
+  }
+}

@@ -2,6 +2,7 @@
 
 import { useGame } from '@minesweeper/hooks'
 import { CellView } from './CellView'
+import { useI18n } from '../contexts/I18nContext'
 
 interface GameBoardProps {
   width: number
@@ -10,20 +11,25 @@ interface GameBoardProps {
 }
 
 export function GameBoard({ width, height, mineCount }: GameBoardProps) {
+  const { t } = useI18n()
   const { game, dispatch, reset } = useGame(width, height, mineCount)
 
   return (
     <div>
       <div>
-        <span>Mines: {game.mineCount - game.flagCount}</span>
-        <span>Status: {game.status}</span>
-        <button onClick={reset}>New Game</button>
+        <span>{t.game.mines}: {game.mineCount - game.flagCount}</span>
+        {game.status !== 'idle' && (
+          <span> | {t.game.time}: {Math.floor((Date.now() - (game.startTime ?? Date.now())) / 1000)}s</span>
+        )}
+        <span> | {game.status === 'won' ? t.game.win : game.status === 'lost' ? t.game.lose : ''}</span>
+        <button onClick={reset}>{t.game.newGame}</button>
       </div>
       <div
         style={{
           display: 'grid',
           gridTemplateColumns: `repeat(${width}, 32px)`,
           gap: '1px',
+          marginTop: 8,
         }}
       >
         {game.board.map((row, r) =>
