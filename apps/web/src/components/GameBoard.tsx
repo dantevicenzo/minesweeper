@@ -3,6 +3,7 @@
 import { useApiGame } from '../hooks/useApiGame'
 import { CellView } from './CellView'
 import { useI18n } from '../contexts/I18nContext'
+import type { GameState } from '@minesweeper/engine'
 import styles from './GameBoard.module.css'
 
 interface GameBoardProps {
@@ -10,11 +11,12 @@ interface GameBoardProps {
   height: number
   mineCount: number
   difficulty?: string
+  initialState?: Partial<GameState>
 }
 
-export function GameBoard({ width, height, mineCount, difficulty = 'easy' }: GameBoardProps) {
+export function GameBoard({ width, height, mineCount, difficulty = 'easy', initialState }: GameBoardProps) {
   const { t } = useI18n()
-  const { game, dispatch, reset } = useApiGame(width, height, mineCount, difficulty)
+  const { game, dispatch, reset } = useApiGame(width, height, mineCount, difficulty, initialState)
 
   const statusText =
     game.status === 'won' ? t.game.win

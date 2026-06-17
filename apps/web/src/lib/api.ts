@@ -2,24 +2,43 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const supabase = (await import('./supabase')).supabase
-  const token = (await supabase.auth.getSession()).data.session?.access_token
+  const session = await supabase.auth.getSession()
+  const token = session.data.session?.access_token
 
-  const res = await fetch(`${API_URL}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  })
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  if (token) headers['Authorization'] = `Bearer ${token}`
 
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}))
-    throw new Error(body.error ?? `HTTP ${res.status}`)
+  if (typeof navigator !== 'undefined' && !navigator.onLine) {
+    const { enqueue } = await import('./sync')
+    enqueue({
+      method: options?.method ?? 'GET',
+      path,
+      body: options?.body ? JSON.parse(options.body as string) : undefined,
+    })
+    throw new Error('offline')
   }
 
-  if (res.status === 204) return undefined as T
-  return res.json()
+  try {
+    const res = await fetch(`${API_URL}${path}`, { ...options, headers })
+
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}))
+      throw new Error(body.error ?? `HTTP ${res.status}`)
+    }
+
+    if (res.status === 204) return undefined as T
+    return res.json()
+  } catch (err) {
+    if (err instanceof TypeError && err.message === 'Failed to fetch') {
+      const { enqueue } = await import('./sync')
+      enqueue({
+        method: options?.method ?? 'GET',
+        path,
+        body: options?.body ? JSON.parse(options.body as string) : undefined,
+      })
+    }
+    throw err
+  }
 }
 
 export const api = {

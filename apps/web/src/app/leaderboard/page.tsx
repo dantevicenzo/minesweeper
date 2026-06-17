@@ -20,12 +20,14 @@ export default function LeaderboardPage() {
   const [entries, setEntries] = useState<Entry[]>([])
   const [difficulty, setDifficulty] = useState('easy')
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
 
   useEffect(() => {
     setLoading(true)
+    setError(false)
     api.leaderboard.list(difficulty)
       .then(data => setEntries((data as { data: Entry[] }).data))
-      .catch(() => {})
+      .catch(() => setError(true))
       .finally(() => setLoading(false))
   }, [difficulty])
 
@@ -47,6 +49,8 @@ export default function LeaderboardPage() {
       </div>
       {loading ? (
         <p className={styles.empty}>Loading...</p>
+      ) : error ? (
+        <p className={styles.error}>Failed to load leaderboard</p>
       ) : entries.length === 0 ? (
         <p className={styles.empty}>{t.leaderboard.noEntries}</p>
       ) : (

@@ -35,8 +35,12 @@ export default function ProfilePage() {
       router.push('/auth')
       return
     }
-    api.stats.me().then(d => setData(d as ProfileData)).catch(() => {})
-    api.achievements.me().then(d => setAchievements(d as Achievement[])).catch(() => {})
+    api.stats.me()
+      .then(d => setData(d as ProfileData))
+      .catch(err => console.error('[Profile] Failed to load stats:', err))
+    api.achievements.me()
+      .then(d => setAchievements(d as Achievement[]))
+      .catch(err => console.error('[Profile] Failed to load achievements:', err))
   }, [user, router])
 
   if (!user || !data) return null
