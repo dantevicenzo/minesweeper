@@ -1,0 +1,44 @@
+.container {
+  display: inline-block;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.status {
+  font-weight: 600;
+}
+
+.win {
+  color: #16a34a;
+}
+
+.lose {
+  color: #dc2626;
+}
+
+.grid {
+  display: grid;
+  gap: 1px;
+  background-color: #bbb;
+  border: 2px solid #999;
+}
+
+.newGameBtn {
+  padding: 4px 12px;
+  font-size: 13px;
+  border: 1px solid #999;
+  border-radius: 4px;
+  background: #e0e0e0;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+.newGameBtn:hover {
+  background: #d0d0d0;
+}

@@ -3,31 +3,32 @@
 import Link from 'next/link'
 import { useAuth } from '../contexts/AuthContext'
 import { useI18n } from '../contexts/I18nContext'
+import styles from './page.module.css'
 
 export default function HomePage() {
   const { t } = useI18n()
   const { user } = useAuth()
 
   return (
-    <main>
-      <h1>{t.home.title}</h1>
-      <nav>
-        <Link href="/game">
-          <button>{t.home.newGame}</button>
+    <main className={styles.container}>
+      <h1 className={styles.title}>{t.home.title}</h1>
+      <nav className={styles.nav}>
+        <Link href="/game" className={styles.navBtn}>
+          {t.home.newGame}
         </Link>
-        <Link href="/leaderboard">
-          <button>{t.home.leaderboard}</button>
+        <Link href="/leaderboard" className={styles.navBtn}>
+          {t.home.leaderboard}
         </Link>
-        <Link href="/profile">
-          <button>{t.home.profile}</button>
+        <Link href="/profile" className={styles.navBtn}>
+          {t.home.profile}
         </Link>
-        <Link href="/settings">
-          <button>{t.home.settings}</button>
+        <Link href="/settings" className={styles.navBtn}>
+          {t.home.settings}
         </Link>
       </nav>
       {!user && (
-        <Link href="/auth">
-          <button>{t.auth.signIn}</button>
+        <Link href="/auth" className={`${styles.navBtn} ${styles.authBtn}`}>
+          {t.auth.signIn}
         </Link>
       )}
     </main>

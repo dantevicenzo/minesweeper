@@ -1,0 +1,34 @@
+.cell {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #999;
+  font-weight: 700;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background-color 0.1s;
+}
+
+.hidden {
+  background-color: #c0c0c0;
+  cursor: pointer;
+}
+
+.hidden:hover {
+  background-color: #d0d0d0;
+}
+
+.revealed {
+  background-color: #e0e0e0;
+  cursor: default;
+}
+
+.flagged {
+  color: #dc2626;
+}
+
+.mine {
+  color: #1a1a1a;
+}

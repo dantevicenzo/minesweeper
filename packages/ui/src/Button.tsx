@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
+import styles from './Button.module.css'
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'ghost'
@@ -13,22 +14,18 @@ export function Button({
   children,
   ...props
 }: ButtonProps) {
+  const classes = [
+    styles.btn,
+    styles[variant],
+    styles[size],
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ')
+
   return (
-    <button
-      className={`${styles.base} ${styles[variant]} ${styles[size]} ${className}`}
-      {...props}
-    >
+    <button className={classes} {...props}>
       {children}
     </button>
   )
-}
-
-const styles = {
-  base: 'btn',
-  primary: 'btn--primary',
-  secondary: 'btn--secondary',
-  ghost: 'btn--ghost',
-  sm: 'btn--sm',
-  md: 'btn--md',
-  lg: 'btn--lg',
 }

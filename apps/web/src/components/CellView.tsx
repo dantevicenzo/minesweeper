@@ -2,6 +2,7 @@
 
 import type { Cell } from '@minesweeper/engine'
 import type { MouseEvent } from 'react'
+import styles from './CellView.module.css'
 
 interface CellViewProps {
   cell: Cell
@@ -31,41 +32,31 @@ export function CellView({ cell, onLeftClick, onRightClick, onChordClick }: Cell
   }
 
   let content: string | number = ''
-  let bg = '#c0c0c0'
-  let color = '#000'
+  let color: string | undefined
+  let className = styles.cell
 
   if (cell.isRevealed) {
-    bg = '#e0e0e0'
+    className += ` ${styles.revealed}`
     if (cell.hasMine) {
       content = '*'
-      color = '#000'
+      className += ` ${styles.mine}`
     } else if (cell.adjacentMines > 0) {
       content = cell.adjacentMines
-      color = numberColors[cell.adjacentMines] ?? '#000'
+      color = numberColors[cell.adjacentMines]
     }
   } else if (cell.isFlagged) {
+    className += ` ${styles.hidden} ${styles.flagged}`
     content = 'F'
-    color = '#dc2626'
+  } else {
+    className += ` ${styles.hidden}`
   }
 
   return (
     <button
+      className={className}
       onClick={handleClick}
       onContextMenu={onRightClick}
-      style={{
-        width: 32,
-        height: 32,
-        backgroundColor: bg,
-        color,
-        border: '1px solid #999',
-        fontWeight: 700,
-        fontSize: 14,
-        cursor: cell.isRevealed ? 'default' : 'pointer',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 0,
-      }}
+      style={color ? { color } : undefined}
       aria-label={
         cell.isRevealed
           ? cell.hasMine

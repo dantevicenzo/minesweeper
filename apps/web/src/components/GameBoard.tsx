@@ -3,6 +3,7 @@
 import { useApiGame } from '../hooks/useApiGame'
 import { CellView } from './CellView'
 import { useI18n } from '../contexts/I18nContext'
+import styles from './GameBoard.module.css'
 
 interface GameBoardProps {
   width: number
@@ -15,22 +16,34 @@ export function GameBoard({ width, height, mineCount, difficulty = 'easy' }: Gam
   const { t } = useI18n()
   const { game, dispatch, reset } = useApiGame(width, height, mineCount, difficulty)
 
+  const statusText =
+    game.status === 'won' ? t.game.win
+    : game.status === 'lost' ? t.game.lose
+    : ''
+
+  const statusClass =
+    game.status === 'won' ? styles.win
+    : game.status === 'lost' ? styles.lose
+    : ''
+
   return (
-    <div>
-      <div>
+    <div className={styles.container}>
+      <div className={styles.header}>
         <span>{t.game.mines}: {game.mineCount - game.flagCount}</span>
         {game.status !== 'idle' && (
-          <span> | {t.game.time}: {Math.floor((Date.now() - (game.startTime ?? Date.now())) / 1000)}s</span>
+          <span>
+            {t.game.time}: {Math.floor((Date.now() - (game.startTime ?? Date.now())) / 1000)}s
+          </span>
         )}
-        <span> | {game.status === 'won' ? t.game.win : game.status === 'lost' ? t.game.lose : ''}</span>
-        <button onClick={reset}>{t.game.newGame}</button>
+        <span className={`${styles.status} ${statusClass}`}>{statusText}</span>
+        <button className={styles.newGameBtn} onClick={reset}>
+          {t.game.newGame}
+        </button>
       </div>
       <div
+        className={styles.grid}
         style={{
-          display: 'grid',
           gridTemplateColumns: `repeat(${width}, 32px)`,
-          gap: '1px',
-          marginTop: 8,
         }}
       >
         {game.board.map((row, r) =>
