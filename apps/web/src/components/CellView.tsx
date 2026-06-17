@@ -11,15 +11,15 @@ interface CellViewProps {
   onChordClick: () => void
 }
 
-const numberColors: Record<number, string> = {
-  1: '#0000ff',
-  2: '#008000',
-  3: '#ff0000',
-  4: '#000080',
-  5: '#800000',
-  6: '#008080',
-  7: '#000000',
-  8: '#808080',
+const numberClass: Record<number, string> = {
+  1: styles.n1,
+  2: styles.n2,
+  3: styles.n3,
+  4: styles.n4,
+  5: styles.n5,
+  6: styles.n6,
+  7: styles.n7,
+  8: styles.n8,
 }
 
 export function CellView({ cell, onLeftClick, onRightClick, onChordClick }: CellViewProps) {
@@ -32,7 +32,6 @@ export function CellView({ cell, onLeftClick, onRightClick, onChordClick }: Cell
   }
 
   let content: string | number = ''
-  let color: string | undefined
   let className = styles.cell
 
   if (cell.isRevealed) {
@@ -42,7 +41,7 @@ export function CellView({ cell, onLeftClick, onRightClick, onChordClick }: Cell
       className += ` ${styles.mine}`
     } else if (cell.adjacentMines > 0) {
       content = cell.adjacentMines
-      color = numberColors[cell.adjacentMines]
+      className += ` ${numberClass[cell.adjacentMines] ?? ''}`
     }
   } else if (cell.isFlagged) {
     className += ` ${styles.hidden} ${styles.flagged}`
@@ -53,10 +52,9 @@ export function CellView({ cell, onLeftClick, onRightClick, onChordClick }: Cell
 
   return (
     <button
-      className={className}
+      className={className.trim()}
       onClick={handleClick}
       onContextMenu={onRightClick}
-      style={color ? { color } : undefined}
       aria-label={
         cell.isRevealed
           ? cell.hasMine

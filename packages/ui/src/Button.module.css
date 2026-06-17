@@ -22,12 +22,12 @@
 }
 
 .secondary {
-  background: #e0e0e0;
+  background: var(--color-bg-secondary, #e0e0e0);
   color: var(--color-text, #1a1a1a);
 }
 
 .secondary:hover:not(:disabled) {
-  background: #d0d0d0;
+  background: var(--color-bg, #d0d0d0);
 }
 
 .ghost {
@@ -41,16 +41,16 @@
 }
 
 .sm {
-  padding: 4px 8px;
-  font-size: 12px;
+  padding: var(--space-1, 4px) var(--space-2, 8px);
+  font-size: var(--font-size-xs, 12px);
 }
 
 .md {
-  padding: 8px 16px;
-  font-size: 14px;
+  padding: var(--space-2, 8px) var(--space-4, 16px);
+  font-size: var(--font-size-sm, 14px);
 }
 
 .lg {
-  padding: 12px 24px;
-  font-size: 16px;
+  padding: var(--space-3, 12px) var(--space-6, 24px);
+  font-size: var(--font-size-md, 16px);
 }

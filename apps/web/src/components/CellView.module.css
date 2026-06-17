@@ -1,7 +1,7 @@
 .cell {
   width: 32px;
   height: 32px;
-  border: 1px solid #999;
+  border: 1px solid var(--color-border, #999);
   font-weight: 700;
   font-size: 14px;
   display: flex;
@@ -12,23 +12,32 @@
 }
 
 .hidden {
-  background-color: #c0c0c0;
+  background-color: var(--color-cell-hidden, #c0c0c0);
   cursor: pointer;
 }
 
 .hidden:hover {
-  background-color: #d0d0d0;
+  background-color: var(--color-bg-secondary, #d0d0d0);
 }
 
 .revealed {
-  background-color: #e0e0e0;
+  background-color: var(--color-cell-revealed, #e0e0e0);
   cursor: default;
 }
 
 .flagged {
-  color: #dc2626;
+  color: var(--color-flag, #dc2626);
 }
 
 .mine {
-  color: #1a1a1a;
+  color: var(--color-mine, #1a1a1a);
 }
+
+.n1 { color: var(--color-number-1, #0000ff); }
+.n2 { color: var(--color-number-2, #008000); }
+.n3 { color: var(--color-number-3, #ff0000); }
+.n4 { color: var(--color-number-4, #000080); }
+.n5 { color: var(--color-number-5, #800000); }
+.n6 { color: var(--color-number-6, #008080); }
+.n7 { color: var(--color-number-7, #000000); }
+.n8 { color: var(--color-number-8, #808080); }
