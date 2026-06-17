@@ -1,0 +1,10 @@
+{
+  "name": "@minesweeper/design-tokens",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./src/index.css",
+  "scripts": {
+    "lint": "echo ok"
+  }
+}

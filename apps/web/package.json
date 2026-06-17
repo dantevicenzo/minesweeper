@@ -1,0 +1,29 @@
+{
+  "name": "@minesweeper/web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "^15.3.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "@minesweeper/engine": "workspace:*",
+    "@minesweeper/hooks": "workspace:*",
+    "@minesweeper/ui": "workspace:*",
+    "@minesweeper/types": "workspace:*",
+    "@minesweeper/utils": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.8.0"
+  }
+}

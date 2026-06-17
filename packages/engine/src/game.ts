@@ -1,4 +1,4 @@
-import type { GameState, GameAction } from './types'
+import type { Board, GameState, GameAction, GameStatus } from './types'
 import {
   createEmptyBoard,
   placeMines,
@@ -29,7 +29,7 @@ export function applyAction(state: GameState, action: GameAction): GameState {
   if (state.status === 'won' || state.status === 'lost') return state
 
   let newBoard = state.board.map(r => r.map(c => ({ ...c })))
-  let newStatus = state.status
+  let newStatus: GameStatus = state.status
   let newMinesPlaced = state.minesPlaced
   let newStartTime = state.startTime
 
@@ -66,11 +66,7 @@ export function applyAction(state: GameState, action: GameAction): GameState {
     newStatus = 'won'
   }
 
-  const wasMineHit = type === 'reveal' && newBoard[row][col].hasMine
-
-  const now = state.status !== 'playing' && newStatus === 'playing'
-    ? newStartTime
-    : state.startTime
+  const updatedStartTime = state.startTime ?? newStartTime
 
   return {
     board: newBoard,
@@ -79,7 +75,7 @@ export function applyAction(state: GameState, action: GameAction): GameState {
     height: state.height,
     mineCount: state.mineCount,
     flagCount: newFlagCount,
-    startTime: now,
+    startTime: updatedStartTime,
     elapsedTime: state.elapsedTime,
     minesPlaced: newMinesPlaced,
   }
