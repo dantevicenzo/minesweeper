@@ -7,7 +7,7 @@ import type { Response } from 'express'
 const router: Router = Router()
 
 router.post('/', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
-  const { width, height, mineCount, difficulty, state } = req.body
+  const { width, height, mineCount, difficulty, state, status, completed_at, duration_ms } = req.body
 
   if (!width || !height || !mineCount) {
     res.status(400).json({ error: 'Missing required fields' })
@@ -16,11 +16,27 @@ router.post('/', requireAuth, async (req: AuthenticatedRequest, res: Response) =
 
   try {
     const data = await queryOne(
-      `insert into public.games (user_id, width, height, mine_count, difficulty, state)
-       values ($1, $2, $3, $4, $5, $6)
+      `insert into public.games (user_id, width, height, mine_count, difficulty, state, status, completed_at, duration_ms)
+       values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
        returning *`,
-      [req.userId, width, height, mineCount, difficulty, JSON.stringify(state)]
+      [
+        req.userId, width, height, mineCount, difficulty,
+        JSON.stringify(state),
+        status ?? 'in_progress',
+        completed_at ?? null,
+        duration_ms ?? null,
+      ]
     )
+
+    if (status === 'won') {
+      await query(
+        `insert into public.leaderboard_entries (user_id, game_id, difficulty, duration_ms)
+         values ($1, $2, $3, $4)
+         on conflict do nothing`,
+        [req.userId, (data as any).id, difficulty, duration_ms]
+      )
+    }
+
     res.status(201).json(data)
   } catch (err: any) {
     res.status(500).json({ error: err.message })
@@ -95,6 +111,16 @@ router.put('/:id', requireAuth, async (req: AuthenticatedRequest, res: Response)
         req.userId,
       ]
     )
+
+    const newStatus = status ?? existing.status
+    if (newStatus === 'won' && existing.status !== 'won') {
+      await query(
+        `insert into public.leaderboard_entries (user_id, game_id, difficulty, duration_ms)
+         values ($1, $2, $3, $4)
+         on conflict do nothing`,
+        [req.userId, id, existing.difficulty, duration_ms ?? existing.duration_ms]
+      )
+    }
 
     res.json(data)
   } catch (err: any) {
