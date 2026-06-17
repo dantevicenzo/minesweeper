@@ -1,6 +1,6 @@
 'use client'
 
-import { useGame } from '@minesweeper/hooks'
+import { useApiGame } from '../hooks/useApiGame'
 import { CellView } from './CellView'
 import { useI18n } from '../contexts/I18nContext'
 
@@ -8,11 +8,12 @@ interface GameBoardProps {
   width: number
   height: number
   mineCount: number
+  difficulty?: string
 }
 
-export function GameBoard({ width, height, mineCount }: GameBoardProps) {
+export function GameBoard({ width, height, mineCount, difficulty = 'easy' }: GameBoardProps) {
   const { t } = useI18n()
-  const { game, dispatch, reset } = useGame(width, height, mineCount)
+  const { game, dispatch, reset } = useApiGame(width, height, mineCount, difficulty)
 
   return (
     <div>
