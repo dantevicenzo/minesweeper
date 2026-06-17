@@ -40,7 +40,18 @@
     "bestTime": "Melhor Tempo",
     "xp": "EXP",
     "level": "Nível",
-    "achievements": "Conquistas"
+    "achievements": "Conquistas",
+    "unlocked": "desbloqueadas"
+  },
+  "achievements": {
+    "first_win": { "name": "Primeira Vitória", "description": "Vença sua primeira partida" },
+    "speed_demon": { "name": "Demônio da Velocidade", "description": "Vença o Fácil em menos de 30 segundos" },
+    "win_streak_5": { "name": "Em Chamas", "description": "Vença 5 partidas consecutivas" },
+    "explorer": { "name": "Explorador", "description": "Jogue 50 partidas" },
+    "expert_win": { "name": "Especialista", "description": "Vença uma partida Difícil" },
+    "perfect_game": { "name": "Partida Perfeita", "description": "Vença sem usar bandeiras" },
+    "level_10": { "name": "Dedicado", "description": "Alcance o nível 10" },
+    "social_player": { "name": "Jogador Social", "description": "Jogue com amigos" }
   },
   "auth": {
     "signIn": "Entrar",

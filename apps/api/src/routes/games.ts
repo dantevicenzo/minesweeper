@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { query, queryOne } from '../utils/supabase'
 import { requireAuth, optionalAuth } from '../middleware/auth'
+import { processGameCompletion } from '../services/gameService'
 import type { AuthenticatedRequest } from '../middleware/auth'
 import type { Response } from 'express'
 
@@ -35,6 +36,21 @@ router.post('/', requireAuth, async (req: AuthenticatedRequest, res: Response) =
          on conflict do nothing`,
         [req.userId, (data as any).id, difficulty, duration_ms]
       )
+
+      const board = state?.board ?? []
+      const flaggedCells = board
+        .flatMap((row: any[]) => row)
+        .filter((c: any) => c.isFlagged)
+        .length
+
+      await processGameCompletion({
+        id: (data as any).id,
+        userId: req.userId!,
+        difficulty,
+        durationMs: duration_ms,
+        status: 'won',
+        flaggedCells,
+      }).catch((err: Error) => console.error('Failed to process game completion:', err))
     }
 
     res.status(201).json(data)
@@ -120,6 +136,21 @@ router.put('/:id', requireAuth, async (req: AuthenticatedRequest, res: Response)
          on conflict do nothing`,
         [req.userId, id, existing.difficulty, duration_ms ?? existing.duration_ms]
       )
+
+      const board = state?.board ?? existing.state?.board ?? []
+      const flaggedCells = board
+        .flatMap((row: any[]) => row)
+        .filter((c: any) => c.isFlagged)
+        .length
+
+      await processGameCompletion({
+        id,
+        userId: req.userId!,
+        difficulty: existing.difficulty,
+        durationMs: duration_ms ?? existing.duration_ms,
+        status: 'won',
+        flaggedCells,
+      }).catch((err: Error) => console.error('Failed to process game completion:', err))
     }
 
     res.json(data)

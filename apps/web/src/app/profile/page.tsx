@@ -13,11 +13,22 @@ interface ProfileData {
   games: { total_games: number; wins: number; losses: number; avg_win_time_ms: number; best_time_ms: number }
 }
 
+interface Achievement {
+  id: string
+  key: string
+  name_key: string
+  description_key: string
+  icon: string
+  unlocked: boolean
+  unlockedAt: string | null
+}
+
 export default function ProfilePage() {
   const { t } = useI18n()
   const { user, signOut } = useAuth()
   const router = useRouter()
   const [data, setData] = useState<ProfileData | null>(null)
+  const [achievements, setAchievements] = useState<Achievement[]>([])
 
   useEffect(() => {
     if (!user) {
@@ -25,6 +36,7 @@ export default function ProfilePage() {
       return
     }
     api.stats.me().then(d => setData(d as ProfileData)).catch(() => {})
+    api.achievements.me().then(d => setAchievements(d as Achievement[])).catch(() => {})
   }, [user, router])
 
   if (!user || !data) return null
@@ -39,6 +51,7 @@ export default function ProfilePage() {
       <Link href="/" className={styles.backLink}>{'< Back'}</Link>
       <h1>{t.profile.title}</h1>
       <p className={styles.emailLabel}>{user.email}</p>
+
       <div className={styles.statGrid}>
         <div className={styles.statCard}>
           <div className={styles.statValue}>{profile.level}</div>
@@ -57,11 +70,21 @@ export default function ProfilePage() {
           <div className={styles.statLabel}>{t.profile.winRate}</div>
         </div>
       </div>
+
       <h2 className={styles.sectionTitle}>{t.profile.achievements}</h2>
-      <button
-        className={styles.signOutBtn}
-        onClick={() => signOut()}
-      >
+      <div className={styles.achievementGrid}>
+        {achievements.map(a => (
+          <div key={a.id} className={`${styles.achievement} ${a.unlocked ? styles.achievementUnlocked : styles.achievementLocked}`}>
+            <span className={styles.achievementIcon}>{a.unlocked ? '🏆' : '🔒'}</span>
+            <span className={styles.achievementName}>{t.achievements?.[a.key as keyof typeof t.achievements]?.name ?? a.key}</span>
+          </div>
+        ))}
+      </div>
+      <p className={styles.achievementCount}>
+        {achievements.filter(a => a.unlocked).length}/{achievements.length} {t.profile.unlocked}
+      </p>
+
+      <button className={styles.signOutBtn} onClick={() => signOut()}>
         {t.auth.signOut}
       </button>
     </main>

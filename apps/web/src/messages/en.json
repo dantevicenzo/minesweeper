@@ -40,7 +40,18 @@
     "bestTime": "Best Time",
     "xp": "XP",
     "level": "Level",
-    "achievements": "Achievements"
+    "achievements": "Achievements",
+    "unlocked": "unlocked"
+  },
+  "achievements": {
+    "first_win": { "name": "First Win", "description": "Win your first game" },
+    "speed_demon": { "name": "Speed Demon", "description": "Win Easy mode in under 30 seconds" },
+    "win_streak_5": { "name": "On Fire", "description": "Win 5 games in a row" },
+    "explorer": { "name": "Explorer", "description": "Play 50 games" },
+    "expert_win": { "name": "Expert", "description": "Win a Hard difficulty game" },
+    "perfect_game": { "name": "Perfect Game", "description": "Win without using any flags" },
+    "level_10": { "name": "Dedicated", "description": "Reach level 10" },
+    "social_player": { "name": "Social Player", "description": "Play with friends" }
   },
   "auth": {
     "signIn": "Sign In",

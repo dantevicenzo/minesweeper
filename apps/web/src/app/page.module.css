@@ -219,3 +219,46 @@
   cursor: pointer;
   font-size: var(--font-size-sm, 14px);
 }
+
+.achievementGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--space-2, 8px);
+  margin: var(--space-3, 12px) 0;
+}
+
+.achievement {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1, 4px);
+  padding: var(--space-3, 12px);
+  border-radius: var(--radius-md, 8px);
+  border: 1px solid var(--color-border, #d4d4d4);
+  text-align: center;
+  font-size: var(--font-size-xs, 12px);
+}
+
+.achievementUnlocked {
+  background: var(--color-surface, #fff);
+}
+
+.achievementLocked {
+  background: var(--color-bg, #f5f5f5);
+  opacity: 0.5;
+}
+
+.achievementIcon {
+  font-size: 20px;
+}
+
+.achievementName {
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.achievementCount {
+  text-align: center;
+  font-size: var(--font-size-xs, 12px);
+  color: var(--color-text-secondary, #666);
+}
