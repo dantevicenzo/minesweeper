@@ -1,15 +1,18 @@
 import { createClient } from '@supabase/supabase-js'
 
-function getSupabaseUrl(): string {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  if (!url && typeof window === 'undefined') return 'http://localhost:54321'
-  return url ?? ''
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
+
+if (!supabaseUrl) {
+  throw new Error(
+    'supabaseUrl is required. Configure NEXT_PUBLIC_SUPABASE_URL no seu .env.local'
+  )
 }
 
-function getSupabaseAnonKey(): string {
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  if (!key && typeof window === 'undefined') return 'placeholder'
-  return key ?? ''
+if (!supabaseAnonKey) {
+  throw new Error(
+    'supabaseAnonKey is required. Configure NEXT_PUBLIC_SUPABASE_ANON_KEY no seu .env.local'
+  )
 }
 
-export const supabase = createClient(getSupabaseUrl(), getSupabaseAnonKey())
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
