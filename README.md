@@ -10,7 +10,7 @@ Campo Minado clássico multiplataforma com contas sincronizadas, ranking global,
 
 - **Frontend Web:** Next.js, React, CSS Modules
 - **Frontend Mobile:** React Native (futuro)
-- **Backend:** Node.js, TypeScript, Vercel Serverless Functions
+- **Backend:** Node.js, TypeScript, Express, Vercel Serverless Functions
 - **Banco:** PostgreSQL (Supabase)
 - **Auth:** Supabase Auth (anônimo, email+senha, OAuth Google/Apple/GitHub)
 - **Monorepo:** pnpm, Turborepo
@@ -21,16 +21,15 @@ Campo Minado clássico multiplataforma com contas sincronizadas, ranking global,
 
 ## Funcionalidades
 
-- Jogo Campo Minado completo com 3 dificuldades e modo customizado
-- Primeiro clique seguro
-- Bandeiras e chord click
+- Jogo Campo Minado completo com 3 dificuldades
+- Primeiro clique seguro, bandeiras e chord click
 - Auto-save com continuidade entre dispositivos
 - Leaderboard global por dificuldade
-- Estatísticas individuais
+- Estatísticas individuais e perfil de jogador
 - Sistema de XP, níveis e conquistas
-- Login anônimo, email ou OAuth
+- Login anônimo, email ou OAuth (Google, GitHub)
 - Offline-first com sincronização
-- Internacionalização (PT-BR, EN e mais)
+- Internacionalização (PT-BR, EN)
 - Acessibilidade (teclado, leitores de tela)
 - Painel administrativo
 
@@ -42,25 +41,32 @@ Campo Minado clássico multiplataforma com contas sincronizadas, ranking global,
 
 - Node.js 20+
 - pnpm 9+
+- Orbstack ou Docker Desktop
+- Supabase CLI (`npm install -g supabase`)
 
-### Instalação
+### Setup
 
 ```bash
+# Instalar dependências
 pnpm install
-```
 
-### Desenvolvimento
+# Iniciar Supabase local
+supabase start
 
-```bash
+# Copiar variáveis de ambiente
+cp .env.example .env.local
+# Edite .env.local com os valores de `supabase status`
+
+# Iniciar API + Web em dev
 pnpm dev
 ```
 
 ### Testes
 
 ```bash
-pnpm test
-pnpm lint
-pnpm typecheck
+pnpm test        # todos os testes
+pnpm lint        # lint
+pnpm typecheck   # verificação de tipos
 ```
 
 ---
@@ -71,11 +77,10 @@ pnpm typecheck
 apps/
   web/       Next.js (jogadores)
   admin/     Next.js (administradores)
-  api/       Vercel Serverless Functions
-  mobile/    React Native (futuro)
+  api/       Express API (Vercel Serverless)
 
 packages/
-  engine/          Motor puro do jogo
+  engine/          Motor puro do jogo (29 testes)
   ui/              Componentes compartilhados
   types/           Tipos TypeScript
   utils/           Utilitários
@@ -89,15 +94,10 @@ packages/
 
 Clean Architecture com monorepo. O motor do jogo (`packages/engine`) tem zero dependências externas e é compartilhado entre web, mobile e backend.
 
-Documentação completa em [`ARCHITECTURE.md`](./ARCHITECTURE.md).
-
----
-
-## Contribuindo
-
-1. Leia [`AGENTS.md`](./AGENTS.md) e [`CONTRIBUTING.md`](./CONTRIBUTING.md)
-2. Siga as diretrizes em [`DEVELOPMENT_GUIDELINES.md`](./DEVELOPMENT_GUIDELINES.md)
-3. Convenções de estilo em [`STYLING_GUIDELINES.md`](./STYLING_GUIDELINES.md)
+```
+Aplicação (Next.js/RN) → Hooks → Engine (domínio puro)
+                              → API (Express) → Supabase
+```
 
 ---
 
