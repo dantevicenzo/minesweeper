@@ -9,6 +9,9 @@
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit"
   },
+  "dependencies": {
+    "@minesweeper/engine": "workspace:*"
+  },
   "devDependencies": {
     "typescript": "^5.8.0"
   }

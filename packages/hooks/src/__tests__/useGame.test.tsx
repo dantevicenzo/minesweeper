@@ -80,6 +80,7 @@ describe('useGame', () => {
           hasMine: false,
           isRevealed: false,
           isFlagged: false,
+          isExploded: false,
           adjacentMines: 0,
         }))
       ),
