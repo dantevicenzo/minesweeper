@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '../../lib/supabase'
+import { getSupabase } from '../../lib/supabase'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 
@@ -32,7 +32,7 @@ export default function DashboardPage() {
   const [token, setToken] = useState('')
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data }) => {
+    getSupabase().auth.getSession().then(async ({ data }) => {
       const accessToken = data.session?.access_token
       if (!accessToken) {
         router.push('/')
