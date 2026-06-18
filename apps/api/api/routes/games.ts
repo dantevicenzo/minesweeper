@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { query, queryOne } from '../utils/supabase'
 import { requireAuth, optionalAuth, requireNotBanned } from '../middleware/auth'
 import { processGameCompletion } from '../services/gameService'
+import { validateGameTime } from '../services/antiCheat'
 import type { AuthenticatedRequest } from '../middleware/auth'
 import type { Response } from 'express'
 
@@ -29,13 +30,18 @@ router.post('/', requireAuth, requireNotBanned, async (req: AuthenticatedRequest
       ]
     )
 
-    if (status === 'won') {
-      await query(
-        `insert into public.leaderboard_entries (user_id, game_id, difficulty, duration_ms)
-         values ($1, $2, $3, $4)
-         on conflict do nothing`,
-        [req.userId, (data as any).id, difficulty, duration_ms]
-      )
+    if (status === 'won' && duration_ms != null) {
+      const check = validateGameTime(duration_ms, difficulty, width, height)
+      if (!check.valid) {
+        console.warn(`[AntiCheat] User ${req.userId}: ${check.reason}`)
+      } else {
+        await query(
+          `insert into public.leaderboard_entries (user_id, game_id, difficulty, duration_ms)
+           values ($1, $2, $3, $4)
+           on conflict do nothing`,
+          [req.userId, (data as any).id, difficulty, duration_ms]
+        )
+      }
 
       const board = state?.board ?? []
       const flaggedCells = board
@@ -129,13 +135,21 @@ router.put('/:id', requireAuth, requireNotBanned, async (req: AuthenticatedReque
     )
 
     const newStatus = status ?? existing.status
+    const finalDuration = duration_ms ?? existing.duration_ms
     if (newStatus === 'won' && existing.status !== 'won') {
-      await query(
-        `insert into public.leaderboard_entries (user_id, game_id, difficulty, duration_ms)
-         values ($1, $2, $3, $4)
-         on conflict do nothing`,
-        [req.userId, id, existing.difficulty, duration_ms ?? existing.duration_ms]
-      )
+      if (finalDuration != null) {
+        const check = validateGameTime(finalDuration, existing.difficulty, existing.width, existing.height)
+        if (!check.valid) {
+          console.warn(`[AntiCheat] User ${req.userId}: ${check.reason}`)
+        } else {
+          await query(
+            `insert into public.leaderboard_entries (user_id, game_id, difficulty, duration_ms)
+             values ($1, $2, $3, $4)
+             on conflict do nothing`,
+            [req.userId, id, existing.difficulty, finalDuration]
+          )
+        }
+      }
 
       const board = state?.board ?? existing.state?.board ?? []
       const flaggedCells = board
@@ -147,7 +161,7 @@ router.put('/:id', requireAuth, requireNotBanned, async (req: AuthenticatedReque
         id: id as string,
         userId: req.userId!,
         difficulty: existing.difficulty,
-        durationMs: duration_ms ?? existing.duration_ms,
+        durationMs: finalDuration,
         status: 'won',
         flaggedCells,
       }).catch((err: Error) => console.error('Failed to process game completion:', err))

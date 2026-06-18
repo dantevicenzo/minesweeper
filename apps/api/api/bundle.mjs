@@ -38253,6 +38253,27 @@ async function checkAndUnlockAchievements(game, winCount, winStreak, currentXp) 
   }
 }
 
+// api/services/antiCheat.ts
+var MIN_TIME_BY_DIFFICULTY = {
+  easy: 1e3,
+  medium: 3e3,
+  hard: 8e3
+};
+var DEFAULT_MIN_TIME = 1e3;
+function validateGameTime(durationMs, difficulty, width, height) {
+  const minForDifficulty = MIN_TIME_BY_DIFFICULTY[difficulty] ?? DEFAULT_MIN_TIME;
+  const cellCount = width * height;
+  const minForSize = Math.max(1e3, cellCount * 50);
+  const minTime = Math.max(minForDifficulty, minForSize);
+  if (durationMs < minTime) {
+    return {
+      valid: false,
+      reason: `Completion time (${durationMs}ms) is below minimum threshold (${minTime}ms) for ${difficulty} (${width}x${height}). Possible cheating detected.`
+    };
+  }
+  return { valid: true };
+}
+
 // api/routes/games.ts
 var router = Router();
 router.post("/", requireAuth, requireNotBanned, async (req, res) => {
@@ -38278,13 +38299,18 @@ router.post("/", requireAuth, requireNotBanned, async (req, res) => {
         duration_ms ?? null
       ]
     );
-    if (status === "won") {
-      await query(
-        `insert into public.leaderboard_entries (user_id, game_id, difficulty, duration_ms)
-         values ($1, $2, $3, $4)
-         on conflict do nothing`,
-        [req.userId, data.id, difficulty, duration_ms]
-      );
+    if (status === "won" && duration_ms != null) {
+      const check = validateGameTime(duration_ms, difficulty, width, height);
+      if (!check.valid) {
+        console.warn(`[AntiCheat] User ${req.userId}: ${check.reason}`);
+      } else {
+        await query(
+          `insert into public.leaderboard_entries (user_id, game_id, difficulty, duration_ms)
+           values ($1, $2, $3, $4)
+           on conflict do nothing`,
+          [req.userId, data.id, difficulty, duration_ms]
+        );
+      }
       const board = state?.board ?? [];
       const flaggedCells = board.flatMap((row) => row).filter((c) => c.isFlagged).length;
       await processGameCompletion({
@@ -38361,20 +38387,28 @@ router.put("/:id", requireAuth, requireNotBanned, async (req, res) => {
       ]
     );
     const newStatus = status ?? existing.status;
+    const finalDuration = duration_ms ?? existing.duration_ms;
     if (newStatus === "won" && existing.status !== "won") {
-      await query(
-        `insert into public.leaderboard_entries (user_id, game_id, difficulty, duration_ms)
-         values ($1, $2, $3, $4)
-         on conflict do nothing`,
-        [req.userId, id, existing.difficulty, duration_ms ?? existing.duration_ms]
-      );
+      if (finalDuration != null) {
+        const check = validateGameTime(finalDuration, existing.difficulty, existing.width, existing.height);
+        if (!check.valid) {
+          console.warn(`[AntiCheat] User ${req.userId}: ${check.reason}`);
+        } else {
+          await query(
+            `insert into public.leaderboard_entries (user_id, game_id, difficulty, duration_ms)
+             values ($1, $2, $3, $4)
+             on conflict do nothing`,
+            [req.userId, id, existing.difficulty, finalDuration]
+          );
+        }
+      }
       const board = state?.board ?? existing.state?.board ?? [];
       const flaggedCells = board.flatMap((row) => row).filter((c) => c.isFlagged).length;
       await processGameCompletion({
         id,
         userId: req.userId,
         difficulty: existing.difficulty,
-        durationMs: duration_ms ?? existing.duration_ms,
+        durationMs: finalDuration,
         status: "won",
         flaggedCells
       }).catch((err) => console.error("Failed to process game completion:", err));
