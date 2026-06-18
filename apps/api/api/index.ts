@@ -1,18 +1,17 @@
 import express from 'express'
 import cors from 'cors'
 import * as Sentry from '@sentry/node'
-import { expressIntegration, setupExpressErrorHandler } from '@sentry/node'
 import gamesRouter from './routes/games'
 import leaderboardRouter from './routes/leaderboard'
 import statsRouter from './routes/stats'
 import achievementsRouter from './routes/achievements'
 import adminRouter from './routes/admin'
 
-Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-  integrations: [expressIntegration()],
-  tracesSampleRate: 0.1,
-})
+if (process.env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+  })
+}
 
 const app = express()
 
@@ -28,8 +27,6 @@ app.use('/api/leaderboard', leaderboardRouter)
 app.use('/api/stats', statsRouter)
 app.use('/api/achievements', achievementsRouter)
 app.use('/api/admin', adminRouter)
-
-setupExpressErrorHandler(app)
 
 const port = process.env.PORT ?? 3001
 
