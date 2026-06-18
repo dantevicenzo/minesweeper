@@ -1,6 +1,7 @@
 import type { Request, NextFunction } from 'express'
 
 const authUrl = `${process.env.SUPABASE_URL ?? 'http://127.0.0.1:54321'}/auth/v1`
+const anonKey = process.env.SUPABASE_ANON_KEY ?? ''
 
 export interface AuthenticatedRequest extends Request {
   userId?: string
@@ -8,9 +9,9 @@ export interface AuthenticatedRequest extends Request {
 
 async function getUserFromToken(token: string): Promise<{ id: string } | null> {
   try {
-    const resp = await fetch(`${authUrl}/user`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    const headers: Record<string, string> = { Authorization: `Bearer ${token}` }
+    if (anonKey) headers['apikey'] = anonKey
+    const resp = await fetch(`${authUrl}/user`, { headers })
     if (!resp.ok) return null
     const user = await resp.json() as { id: string }
     return user
