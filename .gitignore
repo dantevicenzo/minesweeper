@@ -7,7 +7,6 @@ dist/
 .env.local
 .DS_Store
 *.tsbuildinfo
-apps/api/api/bundle.mjs
 
 
 ARCHITECTURE.md
