@@ -5,7 +5,8 @@
     "continue": "Continuar",
     "leaderboard": "Ranking",
     "profile": "Perfil",
-    "settings": "Configurações"
+    "settings": "Configurações",
+    "customGame": "Personalizado"
   },
   "game": {
     "mines": "Minas",
@@ -19,7 +20,12 @@
       "medium": "Médio",
       "hard": "Difícil",
       "custom": "Personalizado"
-    }
+    },
+    "customWidth": "Largura",
+    "customHeight": "Altura",
+    "customMines": "Minas",
+    "minesweeperBoard": "Tabuleiro de Campo Minado",
+    "boardLabel": "Grade do jogo. Use as setas para navegar, Enter para revelar, F para bandeira."
   },
   "leaderboard": {
     "title": "Ranking",

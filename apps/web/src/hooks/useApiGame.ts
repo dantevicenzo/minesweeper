@@ -30,7 +30,7 @@ export function useApiGame(width: number, height: number, mineCount: number, dif
     statusRef.current = currentStatus
 
     if (currentStatus === 'won' || currentStatus === 'lost') {
-      if (isOnline()) {
+      if (user && isOnline()) {
         saveCompletedGameToCloud(gameRef.current, difficulty, gameIdRef.current)
           .then(id => { gameIdRef.current = id })
           .catch(err => console.error('[useApiGame] Failed to save completed game:', err))

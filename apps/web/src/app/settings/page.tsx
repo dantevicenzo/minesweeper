@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useI18n } from '../../contexts/I18nContext'
-import styles from '../page.module.css'
+import styles from './page.module.css'
 import type { Locale } from '../../lib/i18n'
 
 export default function SettingsPage() {

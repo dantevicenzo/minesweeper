@@ -1,43 +1,88 @@
 .cell {
-  width: 32px;
-  height: 32px;
-  border: 1px solid var(--color-border, #999);
+  width: 28px;
+  height: 28px;
+  border: none;
   font-weight: 700;
   font-size: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-  transition: background-color 0.1s;
+  cursor: pointer;
 }
 
 .hidden {
-  background-color: var(--color-cell-hidden, #c0c0c0);
+  background-color: #bdbdbd;
+  border-top: 3px solid #fff;
+  border-left: 3px solid #fff;
+  border-bottom: 3px solid #7b7b7b;
+  border-right: 3px solid #7b7b7b;
   cursor: pointer;
 }
 
 .hidden:hover {
-  background-color: var(--color-bg-secondary, #d0d0d0);
+  background-color: #c8c8c8;
+}
+
+.hiddenPressed {
+  background-color: #bdbdbd;
+  border-top: 1px solid #7b7b7b;
+  border-left: 1px solid #7b7b7b;
+  border-bottom: 1px solid #fff;
+  border-right: 1px solid #fff;
 }
 
 .revealed {
-  background-color: var(--color-cell-revealed, #e0e0e0);
+  background-color: #cecece;
+  border-top: 1px solid #7b7b7b;
+  border-left: 1px solid #7b7b7b;
+  border-bottom: 1px solid #fff;
+  border-right: 1px solid #fff;
   cursor: default;
 }
 
 .flagged {
-  color: var(--color-flag, #dc2626);
+  color: #dc2626;
+  font-size: 16px;
 }
 
 .mine {
-  color: var(--color-mine, #1a1a1a);
+  color: #1a1a1a;
+  font-size: 16px;
 }
 
-.n1 { color: var(--color-number-1, #0000ff); }
-.n2 { color: var(--color-number-2, #008000); }
-.n3 { color: var(--color-number-3, #ff0000); }
-.n4 { color: var(--color-number-4, #000080); }
-.n5 { color: var(--color-number-5, #800000); }
-.n6 { color: var(--color-number-6, #008080); }
-.n7 { color: var(--color-number-7, #000000); }
-.n8 { color: var(--color-number-8, #808080); }
+.mineExploded {
+  background-color: #e74c3c;
+  border-top: 1px solid #7b7b7b;
+  border-left: 1px solid #7b7b7b;
+  border-bottom: 1px solid #fff;
+  border-right: 1px solid #fff;
+  color: #1a1a1a;
+  font-size: 16px;
+}
+
+.flaggedWrong {
+  background-color: #cecece;
+  border-top: 1px solid #7b7b7b;
+  border-left: 1px solid #7b7b7b;
+  border-bottom: 1px solid #fff;
+  border-right: 1px solid #fff;
+  color: #dc2626;
+  font-size: 12px;
+  text-decoration: line-through;
+}
+
+.cell:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: -4px;
+  z-index: 1;
+}
+
+.n1 { color: #0000ff; }
+.n2 { color: #008000; }
+.n3 { color: #ff0000; }
+.n4 { color: #000080; }
+.n5 { color: #800000; }
+.n6 { color: #008080; }
+.n7 { color: #000000; }
+.n8 { color: #808080; }

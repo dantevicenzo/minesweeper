@@ -5,7 +5,8 @@
     "continue": "Continue",
     "leaderboard": "Leaderboard",
     "profile": "Profile",
-    "settings": "Settings"
+    "settings": "Settings",
+    "customGame": "Custom"
   },
   "game": {
     "mines": "Mines",
@@ -19,7 +20,12 @@
       "medium": "Medium",
       "hard": "Hard",
       "custom": "Custom"
-    }
+    },
+    "customWidth": "Width",
+    "customHeight": "Height",
+    "customMines": "Mines",
+    "minesweeperBoard": "Minesweeper board",
+    "boardLabel": "Game grid. Use arrow keys to navigate, Enter to reveal, F to flag."
   },
   "leaderboard": {
     "title": "Leaderboard",

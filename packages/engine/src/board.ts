@@ -38,6 +38,7 @@ function createEmptyCell(): Cell {
     isRevealed: false,
     isFlagged: false,
     adjacentMines: 0,
+    isExploded: false,
   }
 }
 
@@ -104,7 +105,7 @@ export function revealCell(board: Board, row: number, col: number): Board {
   const newBoard = board.map(r => r.map(c => ({ ...c })))
 
   if (cell.hasMine) {
-    newBoard[row][col] = { ...newBoard[row][col], isRevealed: true }
+    newBoard[row][col] = { ...newBoard[row][col], isRevealed: true, isExploded: true }
     return newBoard
   }
 

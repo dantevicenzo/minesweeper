@@ -6,9 +6,16 @@ import styles from './CellView.module.css'
 
 interface CellViewProps {
   cell: Cell
+  row: number
+  col: number
+  gameStatus: string
+  isFocused: boolean
   onLeftClick: () => void
   onRightClick: (e: MouseEvent) => void
   onChordClick: () => void
+  onMouseDown: () => void
+  onMouseUp: () => void
+  onFocus: () => void
 }
 
 const numberClass: Record<number, string> = {
@@ -22,7 +29,7 @@ const numberClass: Record<number, string> = {
   8: styles.n8,
 }
 
-export function CellView({ cell, onLeftClick, onRightClick, onChordClick }: CellViewProps) {
+export function CellView({ cell, row, col, gameStatus, isFocused, onLeftClick, onRightClick, onChordClick, onMouseDown, onMouseUp, onFocus }: CellViewProps) {
   const handleClick = () => {
     if (cell.isRevealed && cell.adjacentMines > 0) {
       onChordClick()
@@ -35,35 +42,50 @@ export function CellView({ cell, onLeftClick, onRightClick, onChordClick }: Cell
   let className = styles.cell
 
   if (cell.isRevealed) {
-    className += ` ${styles.revealed}`
     if (cell.hasMine) {
-      content = '*'
       className += ` ${styles.mine}`
-    } else if (cell.adjacentMines > 0) {
-      content = cell.adjacentMines
-      className += ` ${numberClass[cell.adjacentMines] ?? ''}`
+      if (cell.isExploded) {
+        className += ` ${styles.mineExploded}`
+      }
+      content = '●'
+    } else {
+      className += ` ${styles.revealed}`
+      if (cell.adjacentMines > 0) {
+        content = cell.adjacentMines
+        className += ` ${numberClass[cell.adjacentMines] ?? ''}`
+      }
     }
   } else if (cell.isFlagged) {
     className += ` ${styles.hidden} ${styles.flagged}`
-    content = 'F'
+    content = '🚩'
   } else {
     className += ` ${styles.hidden}`
   }
 
+  const ariaLabel = cell.isRevealed
+    ? cell.hasMine
+      ? 'mine'
+      : cell.adjacentMines === 0
+        ? 'empty'
+        : `${cell.adjacentMines}`
+    : cell.isFlagged
+      ? 'flagged'
+      : 'hidden'
+
   return (
     <button
       className={className.trim()}
+      data-row={row}
+      data-col={col}
+      role="gridcell"
+      tabIndex={isFocused ? 0 : -1}
       onClick={handleClick}
       onContextMenu={onRightClick}
-      aria-label={
-        cell.isRevealed
-          ? cell.hasMine
-            ? 'Mine'
-            : `Cell with ${cell.adjacentMines} adjacent mines`
-          : cell.isFlagged
-            ? 'Flagged'
-            : 'Hidden cell'
-      }
+      onMouseDown={onMouseDown}
+      onMouseUp={onMouseUp}
+      onMouseLeave={onMouseUp}
+      onFocus={onFocus}
+      aria-label={ariaLabel}
     >
       {content}
     </button>

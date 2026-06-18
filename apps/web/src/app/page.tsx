@@ -37,6 +37,9 @@ export default function HomePage() {
         <Link href="/game" className={styles.navBtn}>
           {t.home.newGame}
         </Link>
+        <Link href="/game?custom=1" className={styles.navBtn}>
+          {t.home.customGame}
+        </Link>
         <Link href="/leaderboard" className={styles.navBtn}>
           {t.home.leaderboard}
         </Link>

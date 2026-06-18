@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { api } from '../../lib/api'
 import { useI18n } from '../../contexts/I18nContext'
-import styles from '../page.module.css'
+import styles from './page.module.css'
 
 interface Entry {
   id: string

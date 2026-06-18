@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '../../contexts/AuthContext'
 import { useI18n } from '../../contexts/I18nContext'
-import styles from '../page.module.css'
+import styles from './page.module.css'
 
 export default function AuthPage() {
   const { t } = useI18n()

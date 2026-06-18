@@ -3,6 +3,7 @@ export interface Cell {
   isRevealed: boolean
   isFlagged: boolean
   adjacentMines: number
+  isExploded: boolean
 }
 
 export type Board = Cell[][]

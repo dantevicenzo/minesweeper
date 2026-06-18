@@ -6,7 +6,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { useI18n } from '../../contexts/I18nContext'
 import { api } from '../../lib/api'
 import { useRouter } from 'next/navigation'
-import styles from '../page.module.css'
+import styles from './page.module.css'
 
 interface ProfileData {
   profile: { xp: number; level: number; display_name: string; avatar_url: string | null }
