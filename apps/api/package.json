@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "tsx watch --env-file=../../.env.local api/index.ts",
     "seed": "tsx src/seed.ts",
-    "build": "esbuild api/index.ts --bundle --platform=node --format=esm --outfile=api/bundle.mjs --external:express --external:cors --external:pg",
+    "build": "esbuild api/index.ts --bundle --platform=node --format=esm --outfile=api/bundle.mjs --external:express --external:cors --external:pg --external:@sentry/node",
     "start": "node dist/index.js",
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@minesweeper/engine": "workspace:*",
+    "@sentry/node": "^10.58.0",
     "@supabase/supabase-js": "^2.49.0",
     "cors": "^2.8.5",
     "dotenv": "^17.4.2",

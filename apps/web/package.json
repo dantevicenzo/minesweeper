@@ -12,23 +12,24 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "next": "^15.3.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "@supabase/supabase-js": "^2.49.0",
-    "next-intl": "^4.1.0",
     "@minesweeper/engine": "workspace:*",
     "@minesweeper/hooks": "workspace:*",
-    "@minesweeper/ui": "workspace:*",
     "@minesweeper/types": "workspace:*",
-    "@minesweeper/utils": "workspace:*"
+    "@minesweeper/ui": "workspace:*",
+    "@minesweeper/utils": "workspace:*",
+    "@sentry/nextjs": "^10.58.0",
+    "@supabase/supabase-js": "^2.49.0",
+    "next": "^15.3.0",
+    "next-intl": "^4.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "jsdom": "^25.0.0",
     "typescript": "^5.8.0",
-    "vitest": "^3.0.0",
-    "jsdom": "^25.0.0"
+    "vitest": "^3.0.0"
   }
 }
