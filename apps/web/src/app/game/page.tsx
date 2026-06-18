@@ -2,12 +2,17 @@
 
 import { useState, useEffect, useCallback, Suspense } from 'react'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import { useSearchParams } from 'next/navigation'
-import { GameBoard } from '../../components/GameBoard'
 import { loadSavedGame, clearSavedGame } from '../../lib/storage'
 import { useI18n } from '../../contexts/I18nContext'
 import type { GameState } from '@minesweeper/engine'
 import styles from './page.module.css'
+
+const GameBoard = dynamic(() => import('../../components/GameBoard').then(m => m.GameBoard), {
+  ssr: false,
+  loading: () => <div className={styles.loading}>Loading game...</div>,
+})
 
 const DIFFICULTIES = [
   { key: 'easy', label: 'easy', width: 9, height: 9, mines: 10 },

@@ -38121,6 +38121,21 @@ async function optionalAuth(req, _res, next) {
   }
   next();
 }
+async function requireNotBanned(req, res, next) {
+  if (!req.userId) {
+    next();
+    return;
+  }
+  const profile = await queryOne(
+    `select banned from public.profiles where id = $1`,
+    [req.userId]
+  );
+  if (profile?.banned) {
+    res.status(403).json({ error: "Account is banned" });
+    return;
+  }
+  next();
+}
 
 // api/services/gameService.ts
 var XP_BY_DIFFICULTY = {
@@ -38240,7 +38255,7 @@ async function checkAndUnlockAchievements(game, winCount, winStreak, currentXp) 
 
 // api/routes/games.ts
 var router = Router();
-router.post("/", requireAuth, async (req, res) => {
+router.post("/", requireAuth, requireNotBanned, async (req, res) => {
   const { width, height, mineCount, difficulty, state, status, completed_at, duration_ms } = req.body;
   if (!width || !height || !mineCount) {
     res.status(400).json({ error: "Missing required fields" });
@@ -38319,7 +38334,7 @@ router.get("/:id", optionalAuth, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-router.put("/:id", requireAuth, async (req, res) => {
+router.put("/:id", requireAuth, requireNotBanned, async (req, res) => {
   const { id } = req.params;
   const { state, status, completed_at, duration_ms } = req.body;
   try {
@@ -38369,7 +38384,7 @@ router.put("/:id", requireAuth, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-router.delete("/:id", requireAuth, async (req, res) => {
+router.delete("/:id", requireAuth, requireNotBanned, async (req, res) => {
   const { id } = req.params;
   try {
     await query(`delete from public.games where id = $1 and user_id = $2`, [id, req.userId]);
@@ -38383,24 +38398,51 @@ var games_default = router;
 // api/routes/leaderboard.ts
 import { Router as Router2 } from "express";
 var router2 = Router2();
+function getPeriodFilter(period) {
+  switch (period) {
+    case "today":
+      return { sql: "and le.created_at >= $5", since: new Date((/* @__PURE__ */ new Date()).setHours(0, 0, 0, 0)) };
+    case "week":
+      const weekAgo = /* @__PURE__ */ new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      return { sql: "and le.created_at >= $5", since: weekAgo };
+    case "month":
+      const monthAgo = /* @__PURE__ */ new Date();
+      monthAgo.setMonth(monthAgo.getMonth() - 1);
+      return { sql: "and le.created_at >= $5", since: monthAgo };
+    default:
+      return { sql: "", since: null };
+  }
+}
 router2.get("/", async (req, res) => {
   const difficulty = req.query.difficulty ?? "easy";
+  const period = req.query.period ?? "all";
   const page = Math.max(1, parseInt(req.query.page) || 1);
   const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
   const offset = (page - 1) * limit;
+  const { sql: periodSql, since } = getPeriodFilter(period);
   try {
+    const params = [difficulty, limit, offset];
+    const countParams = [difficulty];
+    if (since) {
+      params.push(since);
+      countParams.push(since);
+    }
     const data = await query(
       `select le.*, p.display_name, p.avatar_url
        from public.leaderboard_entries le
        join public.profiles p on p.id = le.user_id
-       where le.difficulty = $1
+       where le.difficulty = $1 and p.banned = false ${periodSql}
        order by le.duration_ms asc
        limit $2 offset $3`,
-      [difficulty, limit, offset]
+      params
     );
     const countResult = await queryOne(
-      `select count(*)::int as count from public.leaderboard_entries where difficulty = $1`,
-      [difficulty]
+      `select count(*)::int as count
+       from public.leaderboard_entries le
+       join public.profiles p on p.id = le.user_id
+       where le.difficulty = $1 and p.banned = false ${periodSql}`,
+      countParams
     );
     const total = countResult?.count ?? 0;
     res.json({
@@ -38416,15 +38458,23 @@ router2.get("/", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-router2.get("/me", requireAuth, async (req, res) => {
+router2.get("/me", requireAuth, requireNotBanned, async (req, res) => {
   const difficulty = req.query.difficulty ?? "easy";
+  const period = req.query.period ?? "all";
+  const { sql: periodSql, since } = getPeriodFilter(period);
   try {
+    const params = [req.userId, difficulty];
+    const rankParams = [difficulty];
+    if (since) {
+      params.push(since);
+      rankParams.push(since);
+    }
     const data = await queryOne(
       `select * from public.leaderboard_entries
-       where user_id = $1 and difficulty = $2
+       where user_id = $1 and difficulty = $2 ${periodSql}
        order by duration_ms asc
        limit 1`,
-      [req.userId, difficulty]
+      params
     );
     if (!data) {
       res.status(404).json({ error: "No entries found" });
@@ -38432,9 +38482,10 @@ router2.get("/me", requireAuth, async (req, res) => {
     }
     const rankResult = await queryOne(
       `select count(*)::int + 1 as rank
-       from public.leaderboard_entries
-       where difficulty = $1 and duration_ms < $2`,
-      [difficulty, data.duration_ms]
+       from public.leaderboard_entries le
+       join public.profiles p on p.id = le.user_id
+       where le.difficulty = $1 and le.duration_ms < $2 and p.banned = false ${periodSql}`,
+      [difficulty, data.duration_ms, ...since ? [since] : []]
     );
     res.json({ ...data, rank: rankResult?.rank ?? 1 });
   } catch (err) {
@@ -38446,7 +38497,7 @@ var leaderboard_default = router2;
 // api/routes/stats.ts
 import { Router as Router3 } from "express";
 var router3 = Router3();
-router3.get("/me", requireAuth, async (req, res) => {
+router3.get("/me", requireAuth, requireNotBanned, async (req, res) => {
   try {
     const profile = await queryOne(
       `select * from public.profiles where id = $1`,
@@ -38523,7 +38574,7 @@ router4.get("/", async (_req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-router4.get("/me", requireAuth, async (req, res) => {
+router4.get("/me", requireAuth, requireNotBanned, async (req, res) => {
   try {
     const all = await query(`select * from public.achievements order by key`);
     const earned = await query(
@@ -38549,11 +38600,15 @@ import { Router as Router5 } from "express";
 var router5 = Router5();
 async function requireAdmin(req, res) {
   const profile = await queryOne(
-    `select is_admin from public.profiles where id = $1`,
+    `select is_admin, banned from public.profiles where id = $1`,
     [req.userId]
   );
   if (!profile?.is_admin) {
     res.status(403).json({ error: "Admin access required" });
+    return false;
+  }
+  if (profile?.banned) {
+    res.status(403).json({ error: "Account is banned" });
     return false;
   }
   return true;
@@ -38600,16 +38655,34 @@ router5.put("/users/:id", requireAuth, async (req, res) => {
   const isAdmin = await requireAdmin(req, res);
   if (!isAdmin) return;
   const { id } = req.params;
-  const { display_name, is_admin } = req.body;
+  const { display_name, is_admin, banned } = req.body;
   try {
+    const setClauses = [];
+    const params = [];
+    let paramIndex = 1;
+    if (display_name !== void 0) {
+      setClauses.push(`display_name = $${paramIndex++}`);
+      params.push(display_name);
+    }
+    if (is_admin !== void 0) {
+      setClauses.push(`is_admin = $${paramIndex++}`);
+      params.push(is_admin);
+    }
+    if (banned !== void 0) {
+      setClauses.push(`banned = $${paramIndex++}`);
+      setClauses.push(`banned_at = case when $${paramIndex++} then now() else null end`);
+      params.push(banned);
+      params.push(banned);
+    }
+    if (setClauses.length === 0) {
+      res.status(400).json({ error: "No fields to update" });
+      return;
+    }
+    setClauses.push(`updated_at = now()`);
+    params.push(id);
     const data = await queryOne(
-      `update public.profiles set
-        display_name = coalesce($1, display_name),
-        is_admin = coalesce($2, is_admin),
-        updated_at = now()
-       where id = $3
-       returning *`,
-      [display_name, is_admin, id]
+      `update public.profiles set ${setClauses.join(", ")} where id = $${paramIndex} returning *`,
+      params
     );
     res.json(data);
   } catch (err) {
@@ -38634,7 +38707,7 @@ router5.get("/stats", requireAuth, async (req, res) => {
       `select difficulty, count(*)::int as count from public.games group by difficulty`
     );
     const topPlayers = await query(
-      `select display_name, xp from public.profiles order by xp desc limit 10`
+      `select display_name, xp from public.profiles where banned = false order by xp desc limit 10`
     );
     const total = gameStats?.total_games ?? 0;
     res.json({

@@ -65,13 +65,13 @@ export const api = {
   },
 
   leaderboard: {
-    list: (difficulty = 'easy', page = 1, limit = 20) =>
+    list: (difficulty = 'easy', page = 1, limit = 20, period = 'all') =>
       request<{ data: unknown[]; pagination: unknown }>(
-        `/api/leaderboard?difficulty=${difficulty}&page=${page}&limit=${limit}`
+        `/api/leaderboard?difficulty=${difficulty}&page=${page}&limit=${limit}&period=${period}`
       ),
 
-    me: (difficulty = 'easy') =>
-      request<unknown>(`/api/leaderboard/me?difficulty=${difficulty}`),
+    me: (difficulty = 'easy', period = 'all') =>
+      request<unknown>(`/api/leaderboard/me?difficulty=${difficulty}&period=${period}`),
   },
 
   stats: {

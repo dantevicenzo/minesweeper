@@ -1,12 +1,12 @@
 import { Router } from 'express'
 import { query, queryOne } from '../utils/supabase'
-import { requireAuth } from '../middleware/auth'
+import { requireAuth, requireNotBanned } from '../middleware/auth'
 import type { AuthenticatedRequest } from '../middleware/auth'
 import type { Response } from 'express'
 
 const router = Router()
 
-router.get('/me', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/me', requireAuth, requireNotBanned, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const profile = await queryOne<any>(
       `select * from public.profiles where id = $1`,

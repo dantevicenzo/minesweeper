@@ -34,7 +34,13 @@
     "time": "Tempo",
     "date": "Data",
     "noEntries": "Nenhuma entrada ainda",
-    "difficulty": "Dificuldade"
+    "difficulty": "Dificuldade",
+    "period": "Período",
+    "allTime": "Todo o Tempo",
+    "today": "Hoje",
+    "week": "Esta Semana",
+    "month": "Este Mês",
+    "yourPosition": "Sua posição"
   },
   "profile": {
     "title": "Perfil",

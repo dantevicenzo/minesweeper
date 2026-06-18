@@ -74,6 +74,7 @@ describe('Games API', () => {
 
   it('creates a game with auth', async () => {
     mockAuthFetch()
+    mockQueryOne.mockResolvedValueOnce({ banned: false })
     mockQueryOne.mockResolvedValueOnce({ id: 'game-1', width: 9, height: 9, mine_count: 10, difficulty: 'easy', status: 'in_progress' })
 
     const res = await createTestServer('/api/games', {
@@ -142,6 +143,7 @@ describe('Games API', () => {
 
   it('updates a game', async () => {
     mockAuthFetch()
+    mockQueryOne.mockResolvedValueOnce({ banned: false })
     mockQueryOne.mockResolvedValueOnce({ id: 'game-1', user_id: 'test-user-id', status: 'in_progress', difficulty: 'easy', state: { board: [] }, completed_at: null, duration_ms: null })
     mockQueryOne.mockResolvedValueOnce({ id: 'game-1', status: 'won' })
 

@@ -1,13 +1,13 @@
 import { Router } from 'express'
 import { query, queryOne } from '../utils/supabase'
-import { requireAuth, optionalAuth } from '../middleware/auth'
+import { requireAuth, optionalAuth, requireNotBanned } from '../middleware/auth'
 import { processGameCompletion } from '../services/gameService'
 import type { AuthenticatedRequest } from '../middleware/auth'
 import type { Response } from 'express'
 
 const router: Router = Router()
 
-router.post('/', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+router.post('/', requireAuth, requireNotBanned, async (req: AuthenticatedRequest, res: Response) => {
   const { width, height, mineCount, difficulty, state, status, completed_at, duration_ms } = req.body
 
   if (!width || !height || !mineCount) {
@@ -98,7 +98,7 @@ router.get('/:id', optionalAuth, async (req: AuthenticatedRequest, res: Response
   }
 })
 
-router.put('/:id', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+router.put('/:id', requireAuth, requireNotBanned, async (req: AuthenticatedRequest, res: Response) => {
   const { id } = req.params
   const { state, status, completed_at, duration_ms } = req.body
 
@@ -159,7 +159,7 @@ router.put('/:id', requireAuth, async (req: AuthenticatedRequest, res: Response)
   }
 })
 
-router.delete('/:id', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+router.delete('/:id', requireAuth, requireNotBanned, async (req: AuthenticatedRequest, res: Response) => {
   const { id } = req.params
 
   try {

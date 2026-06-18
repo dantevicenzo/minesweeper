@@ -8,7 +8,7 @@ const router = Router()
 
 async function requireAdmin(req: AuthenticatedRequest, res: Response): Promise<boolean> {
   const profile = await queryOne<any>(
-    `select is_admin from public.profiles where id = $1`,
+    `select is_admin, banned from public.profiles where id = $1`,
     [req.userId!]
   )
 
@@ -16,6 +16,12 @@ async function requireAdmin(req: AuthenticatedRequest, res: Response): Promise<b
     res.status(403).json({ error: 'Admin access required' })
     return false
   }
+
+  if (profile?.banned) {
+    res.status(403).json({ error: 'Account is banned' })
+    return false
+  }
+
   return true
 }
 
@@ -68,17 +74,39 @@ router.put('/users/:id', requireAuth, async (req: AuthenticatedRequest, res: Res
   if (!isAdmin) return
 
   const { id } = req.params
-  const { display_name, is_admin } = req.body
+  const { display_name, is_admin, banned } = req.body
 
   try {
+    const setClauses: string[] = []
+    const params: any[] = []
+    let paramIndex = 1
+
+    if (display_name !== undefined) {
+      setClauses.push(`display_name = $${paramIndex++}`)
+      params.push(display_name)
+    }
+    if (is_admin !== undefined) {
+      setClauses.push(`is_admin = $${paramIndex++}`)
+      params.push(is_admin)
+    }
+    if (banned !== undefined) {
+      setClauses.push(`banned = $${paramIndex++}`)
+      setClauses.push(`banned_at = case when $${paramIndex++} then now() else null end`)
+      params.push(banned)
+      params.push(banned)
+    }
+
+    if (setClauses.length === 0) {
+      res.status(400).json({ error: 'No fields to update' })
+      return
+    }
+
+    setClauses.push(`updated_at = now()`)
+    params.push(id)
+
     const data = await queryOne(
-      `update public.profiles set
-        display_name = coalesce($1, display_name),
-        is_admin = coalesce($2, is_admin),
-        updated_at = now()
-       where id = $3
-       returning *`,
-      [display_name, is_admin, id]
+      `update public.profiles set ${setClauses.join(', ')} where id = $${paramIndex} returning *`,
+      params
     )
 
     res.json(data)
@@ -109,7 +137,7 @@ router.get('/stats', requireAuth, async (req: AuthenticatedRequest, res: Respons
     )
 
     const topPlayers = await query<{ display_name: string; xp: number }>(
-      `select display_name, xp from public.profiles order by xp desc limit 10`
+      `select display_name, xp from public.profiles where banned = false order by xp desc limit 10`
     )
 
     const total = gameStats?.total_games ?? 0

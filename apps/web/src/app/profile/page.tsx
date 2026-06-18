@@ -43,7 +43,15 @@ export default function ProfilePage() {
       .catch(err => console.error('[Profile] Failed to load achievements:', err))
   }, [user, router])
 
-  if (!user || !data) return null
+  if (!user) return null
+
+  if (!data) {
+    return (
+      <main className={styles.page}>
+        <p className={styles.loading}>Loading...</p>
+      </main>
+    )
+  }
 
   const { profile, games } = data
   const winRate = games.total_games > 0

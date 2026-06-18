@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { query } from '../utils/supabase'
-import { requireAuth } from '../middleware/auth'
+import { requireAuth, requireNotBanned } from '../middleware/auth'
 import type { AuthenticatedRequest } from '../middleware/auth'
 import type { Response } from 'express'
 
@@ -15,7 +15,7 @@ router.get('/', async (_req, res: Response) => {
   }
 })
 
-router.get('/me', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/me', requireAuth, requireNotBanned, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const all = await query<any>(`select * from public.achievements order by key`)
 
