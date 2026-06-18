@@ -38459,50 +38459,68 @@ var games_default = router;
 // api/routes/leaderboard.ts
 import { Router as Router2 } from "express";
 var router2 = Router2();
-function getPeriodFilter(period) {
-  switch (period) {
-    case "today":
-      return { sql: "and le.created_at >= $5", since: new Date((/* @__PURE__ */ new Date()).setHours(0, 0, 0, 0)) };
-    case "week":
-      const weekAgo = /* @__PURE__ */ new Date();
-      weekAgo.setDate(weekAgo.getDate() - 7);
-      return { sql: "and le.created_at >= $5", since: weekAgo };
-    case "month":
-      const monthAgo = /* @__PURE__ */ new Date();
-      monthAgo.setMonth(monthAgo.getMonth() - 1);
-      return { sql: "and le.created_at >= $5", since: monthAgo };
-    default:
-      return { sql: "", since: null };
+function buildLeaderboardQuery(difficulty, period, custom) {
+  const params = [difficulty];
+  let idx = 2;
+  const customWhereSql = custom.where.replace(/\$4/g, `$${idx++}`).replace(/\$5/g, `$${idx++}`).replace(/\$6/g, `$${idx++}`);
+  if (custom.params.length > 0) params.push(...custom.params);
+  let periodSql = "";
+  if (period === "today") {
+    periodSql = `and le.created_at >= $${idx++}`;
+    params.push(new Date((/* @__PURE__ */ new Date()).setHours(0, 0, 0, 0)));
+  } else if (period === "week") {
+    const weekAgo = /* @__PURE__ */ new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    periodSql = `and le.created_at >= $${idx++}`;
+    params.push(weekAgo);
+  } else if (period === "month") {
+    const monthAgo = /* @__PURE__ */ new Date();
+    monthAgo.setMonth(monthAgo.getMonth() - 1);
+    periodSql = `and le.created_at >= $${idx++}`;
+    params.push(monthAgo);
   }
+  return { params, customWhereSql, periodSql };
 }
+function buildCustomFilter(req) {
+  const width = parseInt(req.query.width);
+  const height = parseInt(req.query.height);
+  const mineCount = parseInt(req.query.mineCount);
+  if (!isNaN(width) && !isNaN(height) && !isNaN(mineCount)) {
+    return {
+      where: "and g.width = $4 and g.height = $5 and g.mine_count = $6",
+      params: [width, height, mineCount]
+    };
+  }
+  return { where: "", params: [] };
+}
+var GAMES_JOIN = "left join public.games g on g.id = le.game_id";
 router2.get("/", async (req, res) => {
   const difficulty = req.query.difficulty ?? "easy";
   const period = req.query.period ?? "all";
   const page = Math.max(1, parseInt(req.query.page) || 1);
   const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
   const offset = (page - 1) * limit;
-  const { sql: periodSql, since } = getPeriodFilter(period);
+  const custom = difficulty === "custom" ? buildCustomFilter(req) : { where: "", params: [] };
+  const q = buildLeaderboardQuery(difficulty, period, custom);
   try {
-    const params = [difficulty, limit, offset];
-    const countParams = [difficulty];
-    if (since) {
-      params.push(since);
-      countParams.push(since);
-    }
+    const listParams = [...q.params, limit, offset];
+    const countParams = [...q.params];
     const data = await query(
-      `select le.*, p.display_name, p.avatar_url
+      `select le.*, p.display_name, p.avatar_url, g.width, g.height, g.mine_count
        from public.leaderboard_entries le
        join public.profiles p on p.id = le.user_id
-       where le.difficulty = $1 and p.banned = false ${periodSql}
+       ${GAMES_JOIN}
+       where le.difficulty = $1 and p.banned = false ${q.customWhereSql} ${q.periodSql}
        order by le.duration_ms asc
-       limit $2 offset $3`,
-      params
+       limit $${q.params.length + 1} offset $${q.params.length + 2}`,
+      listParams
     );
     const countResult = await queryOne(
       `select count(*)::int as count
        from public.leaderboard_entries le
        join public.profiles p on p.id = le.user_id
-       where le.difficulty = $1 and p.banned = false ${periodSql}`,
+       ${GAMES_JOIN}
+       where le.difficulty = $1 and p.banned = false ${q.customWhereSql} ${q.periodSql}`,
       countParams
     );
     const total = countResult?.count ?? 0;
@@ -38522,20 +38540,17 @@ router2.get("/", async (req, res) => {
 router2.get("/me", requireAuth, requireNotBanned, async (req, res) => {
   const difficulty = req.query.difficulty ?? "easy";
   const period = req.query.period ?? "all";
-  const { sql: periodSql, since } = getPeriodFilter(period);
+  const custom = difficulty === "custom" ? buildCustomFilter(req) : { where: "", params: [] };
+  const q = buildLeaderboardQuery(difficulty, period, custom);
   try {
-    const params = [req.userId, difficulty];
-    const rankParams = [difficulty];
-    if (since) {
-      params.push(since);
-      rankParams.push(since);
-    }
     const data = await queryOne(
-      `select * from public.leaderboard_entries
-       where user_id = $1 and difficulty = $2 ${periodSql}
-       order by duration_ms asc
+      `select le.*
+       from public.leaderboard_entries le
+       ${GAMES_JOIN}
+       where le.user_id = $${q.params.length + 1} and le.difficulty = $1 ${q.customWhereSql} ${q.periodSql}
+       order by le.duration_ms asc
        limit 1`,
-      params
+      [...q.params, req.userId]
     );
     if (!data) {
       res.status(404).json({ error: "No entries found" });
@@ -38545,8 +38560,9 @@ router2.get("/me", requireAuth, requireNotBanned, async (req, res) => {
       `select count(*)::int + 1 as rank
        from public.leaderboard_entries le
        join public.profiles p on p.id = le.user_id
-       where le.difficulty = $1 and le.duration_ms < $2 and p.banned = false ${periodSql}`,
-      [difficulty, data.duration_ms, ...since ? [since] : []]
+       ${GAMES_JOIN}
+       where le.difficulty = $1 and le.duration_ms < $${q.params.length + 1} and p.banned = false ${q.customWhereSql} ${q.periodSql}`,
+      [...q.params, data.duration_ms]
     );
     res.json({ ...data, rank: rankResult?.rank ?? 1 });
   } catch (err) {

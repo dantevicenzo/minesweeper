@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { api } from '../../lib/api'
 import { useAuth } from '../../contexts/AuthContext'
@@ -15,6 +15,9 @@ interface Entry {
   display_name: string
   avatar_url: string | null
   rank?: number
+  width?: number
+  height?: number
+  mine_count?: number
 }
 
 interface MyEntry {
@@ -25,6 +28,15 @@ interface MyEntry {
 }
 
 const PERIODS = ['all', 'today', 'week', 'month'] as const
+const MIN_SIZE = 5
+const MAX_SIZE = 100
+
+const DIFFICULTY_OPTIONS = [
+  { key: 'easy', label: 'Easy' },
+  { key: 'medium', label: 'Medium' },
+  { key: 'hard', label: 'Hard' },
+  { key: 'custom', label: 'Custom' },
+] as const
 
 export default function LeaderboardPage() {
   const { t } = useI18n()
@@ -36,22 +48,52 @@ export default function LeaderboardPage() {
   const [error, setError] = useState(false)
   const [myEntry, setMyEntry] = useState<MyEntry | null>(null)
 
-  useEffect(() => {
+  const [customWidth, setCustomWidth] = useState(12)
+  const [customHeight, setCustomHeight] = useState(12)
+  const [customMines, setCustomMines] = useState(20)
+  const maxMines = customWidth * customHeight - 1
+
+  const isCustom = difficulty === 'custom'
+
+  const fetchLeaderboard = useCallback(async () => {
     setLoading(true)
     setError(false)
+    setMyEntry(null)
 
-    Promise.all([
-      api.leaderboard.list(difficulty, 1, 50, period)
-        .then(data => setEntries((data as { data: Entry[] }).data)),
-      user
-        ? api.leaderboard.me(difficulty, period)
-            .then(d => setMyEntry(d as MyEntry))
-            .catch(() => setMyEntry(null))
-        : Promise.resolve(),
-    ])
-      .catch(() => setError(true))
-      .finally(() => setLoading(false))
-  }, [difficulty, period, user])
+    const customConfig = isCustom
+      ? { width: customWidth, height: customHeight, mineCount: customMines }
+      : undefined
+
+    try {
+      const [listData, myData] = await Promise.all([
+        api.leaderboard.list(difficulty, 1, 50, period, customConfig),
+        user
+          ? api.leaderboard.me(difficulty, period, customConfig).catch(() => null)
+          : Promise.resolve(null),
+      ])
+
+      setEntries((listData as { data: Entry[] }).data)
+      if (myData) setMyEntry(myData as MyEntry)
+    } catch {
+      setError(true)
+    } finally {
+      setLoading(false)
+    }
+  }, [difficulty, period, user, isCustom, customWidth, customHeight, customMines])
+
+  useEffect(() => {
+    fetchLeaderboard()
+  }, [fetchLeaderboard])
+
+  const label = (key: string) => {
+    switch (key) {
+      case 'easy': return t.game.difficulty.easy
+      case 'medium': return t.game.difficulty.medium
+      case 'hard': return t.game.difficulty.hard
+      case 'custom': return t.game.difficulty.custom
+      default: return key
+    }
+  }
 
   return (
     <main className={styles.page}>
@@ -66,9 +108,9 @@ export default function LeaderboardPage() {
             value={difficulty}
             onChange={e => setDifficulty(e.target.value)}
           >
-            <option value="easy">Easy</option>
-            <option value="medium">Medium</option>
-            <option value="hard">Hard</option>
+            {DIFFICULTY_OPTIONS.map(d => (
+              <option key={d.key} value={d.key}>{label(d.key)}</option>
+            ))}
           </select>
         </div>
 
@@ -87,6 +129,44 @@ export default function LeaderboardPage() {
         </div>
       </div>
 
+      {isCustom && (
+        <div className={styles.customInputs}>
+          <label>
+            Width
+            <input
+              type="number"
+              min={MIN_SIZE}
+              max={MAX_SIZE}
+              value={customWidth}
+              onChange={e => setCustomWidth(Math.max(MIN_SIZE, Math.min(MAX_SIZE, Number(e.target.value) || MIN_SIZE)))}
+              className={styles.numberInput}
+            />
+          </label>
+          <label>
+            Height
+            <input
+              type="number"
+              min={MIN_SIZE}
+              max={MAX_SIZE}
+              value={customHeight}
+              onChange={e => setCustomHeight(Math.max(MIN_SIZE, Math.min(MAX_SIZE, Number(e.target.value) || MIN_SIZE)))}
+              className={styles.numberInput}
+            />
+          </label>
+          <label>
+            Mines
+            <input
+              type="number"
+              min={1}
+              max={maxMines}
+              value={customMines}
+              onChange={e => setCustomMines(Math.max(1, Math.min(maxMines, Number(e.target.value) || 1)))}
+              className={styles.numberInput}
+            />
+          </label>
+        </div>
+      )}
+
       {loading ? (
         <p className={styles.status}>Loading...</p>
       ) : error ? (
@@ -95,6 +175,14 @@ export default function LeaderboardPage() {
         <p className={styles.status}>{t.leaderboard.noEntries}</p>
       ) : (
         <>
+          <div className={styles.boardInfo}>
+            {entries[0]?.width && entries[0]?.height && entries[0]?.mine_count ? (
+              <span>{entries[0].width} × {entries[0].height} · {entries[0].mine_count} mines</span>
+            ) : isCustom ? (
+              <span>{customWidth} × {customHeight} · {customMines} mines</span>
+            ) : null}
+          </div>
+
           <table className={styles.table}>
             <thead>
               <tr>

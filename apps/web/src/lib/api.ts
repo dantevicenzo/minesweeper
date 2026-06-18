@@ -65,13 +65,17 @@ export const api = {
   },
 
   leaderboard: {
-    list: (difficulty = 'easy', page = 1, limit = 20, period = 'all') =>
-      request<{ data: unknown[]; pagination: unknown }>(
-        `/api/leaderboard?difficulty=${difficulty}&page=${page}&limit=${limit}&period=${period}`
-      ),
+    list: (difficulty = 'easy', page = 1, limit = 20, period = 'all', custom?: { width: number; height: number; mineCount: number }) => {
+      let url = `/api/leaderboard?difficulty=${difficulty}&page=${page}&limit=${limit}&period=${period}`
+      if (custom) url += `&width=${custom.width}&height=${custom.height}&mineCount=${custom.mineCount}`
+      return request<{ data: unknown[]; pagination: unknown }>(url)
+    },
 
-    me: (difficulty = 'easy', period = 'all') =>
-      request<unknown>(`/api/leaderboard/me?difficulty=${difficulty}&period=${period}`),
+    me: (difficulty = 'easy', period = 'all', custom?: { width: number; height: number; mineCount: number }) => {
+      let url = `/api/leaderboard/me?difficulty=${difficulty}&period=${period}`
+      if (custom) url += `&width=${custom.width}&height=${custom.height}&mineCount=${custom.mineCount}`
+      return request<unknown>(url)
+    },
   },
 
   stats: {

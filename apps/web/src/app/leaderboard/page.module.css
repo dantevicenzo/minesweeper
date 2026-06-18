@@ -76,3 +76,33 @@
   text-align: center;
   font-size: 14px;
 }
+
+.boardInfo {
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--color-text-secondary, #666);
+}
+
+.customInputs {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.customInputs label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--color-text-secondary, #666);
+}
+
+.numberInput {
+  width: 72px;
+  padding: 6px 8px;
+  font-size: 14px;
+  border: 1px solid var(--color-border, #d4d4d4);
+  border-radius: 6px;
+  text-align: center;
+}
