@@ -27,11 +27,19 @@ describe('AntiCheat — validateGameTime', () => {
   })
 
   it('allows reasonable custom game time', () => {
-    expect(validateGameTime(60000, 'custom', 20, 20).valid).toBe(true)
+    expect(validateGameTime(60000, 'custom', 20, 20, 50).valid).toBe(true)
   })
 
   it('rejects impossibly fast custom game', () => {
-    expect(validateGameTime(100, 'custom', 20, 20).valid).toBe(false)
+    expect(validateGameTime(100, 'custom', 20, 20, 50).valid).toBe(false)
+  })
+
+  it('allows fast time on custom board with almost all mines', () => {
+    expect(validateGameTime(1500, 'custom', 100, 100, 9999).valid).toBe(true)
+  })
+
+  it('rejects fast time on custom board with few mines', () => {
+    expect(validateGameTime(1500, 'custom', 100, 100, 1).valid).toBe(false)
   })
 })
 

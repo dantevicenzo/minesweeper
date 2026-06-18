@@ -38261,15 +38261,15 @@ var MIN_TIME_BY_DIFFICULTY = {
 };
 var DEFAULT_MIN_TIME = 1e3;
 var TIMESTAMP_TOLERANCE_MS = 5e3;
-function validateGameTime(durationMs, difficulty, width, height) {
+function validateGameTime(durationMs, difficulty, width, height, mineCount) {
   const minForDifficulty = MIN_TIME_BY_DIFFICULTY[difficulty] ?? DEFAULT_MIN_TIME;
-  const cellCount = width * height;
-  const minForSize = Math.max(1e3, cellCount * 50);
+  const safeCells = Math.max(1, width * height - (mineCount ?? Math.ceil(width * height * 0.2)));
+  const minForSize = Math.max(1e3, safeCells * 50);
   const minTime = Math.max(minForDifficulty, minForSize);
   if (durationMs < minTime) {
     return {
       valid: false,
-      reason: `Completion time (${durationMs}ms) is below minimum threshold (${minTime}ms) for ${difficulty} (${width}x${height}). Possible cheating detected.`
+      reason: `Completion time (${durationMs}ms) is below minimum threshold (${minTime}ms) for ${difficulty} (${width}x${height}, ${safeCells} safe cells). Possible cheating detected.`
     };
   }
   return { valid: true };
@@ -38313,7 +38313,7 @@ router.post("/", requireAuth, requireNotBanned, async (req, res) => {
       ]
     );
     if (status === "won" && duration_ms != null) {
-      const timeCheck = validateGameTime(duration_ms, difficulty, width, height);
+      const timeCheck = validateGameTime(duration_ms, difficulty, width, height, mineCount);
       if (!timeCheck.valid) {
         console.warn(`[AntiCheat] User ${req.userId}: ${timeCheck.reason}`);
       } else {
@@ -38413,7 +38413,7 @@ router.put("/:id", requireAuth, requireNotBanned, async (req, res) => {
         if (!consistencyCheck.valid) {
           console.warn(`[AntiCheat] User ${req.userId}: ${consistencyCheck.reason}`);
         } else {
-          const timeCheck = validateGameTime(finalDuration, existing.difficulty, existing.width, existing.height);
+          const timeCheck = validateGameTime(finalDuration, existing.difficulty, existing.width, existing.height, existing.mine_count);
           if (!timeCheck.valid) {
             console.warn(`[AntiCheat] User ${req.userId}: ${timeCheck.reason}`);
           } else {

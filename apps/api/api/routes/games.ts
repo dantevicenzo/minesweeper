@@ -31,7 +31,7 @@ router.post('/', requireAuth, requireNotBanned, async (req: AuthenticatedRequest
     )
 
     if (status === 'won' && duration_ms != null) {
-      const timeCheck = validateGameTime(duration_ms, difficulty, width, height)
+      const timeCheck = validateGameTime(duration_ms, difficulty, width, height, mineCount)
       if (!timeCheck.valid) {
         console.warn(`[AntiCheat] User ${req.userId}: ${timeCheck.reason}`)
       } else {
@@ -151,7 +151,7 @@ router.put('/:id', requireAuth, requireNotBanned, async (req: AuthenticatedReque
         if (!consistencyCheck.valid) {
           console.warn(`[AntiCheat] User ${req.userId}: ${consistencyCheck.reason}`)
         } else {
-          const timeCheck = validateGameTime(finalDuration, existing.difficulty, existing.width, existing.height)
+          const timeCheck = validateGameTime(finalDuration, existing.difficulty, existing.width, existing.height, existing.mine_count)
           if (!timeCheck.valid) {
             console.warn(`[AntiCheat] User ${req.userId}: ${timeCheck.reason}`)
           } else {

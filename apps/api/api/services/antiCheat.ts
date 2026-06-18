@@ -12,16 +12,18 @@ export function validateGameTime(
   difficulty: string,
   width: number,
   height: number,
+  mineCount?: number,
 ): { valid: boolean; reason?: string } {
   const minForDifficulty = MIN_TIME_BY_DIFFICULTY[difficulty] ?? DEFAULT_MIN_TIME
-  const cellCount = width * height
-  const minForSize = Math.max(1000, cellCount * 50)
+
+  const safeCells = Math.max(1, (width * height) - (mineCount ?? Math.ceil(width * height * 0.2)))
+  const minForSize = Math.max(1000, safeCells * 50)
   const minTime = Math.max(minForDifficulty, minForSize)
 
   if (durationMs < minTime) {
     return {
       valid: false,
-      reason: `Completion time (${durationMs}ms) is below minimum threshold (${minTime}ms) for ${difficulty} (${width}x${height}). Possible cheating detected.`,
+      reason: `Completion time (${durationMs}ms) is below minimum threshold (${minTime}ms) for ${difficulty} (${width}x${height}, ${safeCells} safe cells). Possible cheating detected.`,
     }
   }
 
