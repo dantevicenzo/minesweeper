@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { query, queryOne } from '../utils/supabase'
 import { requireAuth, optionalAuth, requireNotBanned } from '../middleware/auth'
 import { processGameCompletion } from '../services/gameService'
-import { validateGameTime } from '../services/antiCheat'
+import { validateGameTime, validateTimeConsistency } from '../services/antiCheat'
 import type { AuthenticatedRequest } from '../middleware/auth'
 import type { Response } from 'express'
 
@@ -31,9 +31,9 @@ router.post('/', requireAuth, requireNotBanned, async (req: AuthenticatedRequest
     )
 
     if (status === 'won' && duration_ms != null) {
-      const check = validateGameTime(duration_ms, difficulty, width, height)
-      if (!check.valid) {
-        console.warn(`[AntiCheat] User ${req.userId}: ${check.reason}`)
+      const timeCheck = validateGameTime(duration_ms, difficulty, width, height)
+      if (!timeCheck.valid) {
+        console.warn(`[AntiCheat] User ${req.userId}: ${timeCheck.reason}`)
       } else {
         await query(
           `insert into public.leaderboard_entries (user_id, game_id, difficulty, duration_ms)
@@ -119,6 +119,10 @@ router.put('/:id', requireAuth, requireNotBanned, async (req: AuthenticatedReque
       return
     }
 
+    const newStatus = status ?? existing.status
+    const finalDuration = duration_ms ?? existing.duration_ms
+    const serverCompletedAt = newStatus === 'won' && existing.status !== 'won' ? new Date() : (completed_at ?? existing.completed_at)
+
     const data = await queryOne(
       `update public.games set
         state = $1, status = $2, completed_at = $3, duration_ms = $4, updated_at = now()
@@ -127,28 +131,42 @@ router.put('/:id', requireAuth, requireNotBanned, async (req: AuthenticatedReque
       [
         state ? JSON.stringify(state) : existing.state,
         status ?? existing.status,
-        completed_at ?? existing.completed_at,
+        serverCompletedAt,
         duration_ms ?? existing.duration_ms,
         id,
         req.userId,
       ]
     )
 
-    const newStatus = status ?? existing.status
-    const finalDuration = duration_ms ?? existing.duration_ms
     if (newStatus === 'won' && existing.status !== 'won') {
+      let leaderboardAllowed = false
+
       if (finalDuration != null) {
-        const check = validateGameTime(finalDuration, existing.difficulty, existing.width, existing.height)
-        if (!check.valid) {
-          console.warn(`[AntiCheat] User ${req.userId}: ${check.reason}`)
+        const consistencyCheck = validateTimeConsistency(
+          existing.started_at ?? existing.created_at,
+          serverCompletedAt,
+          finalDuration,
+        )
+
+        if (!consistencyCheck.valid) {
+          console.warn(`[AntiCheat] User ${req.userId}: ${consistencyCheck.reason}`)
         } else {
-          await query(
-            `insert into public.leaderboard_entries (user_id, game_id, difficulty, duration_ms)
-             values ($1, $2, $3, $4)
-             on conflict do nothing`,
-            [req.userId, id, existing.difficulty, finalDuration]
-          )
+          const timeCheck = validateGameTime(finalDuration, existing.difficulty, existing.width, existing.height)
+          if (!timeCheck.valid) {
+            console.warn(`[AntiCheat] User ${req.userId}: ${timeCheck.reason}`)
+          } else {
+            leaderboardAllowed = true
+          }
         }
+      }
+
+      if (leaderboardAllowed) {
+        await query(
+          `insert into public.leaderboard_entries (user_id, game_id, difficulty, duration_ms)
+           values ($1, $2, $3, $4)
+           on conflict do nothing`,
+          [req.userId, id, existing.difficulty, finalDuration]
+        )
       }
 
       const board = state?.board ?? existing.state?.board ?? []

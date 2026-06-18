@@ -38260,6 +38260,7 @@ var MIN_TIME_BY_DIFFICULTY = {
   hard: 8e3
 };
 var DEFAULT_MIN_TIME = 1e3;
+var TIMESTAMP_TOLERANCE_MS = 5e3;
 function validateGameTime(durationMs, difficulty, width, height) {
   const minForDifficulty = MIN_TIME_BY_DIFFICULTY[difficulty] ?? DEFAULT_MIN_TIME;
   const cellCount = width * height;
@@ -38269,6 +38270,18 @@ function validateGameTime(durationMs, difficulty, width, height) {
     return {
       valid: false,
       reason: `Completion time (${durationMs}ms) is below minimum threshold (${minTime}ms) for ${difficulty} (${width}x${height}). Possible cheating detected.`
+    };
+  }
+  return { valid: true };
+}
+function validateTimeConsistency(startedAt, serverCompletedAt, reportedDurationMs) {
+  const startMs = new Date(startedAt).getTime();
+  const elapsedMs = serverCompletedAt.getTime() - startMs;
+  const diff = Math.abs(elapsedMs - reportedDurationMs);
+  if (diff > TIMESTAMP_TOLERANCE_MS) {
+    return {
+      valid: false,
+      reason: `Time inconsistency: reported ${reportedDurationMs}ms, server measured ${elapsedMs}ms (diff ${diff}ms > ${TIMESTAMP_TOLERANCE_MS}ms tolerance).`
     };
   }
   return { valid: true };
@@ -38300,9 +38313,9 @@ router.post("/", requireAuth, requireNotBanned, async (req, res) => {
       ]
     );
     if (status === "won" && duration_ms != null) {
-      const check = validateGameTime(duration_ms, difficulty, width, height);
-      if (!check.valid) {
-        console.warn(`[AntiCheat] User ${req.userId}: ${check.reason}`);
+      const timeCheck = validateGameTime(duration_ms, difficulty, width, height);
+      if (!timeCheck.valid) {
+        console.warn(`[AntiCheat] User ${req.userId}: ${timeCheck.reason}`);
       } else {
         await query(
           `insert into public.leaderboard_entries (user_id, game_id, difficulty, duration_ms)
@@ -38372,6 +38385,9 @@ router.put("/:id", requireAuth, requireNotBanned, async (req, res) => {
       res.status(404).json({ error: "Game not found or not authorized" });
       return;
     }
+    const newStatus = status ?? existing.status;
+    const finalDuration = duration_ms ?? existing.duration_ms;
+    const serverCompletedAt = newStatus === "won" && existing.status !== "won" ? /* @__PURE__ */ new Date() : completed_at ?? existing.completed_at;
     const data = await queryOne(
       `update public.games set
         state = $1, status = $2, completed_at = $3, duration_ms = $4, updated_at = now()
@@ -38380,27 +38396,38 @@ router.put("/:id", requireAuth, requireNotBanned, async (req, res) => {
       [
         state ? JSON.stringify(state) : existing.state,
         status ?? existing.status,
-        completed_at ?? existing.completed_at,
+        serverCompletedAt,
         duration_ms ?? existing.duration_ms,
         id,
         req.userId
       ]
     );
-    const newStatus = status ?? existing.status;
-    const finalDuration = duration_ms ?? existing.duration_ms;
     if (newStatus === "won" && existing.status !== "won") {
+      let leaderboardAllowed = false;
       if (finalDuration != null) {
-        const check = validateGameTime(finalDuration, existing.difficulty, existing.width, existing.height);
-        if (!check.valid) {
-          console.warn(`[AntiCheat] User ${req.userId}: ${check.reason}`);
+        const consistencyCheck = validateTimeConsistency(
+          existing.started_at ?? existing.created_at,
+          serverCompletedAt,
+          finalDuration
+        );
+        if (!consistencyCheck.valid) {
+          console.warn(`[AntiCheat] User ${req.userId}: ${consistencyCheck.reason}`);
         } else {
-          await query(
-            `insert into public.leaderboard_entries (user_id, game_id, difficulty, duration_ms)
-             values ($1, $2, $3, $4)
-             on conflict do nothing`,
-            [req.userId, id, existing.difficulty, finalDuration]
-          );
+          const timeCheck = validateGameTime(finalDuration, existing.difficulty, existing.width, existing.height);
+          if (!timeCheck.valid) {
+            console.warn(`[AntiCheat] User ${req.userId}: ${timeCheck.reason}`);
+          } else {
+            leaderboardAllowed = true;
+          }
         }
+      }
+      if (leaderboardAllowed) {
+        await query(
+          `insert into public.leaderboard_entries (user_id, game_id, difficulty, duration_ms)
+           values ($1, $2, $3, $4)
+           on conflict do nothing`,
+          [req.userId, id, existing.difficulty, finalDuration]
+        );
       }
       const board = state?.board ?? existing.state?.board ?? [];
       const flaggedCells = board.flatMap((row) => row).filter((c) => c.isFlagged).length;
