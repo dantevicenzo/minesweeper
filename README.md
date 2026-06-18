@@ -15,10 +15,15 @@ Campo Minado clássico multiplataforma com contas sincronizadas, ranking global,
 | API | https://api-theta-three-88.vercel.app |
 | API Health | https://api-theta-three-88.vercel.app/api/health |
 
-### Credenciais de teste (admin)
+### Credenciais de teste (admin, apenas local)
 
-- **Email:** `test@minesweeper.local`
-- **Senha:** `test123456`
+Para desenvolvimento local, use o seed do banco de dados local:
+
+```bash
+pnpm --filter @minesweeper/api seed
+```
+
+O seed cria um usuário de teste com email `test@minesweeper.local` e senha `test123456`, com perfil admin.
 
 ---
 
