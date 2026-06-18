@@ -42,7 +42,7 @@ export async function processGameCompletion(game: GameResult): Promise<void> {
   )
 
   let streak = 0
-  for (const g of recentGames) {
+  for (const g of recentGames ?? []) {
     if (g.status === 'won') streak++
     else break
   }
@@ -97,9 +97,9 @@ async function checkAndUnlockAchievements(
     [game.userId]
   )
 
-  const unlockedSet = new Set(unlocked.map(u => u.achievement_id))
+  const unlockedSet = new Set((unlocked ?? []).map(u => u.achievement_id))
 
-  for (const a of allAchievements) {
+  for (const a of allAchievements ?? []) {
     if (unlockedSet.has(a.id)) continue
 
     let earned = false
