@@ -1,2 +1,11 @@
-$ echo ok
-ok
+$ vitest run
+
+ RUN  v3.2.6 /Users/dantevcz/Documents/YouTube/deepseek-v4-flash-free/minesweeper/packages/utils
+
+ ✓ src/__tests__/index.test.ts (18 tests) 3ms
+
+ Test Files  1 passed (1)
+      Tests  18 passed (18)
+   Start at  22:18:09
+   Duration  607ms (transform 47ms, setup 0ms, collect 45ms, tests 3ms, environment 0ms, prepare 134ms)
+

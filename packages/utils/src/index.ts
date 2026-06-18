@@ -17,5 +17,3 @@ export function shuffleArray<T>(array: T[]): T[] {
   }
   return result
 }
-
-export { clamp, formatTime, shuffleArray }
