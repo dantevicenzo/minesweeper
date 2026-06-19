@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, TextInput, StyleSheet } from 'react-native'
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useTheme } from '../contexts/ThemeContext'
 import { useI18n } from '../contexts/I18nContext'
 import { useAuth } from '../contexts/AuthContext'
 import { api } from '../lib/api'
+import { Stepper } from '../components/Stepper'
 
 const DIFFICULTIES = ['easy', 'medium', 'hard', 'custom'] as const
 const PERIODS = ['all', 'today', 'week', 'month'] as const
@@ -179,29 +180,32 @@ export function LeaderboardScreen() {
         <View style={styles.customRow}>
           <View style={styles.customItem}>
             <Text style={[styles.customLabel, { color: colors.textSecondary }]}>{t.game.customWidth}</Text>
-            <TextInput
-              style={[styles.customInput, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
-              value={String(customWidth)}
-              onChangeText={v => setCustomWidth(Math.max(MIN_SIZE, Math.min(MAX_SIZE, Number(v) || MIN_SIZE)))}
-              keyboardType="numeric"
+            <Stepper
+              value={customWidth}
+              min={MIN_SIZE}
+              max={MAX_SIZE}
+              onChange={setCustomWidth}
+              testID="stepper-width"
             />
           </View>
           <View style={styles.customItem}>
             <Text style={[styles.customLabel, { color: colors.textSecondary }]}>{t.game.customHeight}</Text>
-            <TextInput
-              style={[styles.customInput, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
-              value={String(customHeight)}
-              onChangeText={v => setCustomHeight(Math.max(MIN_SIZE, Math.min(MAX_SIZE, Number(v) || MIN_SIZE)))}
-              keyboardType="numeric"
+            <Stepper
+              value={customHeight}
+              min={MIN_SIZE}
+              max={MAX_SIZE}
+              onChange={setCustomHeight}
+              testID="stepper-height"
             />
           </View>
           <View style={styles.customItem}>
             <Text style={[styles.customLabel, { color: colors.textSecondary }]}>{t.game.customMines}</Text>
-            <TextInput
-              style={[styles.customInput, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
-              value={String(customMines)}
-              onChangeText={v => setCustomMines(Math.max(1, Math.min(maxMines, Number(v) || 1)))}
-              keyboardType="numeric"
+            <Stepper
+              value={customMines}
+              min={1}
+              max={maxMines}
+              onChange={setCustomMines}
+              testID="stepper-mines"
             />
           </View>
         </View>
@@ -260,10 +264,9 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 },
   filterRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 },
   filterBtn: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 6, borderWidth: 1 },
-  customRow: { flexDirection: 'row', gap: 12, marginBottom: 12 },
-  customItem: { flex: 1 },
-  customLabel: { fontSize: 12, marginBottom: 4 },
-  customInput: { borderWidth: 1, borderRadius: 6, paddingVertical: 8, paddingHorizontal: 10, fontSize: 14, textAlign: 'center' },
+  customRow: { flexDirection: 'row', gap: 16, marginBottom: 12 },
+  customItem: { alignItems: 'center', gap: 4 },
+  customLabel: { fontSize: 12 },
   boardInfo: { fontSize: 12, marginBottom: 12 },
   headerRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1 },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth },
