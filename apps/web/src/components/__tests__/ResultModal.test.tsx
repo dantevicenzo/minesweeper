@@ -2,11 +2,17 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, cleanup } from '@testing-library/react'
 import { ResultModal } from '../ResultModal'
 
+vi.mock('../icons', () => ({
+  GlassesIcon: ({ className }: { className?: string }) => <svg data-testid="glasses-icon" className={className} />,
+  XeyesIcon: ({ className }: { className?: string }) => <svg data-testid="xeyes-icon" className={className} />,
+}))
+
 vi.mock('../ResultModal.module.css', () => ({
   default: {
     backdrop: 'backdrop',
     modal: 'modal',
     emoji: 'emoji',
+    emojiIcon: 'emojiIcon',
     title: 'title',
     section: 'section',
     sectionTitle: 'sectionTitle',
@@ -54,15 +60,15 @@ const defaultProps = {
 }
 
 describe('ResultModal', () => {
-  it('renders win emoji and title', () => {
+  it('renders glasses icon and win title', () => {
     render(<ResultModal {...defaultProps} />)
-    expect(screen.getByText('😎')).toBeDefined()
+    expect(screen.getByTestId('glasses-icon')).toBeDefined()
     expect(screen.getByText('You Win!')).toBeDefined()
   })
 
-  it('renders lose emoji and title', () => {
+  it('renders xeyes icon and lose title', () => {
     render(<ResultModal {...defaultProps} status="lost" />)
-    expect(screen.getByText('💀')).toBeDefined()
+    expect(screen.getByTestId('xeyes-icon')).toBeDefined()
     expect(screen.getByText('Game Over')).toBeDefined()
   })
 

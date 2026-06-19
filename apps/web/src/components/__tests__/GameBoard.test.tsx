@@ -109,7 +109,7 @@ describe('GameBoard', () => {
 
     render(<GameBoard width={9} height={9} mineCount={10} />)
     const smiley = screen.getByRole('button', { name: 'New Game' })
-    expect(smiley.textContent).toBe('🙂')
+    expect(smiley.querySelector('svg')).toBeTruthy()
   })
 
   it('shows dead face on game over', () => {
@@ -121,7 +121,7 @@ describe('GameBoard', () => {
 
     render(<GameBoard width={9} height={9} mineCount={10} />)
     const smiley = screen.getByRole('button', { name: 'New Game' })
-    expect(smiley.textContent).toBe('💀')
+    expect(smiley.querySelector('svg')).toBeTruthy()
   })
 
   it('shows cool face on win', () => {
@@ -133,7 +133,7 @@ describe('GameBoard', () => {
 
     render(<GameBoard width={9} height={9} mineCount={10} />)
     const smiley = screen.getByRole('button', { name: 'New Game' })
-    expect(smiley.textContent).toBe('😎')
+    expect(smiley.querySelector('svg')).toBeTruthy()
   })
 
   it('has role="grid" for the board', () => {

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { useI18n } from '../contexts/I18nContext'
+import { GlassesIcon, XeyesIcon } from './icons'
 import styles from './ResultModal.module.css'
 
 interface ResultModalProps {
@@ -44,7 +45,9 @@ export function ResultModal({ status, time, difficulty, mineCount, flagCount, cl
     <>
       <div className={styles.backdrop} />
       <div className={styles.modal} role="dialog" aria-modal="true" aria-labelledby="result-title" onKeyDown={handleKeyDown}>
-        <div className={styles.emoji}>{status === 'won' ? '😎' : '💀'}</div>
+        <div className={styles.emoji}>
+          {status === 'won' ? <GlassesIcon className={styles.emojiIcon} /> : <XeyesIcon className={styles.emojiIcon} />}
+        </div>
         <h2 id="result-title" className={styles.title}>{status === 'won' ? t.game.win : t.game.lose}</h2>
 
         <div className={styles.section}>

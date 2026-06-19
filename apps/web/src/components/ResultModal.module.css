@@ -23,9 +23,16 @@
 }
 
 .emoji {
-  font-size: 40px;
-  line-height: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 44px;
   margin-bottom: 4px;
+}
+
+.emojiIcon {
+  width: 44px;
+  height: 44px;
 }
 
 .title {

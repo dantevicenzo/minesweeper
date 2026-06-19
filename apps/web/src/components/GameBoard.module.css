@@ -108,13 +108,32 @@
   height: 14px;
 }
 
+.headerGearIcon {
+  width: 12px;
+  height: 12px;
+}
+
+.headerTrophyIcon {
+  width: 14px;
+  height: 14px;
+}
+
+.headerProfileIcon {
+  width: 14px;
+  height: 14px;
+}
+
 .flagActive {
   background: #dc2626;
   border-radius: 3px;
 }
 
+.smileyIcon {
+  width: 18px;
+  height: 18px;
+}
+
 .smiley {
-  font-size: 14px;
   width: 22px;
   height: 22px;
   display: flex;
@@ -128,7 +147,6 @@
   border-bottom: 2px solid var(--color-cell-border-dark);
   border-right: 2px solid var(--color-cell-border-dark);
   padding: 0;
-  line-height: 1;
 }
 
 .smiley:focus-visible {

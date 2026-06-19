@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useApiGame } from '../hooks/useApiGame'
 import { CellView } from './CellView'
-import { FlagIcon } from './icons'
+import { FlagIcon, GearIcon, TrophyIcon, ProfileIcon, SmilingIcon, GlassesIcon, WorriedIcon, XeyesIcon } from './icons'
 import { ResultModal } from './ResultModal'
 import { useAuth } from '../contexts/AuthContext'
 import { useI18n } from '../contexts/I18nContext'
@@ -60,7 +60,7 @@ export function GameBoard({ width, height, mineCount, difficulty = 'easy', initi
   const clickCountRef = useRef(0)
   const [showResult, setShowResult] = useState(false)
   const [time, setTime] = useState(0)
-  const [face, setFace] = useState<'🙂' | '😮' | '😎' | '💀'>('🙂')
+  const [face, setFace] = useState<'default' | 'worried' | 'won' | 'lost'>('default')
   const [focusRow, setFocusRow] = useState(0)
   const [focusCol, setFocusCol] = useState(0)
   const [scale, setScale] = useState(1)
@@ -119,13 +119,13 @@ export function GameBoard({ width, height, mineCount, difficulty = 'easy', initi
 
   useEffect(() => {
     if (game.status === 'won') {
-      setFace('😎')
+      setFace('won')
       smileyRef.current?.focus()
     } else if (game.status === 'lost') {
-      setFace('💀')
+      setFace('lost')
       smileyRef.current?.focus()
     } else {
-      setFace('🙂')
+      setFace('default')
     }
   }, [game.status])
 
@@ -231,7 +231,7 @@ export function GameBoard({ width, height, mineCount, difficulty = 'easy', initi
             onClick={() => router.push('/leaderboard')}
             aria-label={t.home.leaderboard}
           >
-            🏆
+            <TrophyIcon className={styles.headerTrophyIcon} />
           </button>
         </div>
         <div className={styles.headerCenter}>
@@ -244,7 +244,10 @@ export function GameBoard({ width, height, mineCount, difficulty = 'easy', initi
             onClick={wrappedReset}
             aria-label={t.game.newGame}
           >
-            {face}
+            {face === 'default' && <SmilingIcon className={styles.smileyIcon} />}
+            {face === 'worried' && <WorriedIcon className={styles.smileyIcon} />}
+            {face === 'won' && <GlassesIcon className={styles.smileyIcon} />}
+            {face === 'lost' && <XeyesIcon className={styles.smileyIcon} />}
           </button>
           <div className={styles.counter} role="timer" aria-label={`${t.game.time}: ${time}s`}>
             {formatCounter(time)}
@@ -256,14 +259,14 @@ export function GameBoard({ width, height, mineCount, difficulty = 'easy', initi
             onClick={() => router.push('/profile')}
             aria-label={t.home.profile}
           >
-            👤
+            <ProfileIcon className={styles.headerProfileIcon} />
           </button>
           <button
             className={styles.headerBtn}
             onClick={onOpenMenu}
             aria-label={t.home.settings}
           >
-            ⚙️
+            <GearIcon className={styles.headerGearIcon} />
           </button>
         </div>
       </div>
@@ -293,8 +296,8 @@ export function GameBoard({ width, height, mineCount, difficulty = 'easy', initi
                 wrappedDispatch({ type: 'flag', row: r, col: c })
               }}
               onChordClick={() => wrappedDispatch({ type: 'chord', row: r, col: c })}
-              onMouseDown={() => setFace('😮')}
-              onMouseUp={() => { if (game.status === 'idle' || game.status === 'playing') setFace('🙂') }}
+              onMouseDown={() => setFace('worried')}
+              onMouseUp={() => { if (game.status === 'idle' || game.status === 'playing') setFace('default') }}
               onFocus={() => { setFocusRow(r); setFocusCol(c) }}
             />
           ))
