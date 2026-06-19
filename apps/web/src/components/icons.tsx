@@ -76,7 +76,7 @@ export function TimerDigit({ digit, className }: { digit: number } & IconProps) 
       xmlns="http://www.w3.org/2000/svg"
     >
       <path fill="red" d={data.outline} transform={data.transform} />
-      {data.inner && <path fill="maroon" d={data.inner} transform={data.transform} />}
+      {data.inner && <path fill="maroon" fillOpacity="0.3" d={data.inner} transform={data.transform} />}
     </svg>
   )
 }
@@ -116,7 +116,7 @@ export function FlagIcon({ className }: IconProps) {
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        fill="#e74c3c"
+        fill="#e60000"
         d="M105 174v-50H-95V24h-100V-76h100v-100h200v-100h200v500H105Z"
         transform="matrix(.44413 0 0 .44413 86.605 122.579)"
       />
