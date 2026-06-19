@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, ScrollView, TextInput, StyleSheet } from 'react-native'
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, TextInput, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useTheme } from '../contexts/ThemeContext'
 import { useI18n } from '../contexts/I18nContext'
@@ -135,49 +135,45 @@ export function LeaderboardScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]} edges={['bottom']}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroll}>
-        <View style={styles.filterRow}>
-          {DIFFICULTIES.map(d => (
-            <TouchableOpacity
-              key={d}
-              style={[
-                styles.filterBtn,
-                {
-                  backgroundColor: difficulty === d ? colors.primary : colors.surface,
-                  borderColor: difficulty === d ? colors.primary : colors.border,
-                },
-              ]}
-              onPress={() => setDifficulty(d)}
-            >
-              <Text style={{ color: difficulty === d ? '#fff' : colors.text, fontSize: 12, fontWeight: '500' }}>
-                {difficultyLabel(d)}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </ScrollView>
+      <View style={styles.filterRow}>
+        {DIFFICULTIES.map(d => (
+          <TouchableOpacity
+            key={d}
+            style={[
+              styles.filterBtn,
+              {
+                backgroundColor: difficulty === d ? colors.primary : colors.surface,
+                borderColor: difficulty === d ? colors.primary : colors.border,
+              },
+            ]}
+            onPress={() => setDifficulty(d)}
+          >
+            <Text style={{ color: difficulty === d ? '#fff' : colors.text, fontSize: 12, fontWeight: '500' }}>
+              {difficultyLabel(d)}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
 
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroll}>
-        <View style={styles.filterRow}>
-          {PERIODS.map(p => (
-            <TouchableOpacity
-              key={p}
-              style={[
-                styles.filterBtn,
-                {
-                  backgroundColor: period === p ? colors.primary : colors.surface,
-                  borderColor: period === p ? colors.primary : colors.border,
-                },
-              ]}
-              onPress={() => setPeriod(p)}
-            >
-              <Text style={{ color: period === p ? '#fff' : colors.text, fontSize: 12, fontWeight: '500' }}>
-                {periodLabel(p)}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </ScrollView>
+      <View style={styles.filterRow}>
+        {PERIODS.map(p => (
+          <TouchableOpacity
+            key={p}
+            style={[
+              styles.filterBtn,
+              {
+                backgroundColor: period === p ? colors.primary : colors.surface,
+                borderColor: period === p ? colors.primary : colors.border,
+              },
+            ]}
+            onPress={() => setPeriod(p)}
+          >
+            <Text style={{ color: period === p ? '#fff' : colors.text, fontSize: 12, fontWeight: '500' }}>
+              {periodLabel(p)}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
 
       {isCustom && (
         <View style={styles.customRow}>
@@ -262,8 +258,7 @@ export function LeaderboardScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 },
-  filterScroll: { marginBottom: 8, flexDirection: 'row' },
-  filterRow: { flexDirection: 'row', gap: 8 },
+  filterRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 },
   filterBtn: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 6, borderWidth: 1 },
   customRow: { flexDirection: 'row', gap: 12, marginBottom: 12 },
   customItem: { flex: 1 },
