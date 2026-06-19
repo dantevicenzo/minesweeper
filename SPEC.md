@@ -391,15 +391,16 @@ Gerenciado pelo cliente Supabase. Endpoints padrão de sign-up, sign-in, sign-ou
 
 ### Fluxo Principal — Jogar
 1. Usuário abre o app (web ou mobile).
-2. Tela inicial: "Novo Jogo", "Continuar", Leaderboard, Perfil.
-3. Seleciona dificuldade (ou customiza).
-4. Tabuleiro é gerado (mina posicionadas após primeiro clique).
-5. Usuário joga (revelar, bandeira, chord).
-6. Ao vencer/perder:
-   a. Tela de resultado (tempo, estatísticas da partida).
+2. Tabuleiro é carregado diretamente com a dificuldade padrão (Fácil).
+3. Menu de configurações é acessado por botão no tabuleiro (BottomSheet com GameMenu).
+4. No GameMenu: seleciona dificuldade, customiza parâmetros, ou inicia nova partida.
+5. Tabuleiro é gerado (minas posicionadas após primeiro clique).
+6. Usuário joga (revelar, bandeira, chord).
+7. Ao vencer/perder:
+   a. Modal de resultado (ResultModal) exibe tempo, estatísticas, XP.
    b. Se logado: partida salva no backend, leaderboard atualizado, XP/conquistas processados.
-   c. Opção: "Jogar Novamente", "Voltar ao Menu".
-7. Se sair durante a partida: estado auto-salvo, "Continuar" disponível no menu.
+   c. Opção: "Jogar Novamente".
+8. Se sair durante a partida: estado auto-salvo, restaurado ao próximo clique em "Novo Jogo".
 
 ### Fluxo — Autenticação
 1. Usuário pode jogar anonimamente.
