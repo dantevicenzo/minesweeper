@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import NetInfo from '@react-native-community/netinfo'
+import { supabase } from './supabase'
 import { env } from '../env'
 
 const QUEUE_KEY = 'minesweeper_sync_queue'
@@ -35,9 +36,13 @@ export async function processQueue(): Promise<void> {
   const remaining: SyncOperation[] = []
   for (const op of queue) {
     try {
+      const { data } = await supabase.auth.getSession()
+      const token = data.session?.access_token ?? null
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+      if (token) headers['Authorization'] = `Bearer ${token}`
       await fetch(`${env.API_URL}${op.path}`, {
         method: op.method,
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: op.body ? JSON.stringify(op.body) : undefined,
       })
     } catch {

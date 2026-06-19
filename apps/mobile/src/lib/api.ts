@@ -23,7 +23,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
       method: options.method ?? 'GET',
       path,
       body: options.body ? JSON.parse(options.body as string) : undefined,
-    })
+    }).catch(() => {})
     throw new Error('offline')
   }
 
