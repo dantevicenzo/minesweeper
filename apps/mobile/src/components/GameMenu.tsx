@@ -148,14 +148,22 @@ export function GameMenu({ onClose, onStartGame, onNewGame, currentDifficulty = 
         </Pressable>
       )}
 
-      <Pressable style={({ pressed }) => [styles.menuBtn, { backgroundColor: colors.bgSecondary, opacity: pressed ? 0.7 : 1 }]} onPress={() => Linking.openURL('https://buymeacoffee.com/dantevicenzo')}>
-        <Text style={[styles.menuBtnText, { color: colors.text }]}>{t.home.donate}</Text>
+      <Pressable style={({ pressed }) => [styles.menuBtn, styles.donateBtn, { opacity: pressed ? 0.85 : 1 }]} onPress={() => Linking.openURL('https://buymeacoffee.com/dantevicenzo')}>
+        <Text style={styles.donateBtnText}>{t.home.donate}</Text>
       </Pressable>
 
       <View style={styles.credits}>
         <Text style={[styles.creditsText, { color: colors.textSecondary }]}>
           {t.credits.developedBy} Dante Vicenzo · {t.credits.year}
         </Text>
+        <View style={styles.creditsLinks}>
+          <Pressable onPress={() => Linking.openURL('https://github.com/dantevicenzo')}>
+            <Text style={[styles.creditsLink, { color: colors.primary }]}>GitHub</Text>
+          </Pressable>
+          <Pressable onPress={() => Linking.openURL('https://linkedin.com/in/dantevicenzo')}>
+            <Text style={[styles.creditsLink, { color: colors.primary }]}>LinkedIn</Text>
+          </Pressable>
+        </View>
       </View>
     </View>
   )
@@ -176,6 +184,10 @@ const styles = StyleSheet.create({
   input: { borderWidth: 1, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4, fontSize: 14, width: 80, textAlign: 'center' },
   customStartBtn: { padding: 8, borderRadius: 6, alignItems: 'center', marginTop: 4 },
   customStartBtnText: { color: '#fff', fontSize: 16 },
-  credits: { marginTop: 16, alignItems: 'center' },
+  credits: { marginTop: 16, alignItems: 'center', gap: 6 },
   creditsText: { fontSize: 12 },
+  creditsLinks: { flexDirection: 'row', gap: 12 },
+  creditsLink: { fontSize: 13 },
+  donateBtn: { backgroundColor: '#ffdd00' },
+  donateBtnText: { color: '#1a1a1a', fontSize: 14, fontWeight: '600' },
 })
