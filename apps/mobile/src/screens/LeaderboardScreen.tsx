@@ -149,7 +149,7 @@ export function LeaderboardScreen() {
               ]}
               onPress={() => setDifficulty(d)}
             >
-              <Text style={{ color: difficulty === d ? '#fff' : colors.text, fontSize: 13, fontWeight: '500' }}>
+              <Text style={{ color: difficulty === d ? '#fff' : colors.text, fontSize: 12, fontWeight: '500' }}>
                 {difficultyLabel(d)}
               </Text>
             </TouchableOpacity>
@@ -171,7 +171,7 @@ export function LeaderboardScreen() {
               ]}
               onPress={() => setPeriod(p)}
             >
-              <Text style={{ color: period === p ? '#fff' : colors.text, fontSize: 13, fontWeight: '500' }}>
+              <Text style={{ color: period === p ? '#fff' : colors.text, fontSize: 12, fontWeight: '500' }}>
                 {periodLabel(p)}
               </Text>
             </TouchableOpacity>
@@ -264,7 +264,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 },
   filterScroll: { marginBottom: 8, flexDirection: 'row' },
   filterRow: { flexDirection: 'row', gap: 8 },
-  filterBtn: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 8, borderWidth: 1 },
+  filterBtn: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 6, borderWidth: 1 },
   customRow: { flexDirection: 'row', gap: 12, marginBottom: 12 },
   customItem: { flex: 1 },
   customLabel: { fontSize: 12, marginBottom: 4 },
