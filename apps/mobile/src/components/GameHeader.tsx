@@ -49,7 +49,7 @@ export function GameHeader({ mineCount, flagCount, time, face, flagMode, onFlagM
           <FlagIcon width={10} height={14} color={flagMode ? '#000' : colors.flag} />
         </Pressable>
         <Pressable style={({ pressed: p }) => [styles.btn, ...btnStyle(p)]} onPress={onOpenLeaderboard}>
-          <TrophyIcon width={14} height={14} color={colors.textSecondary} />
+          <TrophyIcon width={14} height={14} color="#fdd801" />
         </Pressable>
       </View>
 

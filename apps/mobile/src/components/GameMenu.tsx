@@ -58,7 +58,7 @@ export function GameMenu({ onClose, onStartGame, onNewGame, currentDifficulty = 
 
   return (
     <View style={styles.menu}>
-      <Pressable style={[styles.menuBtn, { backgroundColor: colors.primary }]} onPress={() => { onNewGame(); onClose() }}>
+      <Pressable style={({ pressed }) => [styles.menuBtn, { backgroundColor: colors.primary, opacity: pressed ? 0.8 : 1 }]} onPress={() => { onNewGame(); onClose() }}>
         <Text style={styles.menuBtnTextLight}>{t.home.newGame}</Text>
       </Pressable>
 
@@ -67,7 +67,7 @@ export function GameMenu({ onClose, onStartGame, onNewGame, currentDifficulty = 
         {DIFF_KEYS.map(k => (
           <Pressable
             key={k}
-            style={[styles.diffBtn, { backgroundColor: isSelected(k) ? colors.primary : colors.bgSecondary }]}
+            style={({ pressed }) => [styles.diffBtn, { backgroundColor: isSelected(k) ? colors.primary : colors.bgSecondary, opacity: pressed ? 0.7 : 1 }]}
             onPress={() => handleDifficulty(k)}
           >
             <Text style={[styles.diffBtnText, { color: isSelected(k) ? '#fff' : colors.text }]}>
@@ -106,7 +106,7 @@ export function GameMenu({ onClose, onStartGame, onNewGame, currentDifficulty = 
               onChangeText={setCustomMines}
             />
           </View>
-          <Pressable style={[styles.customStartBtn, { backgroundColor: colors.primary }]} onPress={handleCustomStart}>
+          <Pressable style={({ pressed }) => [styles.customStartBtn, { backgroundColor: colors.primary, opacity: pressed ? 0.8 : 1 }]} onPress={handleCustomStart}>
             <Text style={styles.customStartBtnText}>▶</Text>
           </Pressable>
         </View>
@@ -117,7 +117,7 @@ export function GameMenu({ onClose, onStartGame, onNewGame, currentDifficulty = 
         {(['en', 'pt-BR'] as const).map(l => (
           <Pressable
             key={l}
-            style={[styles.diffBtn, { backgroundColor: locale === l ? colors.primary : colors.bgSecondary }]}
+            style={({ pressed }) => [styles.diffBtn, { backgroundColor: locale === l ? colors.primary : colors.bgSecondary, opacity: pressed ? 0.7 : 1 }]}
             onPress={() => setLocale(l)}
           >
             <Text style={[styles.diffBtnText, { color: locale === l ? '#fff' : colors.text }]}>
@@ -132,7 +132,7 @@ export function GameMenu({ onClose, onStartGame, onNewGame, currentDifficulty = 
         {(['light', 'dark'] as const).map(th => (
           <Pressable
             key={th}
-            style={[styles.diffBtn, { backgroundColor: theme === th ? colors.primary : colors.bgSecondary }]}
+            style={({ pressed }) => [styles.diffBtn, { backgroundColor: theme === th ? colors.primary : colors.bgSecondary, opacity: pressed ? 0.7 : 1 }]}
             onPress={() => setTheme(th)}
           >
             <Text style={[styles.diffBtnText, { color: theme === th ? '#fff' : colors.text }]}>
@@ -143,12 +143,12 @@ export function GameMenu({ onClose, onStartGame, onNewGame, currentDifficulty = 
       </View>
 
       {user && (
-        <Pressable style={[styles.menuBtn, { backgroundColor: colors.danger }]} onPress={() => { signOut(); onClose() }}>
+        <Pressable style={({ pressed }) => [styles.menuBtn, { backgroundColor: colors.danger, opacity: pressed ? 0.8 : 1 }]} onPress={() => { signOut(); onClose() }}>
           <Text style={styles.menuBtnTextLight}>{t.auth.signOut}</Text>
         </Pressable>
       )}
 
-      <Pressable style={styles.menuBtn} onPress={() => Linking.openURL('https://buymeacoffee.com/dantevicenzo')}>
+      <Pressable style={({ pressed }) => [styles.menuBtn, { backgroundColor: colors.bgSecondary, opacity: pressed ? 0.7 : 1 }]} onPress={() => Linking.openURL('https://buymeacoffee.com/dantevicenzo')}>
         <Text style={[styles.menuBtnText, { color: colors.text }]}>{t.home.donate}</Text>
       </Pressable>
 

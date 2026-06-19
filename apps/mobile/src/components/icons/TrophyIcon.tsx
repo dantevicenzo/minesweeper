@@ -7,7 +7,7 @@ interface IconProps {
   testID?: string
 }
 
-export function TrophyIcon({ width = 14, height = 14, color = '#000', testID }: IconProps) {
+export function TrophyIcon({ width = 14, height = 14, color = '#fdd801', testID }: IconProps) {
   return (
     <Svg width={width} height={height} viewBox="0 0 24 24" testID={testID}>
       <Path
