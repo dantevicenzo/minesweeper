@@ -18,23 +18,27 @@ export async function signInWithGoogle(): Promise<void> {
   }
 
   const google = (globalThis as any).google
-  if (!google?.accounts?.id) {
+  if (!google?.accounts?.oauth2) {
     throw new Error('Google Identity Services not available')
   }
 
-  const nonce = generateNonce()
-
   return new Promise((resolve, reject) => {
-    google.accounts.id.initialize({
+    const client = google.accounts.oauth2.initTokenClient({
       client_id: GOOGLE_CLIENT_ID,
-      auto_select: false,
-      nonce,
-      callback: async (response: { credential: string }) => {
+      scope: 'openid profile email',
+      callback: async (response: { error?: string; id_token?: string }) => {
+        if (response.error) {
+          reject(new Error(response.error))
+          return
+        }
+        if (!response.id_token) {
+          reject(new Error('No ID token received'))
+          return
+        }
         try {
           const { error } = await supabase.auth.signInWithIdToken({
             provider: 'google',
-            token: response.credential,
-            nonce,
+            token: response.id_token,
           })
           if (error) throw error
           resolve()
@@ -44,21 +48,15 @@ export async function signInWithGoogle(): Promise<void> {
       },
     })
 
-    google.accounts.id.prompt()
+    client.requestAccessToken()
   })
-}
-
-function generateNonce(): string {
-  const array = new Uint8Array(16)
-  crypto.getRandomValues(array)
-  return Array.from(array, (b) => b.toString(16).padStart(2, '0')).join('')
 }
 
 async function loadGIS(): Promise<void> {
   if (typeof window === 'undefined') {
     throw new Error('Not in browser')
   }
-  if ((globalThis as any).google?.accounts?.id) {
+  if ((globalThis as any).google?.accounts?.oauth2) {
     return
   }
   return new Promise((resolve, reject) => {
