@@ -9,6 +9,7 @@ import styles from './page.module.css'
 
 interface Entry {
   id: string
+  user_id: string
   duration_ms: number
   difficulty: string
   created_at: string
@@ -183,7 +184,8 @@ export default function LeaderboardPage() {
             ) : null}
           </div>
 
-          <table className={styles.table}>
+          <div className={styles.tableWrapper}>
+            <table className={styles.table}>
             <thead>
               <tr>
                 <th>{t.leaderboard.rank}</th>
@@ -200,7 +202,11 @@ export default function LeaderboardPage() {
                     <td>
                       {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}
                     </td>
-                    <td>{entry.display_name}</td>
+                    <td>
+                      <Link href={`/profile/${entry.user_id}`} className={styles.playerLink}>
+                        {entry.display_name}
+                      </Link>
+                    </td>
                     <td>{(entry.duration_ms / 1000).toFixed(1)}s</td>
                     <td>{new Date(entry.created_at).toLocaleDateString()}</td>
                   </tr>
@@ -208,6 +214,7 @@ export default function LeaderboardPage() {
               })}
             </tbody>
           </table>
+          </div>
 
           {myEntry && !entries.some(e => e.id === myEntry.id) && (
             <div className={styles.myPosition}>

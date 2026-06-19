@@ -88,5 +88,7 @@ export const api = {
     list: () => request<unknown[]>('/api/achievements'),
 
     me: () => request<unknown[]>('/api/achievements/me'),
+
+    get: (userId: string) => request<unknown[]>(`/api/achievements/${userId}`),
   },
 }

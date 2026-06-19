@@ -35,26 +35,41 @@
   font-size: 14px;
   border: 1px solid var(--color-border, #d4d4d4);
   border-radius: 6px;
-  background: white;
+  background: var(--color-surface, #fff);
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  margin-top: 12px;
+  -webkit-overflow-scrolling: touch;
 }
 
 .table {
   width: 100%;
+  min-width: 320px;
   border-collapse: collapse;
-  margin-top: 12px;
 }
 
 .table th,
 .table td {
-  padding: 8px 12px;
+  padding: 8px 10px;
   text-align: left;
   border-bottom: 1px solid var(--color-border, #d4d4d4);
   font-size: 14px;
+  white-space: nowrap;
 }
 
 .table th {
   font-weight: 600;
   color: var(--color-text-secondary, #666);
+}
+
+@media (max-width: 480px) {
+  .table th,
+  .table td {
+    padding: 6px 6px;
+    font-size: 12px;
+  }
 }
 
 .status {
@@ -64,17 +79,26 @@
 }
 
 .myRow {
-  background: var(--color-primary-light, #e0f2fe);
+  background: color-mix(in srgb, var(--color-primary) 15%, transparent);
   font-weight: 600;
 }
 
 .myPosition {
   margin-top: 16px;
   padding: 12px 16px;
-  background: var(--color-primary-light, #e0f2fe);
+  background: color-mix(in srgb, var(--color-primary) 15%, transparent);
   border-radius: var(--radius-md, 8px);
   text-align: center;
   font-size: 14px;
+}
+
+.playerLink {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.playerLink:hover {
+  text-decoration: underline;
 }
 
 .boardInfo {

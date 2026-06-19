@@ -39,4 +39,30 @@ router.get('/me', requireAuth, requireNotBanned, async (req: AuthenticatedReques
   }
 })
 
+router.get('/:userId', async (req, res: Response) => {
+  try {
+    const { userId } = req.params
+
+    const all = await query<any>(`select * from public.achievements order by key`)
+
+    const earned = await query<{ achievement_id: string; unlocked_at: string }>(
+      `select achievement_id, unlocked_at from public.user_achievements where user_id = $1`,
+      [userId]
+    )
+
+    const earnedSet = new Set(earned.map(e => e.achievement_id))
+    const earnedMap = new Map(earned.map(e => [e.achievement_id, e.unlocked_at]))
+
+    const data = all.map(a => ({
+      ...a,
+      unlocked: earnedSet.has(a.id),
+      unlockedAt: earnedMap.get(a.id) ?? null,
+    }))
+
+    res.json(data)
+  } catch (err: any) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
 export default router

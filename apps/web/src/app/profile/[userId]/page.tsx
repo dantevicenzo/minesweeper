@@ -2,11 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useAuth } from '../../contexts/AuthContext'
-import { useI18n } from '../../contexts/I18nContext'
-import { api } from '../../lib/api'
-import { useRouter } from 'next/navigation'
-import styles from './page.module.css'
+import { use } from 'react'
+import { useI18n } from '../../../contexts/I18nContext'
+import { api } from '../../../lib/api'
+import styles from '../page.module.css'
 
 interface ProfileData {
   profile: { xp: number; level: number; display_name: string; avatar_url: string | null }
@@ -23,31 +22,38 @@ interface Achievement {
   unlockedAt: string | null
 }
 
-export default function ProfilePage() {
+export default function PublicProfilePage({ params }: { params: Promise<{ userId: string }> }) {
+  const { userId } = use(params)
   const { t } = useI18n()
-  const { user, signOut } = useAuth()
-  const router = useRouter()
   const [data, setData] = useState<ProfileData | null>(null)
   const [achievements, setAchievements] = useState<Achievement[]>([])
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!user) {
-      router.push('/auth')
-      return
-    }
-    api.stats.me()
-      .then(d => setData(d as ProfileData))
-      .catch(err => console.error('[Profile] Failed to load stats:', err))
-    api.achievements.me()
-      .then(d => setAchievements(d as Achievement[]))
-      .catch(err => console.error('[Profile] Failed to load achievements:', err))
-  }, [user, router])
+    if (!userId) return
 
-  if (!user) return null
+    api.stats.get(userId)
+      .then(d => setData(d as ProfileData))
+      .catch(err => setError(err.message))
+
+    api.achievements.get(userId)
+      .then(d => setAchievements(d as Achievement[]))
+      .catch(err => console.error('[PublicProfile] Failed to load achievements:', err))
+  }, [userId])
+
+  if (error) {
+    return (
+      <main className={styles.page}>
+        <Link href="/" className={styles.backLink}>{'< Back'}</Link>
+        <p className={styles.loading}>{error}</p>
+      </main>
+    )
+  }
 
   if (!data) {
     return (
       <main className={styles.page}>
+        <Link href="/" className={styles.backLink}>{'< Back'}</Link>
         <p className={styles.loading}>Loading...</p>
       </main>
     )
@@ -61,8 +67,7 @@ export default function ProfilePage() {
   return (
     <main className={styles.page}>
       <Link href="/" className={styles.backLink}>{'< Back'}</Link>
-      <h1>{t.profile.title}</h1>
-      <p className={styles.emailLabel}>{user.email}</p>
+      <h1>{profile.display_name}</h1>
 
       <div className={styles.statGrid}>
         <div className={styles.statCard}>
@@ -95,15 +100,6 @@ export default function ProfilePage() {
       <p className={styles.achievementCount}>
         {achievements.filter(a => a.unlocked).length}/{achievements.length} {t.profile.unlocked}
       </p>
-
-      <div className={styles.actions}>
-        <Link href={`/profile/${user.id}`} className={styles.publicLink}>
-          {t.profile.viewPublic ?? 'View public profile'}
-        </Link>
-        <button className={styles.signOutBtn} onClick={() => signOut()}>
-          {t.auth.signOut}
-        </button>
-      </div>
     </main>
   )
 }

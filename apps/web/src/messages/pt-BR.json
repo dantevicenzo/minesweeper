@@ -53,17 +53,22 @@
     "xp": "EXP",
     "level": "Nível",
     "achievements": "Conquistas",
-    "unlocked": "desbloqueadas"
+    "unlocked": "desbloqueadas",
+    "viewPublic": "Ver perfil público"
   },
   "achievements": {
     "first_win": { "name": "Primeira Vitória", "description": "Vença sua primeira partida" },
-    "speed_demon": { "name": "Demônio da Velocidade", "description": "Vença o Fácil em menos de 30 segundos" },
-    "win_streak_5": { "name": "Em Chamas", "description": "Vença 5 partidas consecutivas" },
-    "explorer": { "name": "Explorador", "description": "Jogue 50 partidas" },
+    "speed_demon_easy": { "name": "Demônio da Velocidade", "description": "Vença o Fácil em menos de 30 segundos" },
+    "medium_win": { "name": "Desafiante", "description": "Vença uma partida Médio" },
     "expert_win": { "name": "Especialista", "description": "Vença uma partida Difícil" },
     "perfect_game": { "name": "Partida Perfeita", "description": "Vença sem usar bandeiras" },
+    "win_streak_5": { "name": "Em Chamas", "description": "Vença 5 partidas consecutivas" },
+    "win_50": { "name": "Veterano", "description": "Vença 50 partidas" },
+    "win_100": { "name": "Lendário", "description": "Vença 100 partidas" },
+    "speed_demon_medium": { "name": "Relâmpago", "description": "Vença o Médio em menos de 60 segundos" },
+    "speed_demon_hard": { "name": "Implacável", "description": "Vença o Difícil em menos de 120 segundos" },
     "level_10": { "name": "Dedicado", "description": "Alcance o nível 10" },
-    "social_player": { "name": "Jogador Social", "description": "Jogue com amigos" }
+    "level_25": { "name": "Mestre", "description": "Alcance o nível 25" }
   },
   "auth": {
     "signIn": "Entrar",

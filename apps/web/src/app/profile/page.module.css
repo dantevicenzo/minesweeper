@@ -104,8 +104,24 @@
   color: var(--color-text-secondary, #666);
 }
 
-.signOutBtn {
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3, 12px);
   margin-top: var(--space-6, 24px);
+}
+
+.publicLink {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-size: var(--font-size-sm, 14px);
+}
+
+.publicLink:hover {
+  text-decoration: underline;
+}
+
+.signOutBtn {
   background: var(--color-text-secondary, #666);
   color: white;
   border: none;
