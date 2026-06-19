@@ -126,6 +126,28 @@ pnpm lint        # lint
 pnpm typecheck   # verificação de tipos
 ```
 
+### OAuth Provider Setup
+
+To enable Google and GitHub login locally:
+
+1. Create OAuth credentials in the provider consoles:
+   - **Google**: https://console.cloud.google.com/apis/credentials
+   - **GitHub**: https://github.com/settings/developers
+2. Add the following redirect URI to each provider's authorized redirect URIs:
+   ```
+   http://localhost:3000/auth/callback
+   ```
+3. Set the following in your `.env.local` (Supabase will pick these up via `env(...)` in `supabase/config.toml`):
+   ```
+   SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID=<your-client-id>
+   SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET=<your-secret>
+   SUPABASE_AUTH_EXTERNAL_GITHUB_CLIENT_ID=<your-client-id>
+   SUPABASE_AUTH_EXTERNAL_GITHUB_SECRET=<your-secret>
+   ```
+4. Restart Supabase: `supabase stop && supabase start`.
+
+**Apple** is wired but `enabled = false` in `supabase/config.toml` until an Apple Developer Program ($99/yr) is active. To enable: obtain a Client ID + Secret, set `SUPABASE_AUTH_EXTERNAL_APPLE_SECRET`, set `enabled = true` and fill `client_id` + `redirect_uri` (must be `https://...`).
+
 ### Seed
 
 ```bash
