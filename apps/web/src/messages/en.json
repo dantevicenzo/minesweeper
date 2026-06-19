@@ -86,7 +86,8 @@
     "github": "Continue with GitHub",
     "noAccount": "Don't have an account?",
     "hasAccount": "Already have an account?",
-    "appleSoon": "Coming soon"
+    "appleSoon": "Coming soon",
+    "oauthError": "OAuth sign-in failed. Please try again."
   },
   "settings": {
     "title": "Settings",

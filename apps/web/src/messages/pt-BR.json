@@ -86,7 +86,8 @@
     "github": "Continuar com GitHub",
     "noAccount": "Não tem conta?",
     "hasAccount": "Já tem conta?",
-    "appleSoon": "Em breve"
+    "appleSoon": "Em breve",
+    "oauthError": "Falha na autenticação OAuth. Tente novamente."
   },
   "settings": {
     "title": "Configurações",

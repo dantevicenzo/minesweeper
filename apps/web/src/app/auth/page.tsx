@@ -1,24 +1,34 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '../../contexts/AuthContext'
 import { useI18n } from '../../contexts/I18nContext'
+import { OAuthButton } from '../../components/OAuthButton'
 import styles from './page.module.css'
 
 export default function AuthPage() {
   const { t } = useI18n()
   const { signIn, signUp, signInWithProvider } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [isSignUp, setIsSignUp] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [oauthError, setOauthError] = useState(false)
+
+  useEffect(() => {
+    if (searchParams.get('error') === 'oauth') {
+      setOauthError(true)
+    }
+  }, [searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setOauthError(false)
     try {
       if (isSignUp) {
         await signUp(email, password)
@@ -28,6 +38,15 @@ export default function AuthPage() {
       router.push('/')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
+    }
+  }
+
+  const handleProvider = async (provider: 'google' | 'apple' | 'github') => {
+    setOauthError(false)
+    try {
+      await signInWithProvider(provider)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'OAuth failed')
     }
   }
 
@@ -57,13 +76,9 @@ export default function AuthPage() {
         </button>
       </form>
       {error && <p className={styles.error}>{error}</p>}
+      {oauthError && <p className={styles.error}>{t.auth.oauthError}</p>}
       <hr className={styles.divider} />
-      <button className={styles.oauthBtn} onClick={() => signInWithProvider('google')}>
-        {t.auth.google}
-      </button>
-      <button className={styles.oauthBtn} onClick={() => signInWithProvider('github')}>
-        {t.auth.github}
-      </button>
+      <OAuthButton onProviderClick={handleProvider} />
       <p>
         <button
           className={styles.toggleBtn}
