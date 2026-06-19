@@ -93,5 +93,16 @@
     "theme": "Tema",
     "light": "Claro",
     "dark": "Escuro"
+  },
+  "setupUsername": {
+    "title": "Escolha seu nome de usuário",
+    "username": "Nome de usuário",
+    "fullName": "Nome completo",
+    "submit": "Salvar",
+    "checking": "Verificando disponibilidade...",
+    "available": "Disponível!",
+    "taken": "Já está em uso",
+    "invalid": "Nome inválido (3-20 caracteres, letras, números, sublinhado)",
+    "banned": "Este nome de usuário não é permitido"
   }
 }

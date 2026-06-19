@@ -93,5 +93,16 @@
     "theme": "Theme",
     "light": "Light",
     "dark": "Dark"
+  },
+  "setupUsername": {
+    "title": "Choose your username",
+    "username": "Username",
+    "fullName": "Full Name",
+    "submit": "Save",
+    "checking": "Checking availability...",
+    "available": "Available!",
+    "taken": "Already taken",
+    "invalid": "Invalid username (3-20 chars, letters, numbers, underscore)",
+    "banned": "This username is not allowed"
   }
 }
