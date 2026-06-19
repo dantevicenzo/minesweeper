@@ -1,3 +1,5 @@
+import type { Profile } from '@minesweeper/types'
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
@@ -90,5 +92,20 @@ export const api = {
     me: () => request<unknown[]>('/api/achievements/me'),
 
     get: (userId: string) => request<unknown[]>(`/api/achievements/${userId}`),
+  },
+
+  profiles: {
+    me: () => request<{ profile: Profile }>('/api/profiles/me'),
+
+    usernameAvailable: (username: string) =>
+      request<{ available: boolean; reason?: 'taken' | 'invalid' | 'banned' }>(
+        `/api/profiles/username-available?u=${encodeURIComponent(username)}`
+      ),
+
+    updateMe: (data: { username: string; full_name?: string }) =>
+      request<{ profile: Profile }>('/api/profiles/me', {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+      }),
   },
 }
