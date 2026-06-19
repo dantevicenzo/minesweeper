@@ -366,13 +366,19 @@ Gerenciado pelo cliente Supabase. Endpoints padrão de sign-up, sign-in, sign-ou
 - `GET /api/leaderboard?difficulty=easy&period=all&page=1&limit=20` — Listar ranking
 - `GET /api/leaderboard/me?difficulty=easy` — Posição do usuário no ranking
 
+#### Profiles
+- `GET /api/profiles/me` — Perfil do usuário autenticado
+- `PATCH /api/profiles/me` — Atualizar próprio perfil
+- `GET /api/profiles/username-available?u=` — Verificar disponibilidade de username
+
 #### Stats
-- `GET /api/stats/:userId` — Estatísticas do jogador
 - `GET /api/stats/me` — Estatísticas do usuário autenticado
+- `GET /api/stats/:userId` — Estatísticas do jogador (público)
 
 #### Achievements
 - `GET /api/achievements` — Listar todas as conquistas
 - `GET /api/achievements/me` — Conquistas do usuário com status
+- `GET /api/achievements/:userId` — Conquistas de um jogador (público)
 
 #### Admin
 - `GET /api/admin/users?page=1&limit=20&search=` — Listar usuários
@@ -515,10 +521,10 @@ Jogadores podem tentar manipular tempos ou estados de partida. **Mitigação**: 
 
 ## Dúvidas Pendentes
 
-- Detalhes específicos do sistema de níveis (curva de XP, fórmula de level-up).
-- Lista exata de conquistas (definir 10-15 conquistas iniciais).
+- Detalhes específicos do sistema de níveis (curva de XP, fórmula de level-up). → Resolvido: `floor(sqrt(xp / 100)) + 1`
+- ~~Lista exata de conquistas (definir 10-15 conquistas iniciais).~~ ✅ Resolvido — 12 conquistas implementadas.
 - Estratégia de teste E2E: qual ferramenta (Playwright, Detox, Appium)?
-- Design visual: tema claro/escuro como padrão? Apenas claro? Ambos desde o início?
+- Design visual: tema claro/escuro. → Resolvido: ambos implementados com ThemeContext + CSS vars.
 - Triggers de notificação push no mobile? (Não especificado, assumir que não no MVP.)
 
 ---
@@ -534,7 +540,7 @@ Jogadores podem tentar manipular tempos ou estados de partida. **Mitigação**: 
 ## Áreas com Baixa Confiança
 
 - **UX/Design**: não houve discussão sobre layout, cores, temas, navegação específica. A implementação precisará definir isso durante o desenvolvimento.
-- **Lista de Conquistas**: apenas exemplos foram dados. A lista final precisa ser definida.
+- **Lista de Conquistas**: apenas exemplos foram dados. A lista final precisa ser definida. → ✅ Resolvido — 12 conquistas implementadas.
 - **Responsividade Mobile Web**: o layout precisa se adaptar entre web e mobile. O design system precisa suportar ambas as plataformas.
 - **Detalhes da Admin Dashboard**: métricas específicas e layout do painel precisam ser detalhados.
 
@@ -557,14 +563,14 @@ Jogadores podem tentar manipular tempos ou estados de partida. **Mitigação**: 
 | App | Entregáveis |
 |---|---|
 | Supabase | Projeto local, schema PostgreSQL (7 tabelas, RLS, triggers), config Auth |
-| `apps/api` | Express: CRUD games, leaderboard paginado, stats, achievements, admin. Middleware JWT via GoTrue API. `pg.Pool` direto (sem supabase-js). Seed script. 3 testes. |
+| `apps/api` | Express: CRUD games, leaderboard paginado, stats, achievements, admin. Middleware JWT via GoTrue API. `pg.Pool` direto (sem supabase-js). Seed script. 59 testes. |
 
 ### Fase 3 — Web App ✅ Concluído
 | App | Entregáveis |
 |---|---|
 | `apps/web` | Next.js 15 App Router, i18n (context + JSON), Supabase Auth, CSS Modules |
 | | **Telas:** Home, Game, Leaderboard, Profile, Settings, Auth |
-| | **Funcionalidades:** Offline-first (localStorage + sync queue), auto-save (debounced), continue game, XP/níveis, conquistas (8), auto-create leaderboard entry |
+| | **Funcionalidades:** Offline-first (localStorage + sync queue), auto-save (debounced), continue game, XP/níveis, conquistas (12), auto-create leaderboard entry |
 | | API client com offline detection e fila de sincronização |
 
 ### Fase 4 — Admin ✅ Concluído
@@ -584,12 +590,6 @@ Jogadores podem tentar manipular tempos ou estados de partida. **Mitigação**: 
 | Leaderboard | Filtro por período (today/week/month/all), destacar posição do usuário, emojis top 3 |
 | Anti-cheat | Validação de tempo mínimo por dificuldade/tamanho, rejeita tempos suspeitos no leaderboard |
 | CI/CD | GitHub Actions: typecheck + lint + test on push/PR |
-
-### Fase 6 — Mobile (Futuro)
-| App | Entregáveis |
-|---|---|
-| `apps/mobile` | React Native. Reutiliza engine, hooks, types. UI nativa. |
-| App Store + Google Play | Submissão, distribuição |
 
 ### Fase 6 — Mobile (Futuro)
 | App | Entregáveis |
@@ -632,7 +632,10 @@ Escolha a biblioteca que melhor se integra com Next.js App Router (recomendaçã
 ## Backlog Atual
 
 | Prioridade | Task | Status |
-|---|---|---|
-| P1 | Fase 5 completa (deploy, custom, acessibilidade, sentry, performance, admin, leaderboard, CI/CD) | Feito |
+|---|---|---|---|
+| P1 | Fase 5 completa (deploy, custom, acessibilidade, sentry, performance, admin, leaderboard, anti-cheat, CI/CD) | ✅ Feito |
+| P2 | Testes: 223 testes (engine 29, hooks 7, utils 18, api 59, web 109, admin 1) | ✅ Feito |
+| P2 | Conquistas: 12 implementadas com avaliação server-side | ✅ Feito |
+| P2 | Perfis: CRUD de perfil, verificação de username | ✅ Feito |
 | P3 | Mobile (React Native) | Futuro |
 | P3 | App Store + Google Play | Futuro |
