@@ -1,0 +1,83 @@
+.menu { display: flex; flex-direction: column; gap: 4px; padding-top: 8px; }
+
+.sectionLabel {
+  font-size: 12px;
+  color: var(--color-text-secondary, #666);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 16px 0 4px;
+}
+
+.menuBtn {
+  width: 100%;
+  padding: 8px;
+  font-size: 15px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text, #1a1a1a);
+  cursor: pointer;
+  text-align: left;
+}
+
+.menuBtn:hover { background: var(--color-bg-secondary, #e0e0e0); }
+
+.selectRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+}
+
+.selectRow label { font-size: 15px; color: var(--color-text, #1a1a1a); }
+
+.selectRow select {
+  padding: 6px 10px;
+  font-size: 13px;
+  border: 1px solid var(--color-border, #d4d4d4);
+  border-radius: 6px;
+  background: var(--color-surface, #fff);
+  color: var(--color-text, #1a1a1a);
+}
+
+.customInputs {
+  display: flex;
+  gap: 8px;
+  padding: 4px 8px 12px;
+  align-items: flex-end;
+}
+
+.customInputs label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 11px;
+  color: var(--color-text-secondary, #666);
+}
+
+.customInputs input {
+  width: 60px;
+  padding: 4px 6px;
+  font-size: 13px;
+  border: 1px solid var(--color-border, #d4d4d4);
+  border-radius: 4px;
+  text-align: center;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.customStartBtn {
+  padding: 6px 12px;
+  font-size: 13px;
+  border: none;
+  border-radius: 4px;
+  background: var(--color-primary, #2563eb);
+  color: white;
+  cursor: pointer;
+  height: 30px;
+}
+
+.signOutRow {
+  margin-top: 8px;
+  color: var(--color-danger, #dc2626);
+}

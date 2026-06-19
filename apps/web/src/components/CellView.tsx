@@ -10,6 +10,7 @@ interface CellViewProps {
   col: number
   gameStatus: string
   isFocused: boolean
+  flagMode?: boolean
   onLeftClick: () => void
   onRightClick: (e: MouseEvent) => void
   onChordClick: () => void
@@ -29,10 +30,12 @@ const numberClass: Record<number, string> = {
   8: styles.n8,
 }
 
-export function CellView({ cell, row, col, gameStatus, isFocused, onLeftClick, onRightClick, onChordClick, onMouseDown, onMouseUp, onFocus }: CellViewProps) {
+export function CellView({ cell, row, col, gameStatus, isFocused, flagMode = false, onLeftClick, onRightClick, onChordClick, onMouseDown, onMouseUp, onFocus }: CellViewProps) {
   const handleClick = () => {
     if (cell.isRevealed && cell.adjacentMines > 0) {
       onChordClick()
+    } else if (flagMode && !cell.isRevealed) {
+      onRightClick({ preventDefault: () => {} } as MouseEvent)
     } else {
       onLeftClick()
     }

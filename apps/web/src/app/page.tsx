@@ -1,60 +1,63 @@
 'use client'
 
-'use client'
-
-import { useState, useEffect } from 'react'
-import Link from 'next/link'
-import { useAuth } from '../contexts/AuthContext'
+import { useState, useCallback, lazy, Suspense } from 'react'
+import { BottomSheet } from '../components/BottomSheet'
+import { GameMenu } from '../components/GameMenu'
 import { useI18n } from '../contexts/I18nContext'
-import { loadSavedGame } from '../lib/storage'
+import type { GameState } from '@minesweeper/engine'
 import styles from './page.module.css'
+
+const GameBoard = lazy(() => import('../components/GameBoard').then(m => ({ default: m.GameBoard })))
 
 export default function HomePage() {
   const { t } = useI18n()
-  const { user } = useAuth()
-  const [saved, setSaved] = useState<{ difficulty: string; width: number; height: number; mineCount: number } | null>(null)
+  const [difficulty, setDifficulty] = useState('easy')
+  const [width, setWidth] = useState(9)
+  const [height, setHeight] = useState(9)
+  const [mineCount, setMineCount] = useState(10)
+  const [initialState, setInitialState] = useState<Partial<GameState> | undefined>(undefined)
+  const [gameKey, setGameKey] = useState(0)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [flagMode, setFlagMode] = useState(false)
 
-  useEffect(() => {
-    const data = loadSavedGame()
-    if (data) {
-      setSaved({ difficulty: data.difficulty, width: data.width, height: data.height, mineCount: data.mineCount })
-    }
+  const startGame = useCallback((diff: string, w?: number, h?: number, mines?: number) => {
+    setDifficulty(diff)
+    setWidth(w ?? 9)
+    setHeight(h ?? 9)
+    setMineCount(mines ?? 10)
+    setInitialState(undefined)
+    setGameKey(k => k + 1)
   }, [])
 
-  const continueUrl = saved
-    ? `/game?continue=1&width=${saved.width}&height=${saved.height}&mineCount=${saved.mineCount}&difficulty=${saved.difficulty}`
-    : null
+  const handleNewGame = useCallback(() => {
+    setInitialState(undefined)
+    setGameKey(k => k + 1)
+  }, [])
 
   return (
-    <main className={styles.container}>
-      <h1 className={styles.title}>{t.home.title}</h1>
-      <nav className={styles.nav}>
-        {continueUrl && (
-          <Link href={continueUrl} className={`${styles.navBtn} ${styles.continueBtn}`}>
-            {t.home.continue}
-          </Link>
-        )}
-        <Link href="/game" className={styles.navBtn}>
-          {t.home.newGame}
-        </Link>
-        <Link href="/game?custom=1" className={styles.navBtn}>
-          {t.home.customGame}
-        </Link>
-        <Link href="/leaderboard" className={styles.navBtn}>
-          {t.home.leaderboard}
-        </Link>
-        <Link href="/profile" className={styles.navBtn}>
-          {t.home.profile}
-        </Link>
-        <Link href="/settings" className={styles.navBtn}>
-          {t.home.settings}
-        </Link>
-      </nav>
-      {!user && (
-        <Link href="/auth" className={`${styles.navBtn} ${styles.authBtn}`}>
-          {t.auth.signIn}
-        </Link>
-      )}
-    </main>
+    <div className={styles.page}>
+      <Suspense fallback={<div className={styles.loading}>Loading game...</div>}>
+        <GameBoard
+          key={gameKey}
+          width={width}
+          height={height}
+          mineCount={mineCount}
+          difficulty={difficulty}
+          initialState={initialState}
+          flagMode={flagMode}
+          onFlagModeChange={setFlagMode}
+          onOpenMenu={() => setMenuOpen(true)}
+        />
+      </Suspense>
+
+      <BottomSheet isOpen={menuOpen} onClose={() => setMenuOpen(false)} title={t.home.settings}>
+        <GameMenu
+          onClose={() => setMenuOpen(false)}
+          onStartGame={startGame}
+          onNewGame={handleNewGame}
+          currentDifficulty={difficulty}
+        />
+      </BottomSheet>
+    </div>
   )
 }

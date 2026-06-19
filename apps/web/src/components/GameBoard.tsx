@@ -13,6 +13,9 @@ interface GameBoardProps {
   mineCount: number
   difficulty?: string
   initialState?: Partial<GameState>
+  flagMode?: boolean
+  onFlagModeChange?: (mode: boolean) => void
+  onOpenMenu?: () => void
 }
 
 function formatCounter(n: number): string {
@@ -21,16 +24,57 @@ function formatCounter(n: number): string {
   return String(clamped).padStart(3, '0')
 }
 
-export function GameBoard({ width, height, mineCount, difficulty = 'easy', initialState }: GameBoardProps) {
+const CELL = 28
+const PAD = 10
+const BORDER = 3
+const HEADER_H = 50
+const GRID_BORDER = 3
+
+function naturalWidth(cols: number): number {
+  return cols * CELL + 2 * PAD + 2 * BORDER + 2 * GRID_BORDER
+}
+
+function naturalHeight(rows: number): number {
+  return HEADER_H + rows * CELL + 2 * PAD + 2 * BORDER + 2 * GRID_BORDER
+}
+
+const WRAPPER_PADDING = 16
+
+function calcScale(cols: number, rows: number, availW: number, availH: number): number {
+  const w = availW - WRAPPER_PADDING
+  const h = availH - WRAPPER_PADDING
+  if (w <= 0 || h <= 0) return 0.3
+  const s = Math.min(w / naturalWidth(cols), h / naturalHeight(rows))
+  return Math.max(0.3, Math.min(2, s))
+}
+
+export function GameBoard({ width, height, mineCount, difficulty = 'easy', initialState, flagMode = false, onFlagModeChange, onOpenMenu }: GameBoardProps) {
   const { t } = useI18n()
   const { game, dispatch, reset } = useApiGame(width, height, mineCount, difficulty, initialState)
   const [time, setTime] = useState(0)
   const [face, setFace] = useState<'🙂' | '😮' | '😎' | '💀'>('🙂')
   const [focusRow, setFocusRow] = useState(0)
   const [focusCol, setFocusCol] = useState(0)
+  const [scale, setScale] = useState(1)
+  const scaledW = naturalWidth(width) * scale
+  const scaledH = naturalHeight(height) * scale
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const gridRef = useRef<HTMLDivElement>(null)
   const smileyRef = useRef<HTMLButtonElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const wrapperRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = wrapperRef.current
+    if (!el) return
+    const update = () => {
+      setScale(calcScale(width, height, el.clientWidth, el.clientHeight))
+    }
+    update()
+    const ro = new ResizeObserver(update)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [width, height])
 
   useEffect(() => {
     if (game.status === 'idle') {
@@ -134,10 +178,27 @@ export function GameBoard({ width, height, mineCount, difficulty = 'easy', initi
   const mineDisplay = mineCount - game.flagCount
 
   return (
-    <div className={styles.container} role="region" aria-label={t.game.minesweeperBoard}>
+    <div className={styles.wrapper} ref={wrapperRef}>
+    <div className={styles.scaler} style={{ width: scaledW, height: scaledH }}>
+    <div
+      className={styles.container}
+      ref={containerRef}
+      role="region"
+      aria-label={t.game.minesweeperBoard}
+      style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}
+    >
       <div className={styles.header}>
-        <div className={styles.counter} role="timer" aria-label={`${t.game.mines}: ${mineDisplay}`}>
-          {formatCounter(mineDisplay)}
+        <div className={styles.headerLeft}>
+          <div className={styles.counter} role="timer" aria-label={`${t.game.mines}: ${mineDisplay}`}>
+            {formatCounter(mineDisplay)}
+          </div>
+          <button
+            className={styles.headerBtn}
+            onClick={onOpenMenu}
+            aria-label="Menu"
+          >
+            ⚙️
+          </button>
         </div>
         <button
           ref={smileyRef}
@@ -147,8 +208,18 @@ export function GameBoard({ width, height, mineCount, difficulty = 'easy', initi
         >
           {face}
         </button>
-        <div className={styles.counter} role="timer" aria-label={`${t.game.time}: ${time}s`}>
-          {formatCounter(time)}
+        <div className={styles.headerRight}>
+          <button
+            className={`${styles.headerBtn} ${flagMode ? styles.flagActive : ''}`}
+            onClick={() => onFlagModeChange?.(!flagMode)}
+            aria-label="Toggle flag mode"
+            aria-pressed={flagMode}
+          >
+            🚩
+          </button>
+          <div className={styles.counter} role="timer" aria-label={`${t.game.time}: ${time}s`}>
+            {formatCounter(time)}
+          </div>
         </div>
       </div>
       <div
@@ -170,6 +241,7 @@ export function GameBoard({ width, height, mineCount, difficulty = 'easy', initi
               col={c}
               gameStatus={game.status}
               isFocused={r === focusRow && c === focusCol}
+              flagMode={flagMode}
               onLeftClick={() => dispatch({ type: 'reveal', row: r, col: c })}
               onRightClick={(e) => {
                 e.preventDefault()
@@ -190,6 +262,8 @@ export function GameBoard({ width, height, mineCount, difficulty = 'easy', initi
         aria-atomic="true"
         className={styles.srOnly}
       />
+    </div>
+    </div>
     </div>
   )
 }

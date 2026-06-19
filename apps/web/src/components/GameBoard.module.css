@@ -1,14 +1,30 @@
+.wrapper {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+  background: color-mix(in srgb, var(--color-cell-bg) 45%, #000);
+}
+
+.scaler {
+  flex-shrink: 0;
+}
+
 .container {
   display: flex;
   flex-direction: column;
   align-items: center;
   width: fit-content;
-  background-color: #bdbdbd;
+  background-color: var(--color-cell-bg);
   padding: 10px;
-  border-top: 3px solid #fff;
-  border-left: 3px solid #fff;
-  border-bottom: 3px solid #7b7b7b;
-  border-right: 3px solid #7b7b7b;
+  border-top: 3px solid var(--color-cell-border-light);
+  border-left: 3px solid var(--color-cell-border-light);
+  border-bottom: 3px solid var(--color-cell-border-dark);
+  border-right: 3px solid var(--color-cell-border-dark);
 }
 
 .header {
@@ -18,23 +34,59 @@
   width: 100%;
   margin-bottom: 8px;
   padding: 4px;
-  background-color: #bdbdbd;
+  background-color: var(--color-cell-bg);
+}
+
+.headerLeft, .headerRight {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .counter {
   font-family: 'Courier New', Courier, monospace;
   font-size: 24px;
   font-weight: 700;
-  color: #ff0000;
-  background-color: #1a0000;
+  color: var(--color-counter-text);
+  background-color: var(--color-counter-bg);
   padding: 2px 6px;
   min-width: 52px;
   text-align: center;
-  border-top: 2px solid #7b7b7b;
-  border-left: 2px solid #7b7b7b;
-  border-bottom: 2px solid #fff;
-  border-right: 2px solid #fff;
+  border-top: 2px solid var(--color-cell-border-dark);
+  border-left: 2px solid var(--color-cell-border-dark);
+  border-bottom: 2px solid var(--color-cell-border-light);
+  border-right: 2px solid var(--color-cell-border-light);
   letter-spacing: 2px;
+}
+
+.headerBtn {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  background: var(--color-cell-bg);
+  border-top: 3px solid var(--color-cell-border-light);
+  border-left: 3px solid var(--color-cell-border-light);
+  border-bottom: 3px solid var(--color-cell-border-dark);
+  border-right: 3px solid var(--color-cell-border-dark);
+  padding: 0;
+}
+
+.headerBtn:active {
+  border-top: 1px solid var(--color-cell-border-dark);
+  border-left: 1px solid var(--color-cell-border-dark);
+  border-bottom: 1px solid var(--color-cell-border-light);
+  border-right: 1px solid var(--color-cell-border-light);
+}
+
+.flagActive {
+  background: #dc2626;
+  color: white;
 }
 
 .smiley {
@@ -46,17 +98,17 @@
   justify-content: center;
   cursor: pointer;
   border: none;
-  background-color: #bdbdbd;
-  border-top: 3px solid #fff;
-  border-left: 3px solid #fff;
-  border-bottom: 3px solid #7b7b7b;
-  border-right: 3px solid #7b7b7b;
+  background-color: var(--color-cell-bg);
+  border-top: 3px solid var(--color-cell-border-light);
+  border-left: 3px solid var(--color-cell-border-light);
+  border-bottom: 3px solid var(--color-cell-border-dark);
+  border-right: 3px solid var(--color-cell-border-dark);
   padding: 0;
   line-height: 1;
 }
 
 .smiley:focus-visible {
-  outline: 2px solid #2563eb;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
@@ -73,18 +125,18 @@
 }
 
 .smiley:active {
-  border-top: 1px solid #7b7b7b;
-  border-left: 1px solid #7b7b7b;
-  border-bottom: 1px solid #fff;
-  border-right: 1px solid #fff;
+  border-top: 1px solid var(--color-cell-border-dark);
+  border-left: 1px solid var(--color-cell-border-dark);
+  border-bottom: 1px solid var(--color-cell-border-light);
+  border-right: 1px solid var(--color-cell-border-light);
 }
 
 .grid {
   display: grid;
   gap: 0;
-  background-color: #7b7b7b;
-  border-top: 3px solid #7b7b7b;
-  border-left: 3px solid #7b7b7b;
-  border-bottom: 3px solid #fff;
-  border-right: 3px solid #fff;
+  background-color: var(--color-cell-border-dark);
+  border-top: 3px solid var(--color-cell-border-dark);
+  border-left: 3px solid var(--color-cell-border-dark);
+  border-bottom: 3px solid var(--color-cell-border-light);
+  border-right: 3px solid var(--color-cell-border-light);
 }
