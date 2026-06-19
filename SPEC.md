@@ -75,8 +75,9 @@ Não há um Campo Minado moderno, multiplataforma, open-source, com suporte a co
 
 ### RF-002 — Jogo Campo Minado Clássico
 - Tabuleiro com células clicáveis.
-- Clique esquerdo: revelar célula.
+- Clique esquerdo: revelar célula (ou alternar bandeira se modo bandeira ativo).
 - Clique direito: alternar bandeira/interrogação.
+- Modo bandeira (`flagMode`): botão no header do tabuleiro que, quando ativo, faz o clique esquerdo colocar bandeira em vez de revelar — essencial para dispositivos touch sem clique direito.
 - Clique duplo (ou clique em célula revelada com número igual a bandeiras adjacentes): revelar vizinhos seguros.
 - Primeiro clique nunca é mina.
 - Timer regressivo ou progressivo.
@@ -102,6 +103,7 @@ Não há um Campo Minado moderno, multiplataforma, open-source, com suporte a co
 - Ranking de melhores tempos por dificuldade.
 - Exibição de posição, nome do jogador, tempo, data.
 - Filtro por período (hoje, semana, mês, todos).
+- Filtro por dificuldade, incluindo suporte a tabuleiros customizados (filtro por width/height/mine count para dificuldade `custom`).
 - Paginação.
 - Atualização automática ao finalizar partida vitoriosa.
 - Leaderboard apenas para partidas com conta logada.
@@ -406,8 +408,10 @@ Gerenciado pelo cliente Supabase. Endpoints padrão de sign-up, sign-in, sign-ou
 1. Usuário pode jogar anonimamente.
 2. Ao tentar acessar leaderboard/estatísticas ou salvar partida, é incentivado a criar conta.
 3. Criação: email+senha ou OAuth (Google/Apple/GitHub).
-4. Conta anônima pode ser vinculada após criação.
-5. Sessão mantida via JWT (Supabase), persistida localmente.
+4. OAuth: usuário é redirecionado ao provider, retorna para `/auth/callback`. Em caso de sucesso, sessão é estabelecida e redireciona para `/`. Em caso de falha, redireciona para `/auth?error=oauth` com mensagem de erro.
+5. Apple OAuth: botão exibido na UI mas desabilitado com tooltip "Coming soon" (pendente Apple Developer Program).
+6. Conta anônima pode ser vinculada após criação.
+7. Sessão mantida via JWT (Supabase), persistida localmente.
 
 ### Fluxo — Offline
 1. Usuário joga sem conexão.
@@ -441,7 +445,7 @@ Gerenciado pelo cliente Supabase. Endpoints padrão de sign-up, sign-in, sign-ou
 ### CA-002 — Contas e Autenticação
 - [ ] Jogar anonimamente funciona sem pedir cadastro.
 - [ ] Cadastro por email+senha funciona.
-- [x] Login OAuth (Google/Apple/GitHub) funciona. (Google + GitHub ativos; Apple pendente Apple Developer Program)
+- [x] Login OAuth (Google/Apple/GitHub) funciona. (Google + GitHub ativos com botões funcionais; Apple desabilitado na UI com tooltip "Coming soon" — pendente Apple Developer Program)
 - [ ] Vinculação de conta anônima preserva progresso. (Fora do escopo OAuth — fase futura)
 - [ ] Sessão persiste entre fechar e reabrir o app.
 
