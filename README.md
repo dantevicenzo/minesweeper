@@ -39,13 +39,16 @@ Base URL: `https://api-theta-three-88.vercel.app/api`
 | POST | `/games` | Criar novo jogo | Bearer JWT |
 | GET | `/games/:id` | Obter jogo por ID | Bearer JWT |
 | PUT | `/games/:id` | Atualizar jogo (jogada, finalizar) | Bearer JWT |
-| POST | `/auth/login` | Login email/senha (retorna token) | Não |
-| POST | `/auth/refresh` | Refresh token | Não |
 | GET | `/leaderboard` | Ranking paginado | Não |
-| GET | `/profile/:id` | Perfil do jogador | Não |
-| GET | `/stats/:id` | Estatísticas do jogador | Não |
+| GET | `/leaderboard/me` | Posição do usuário no ranking | Bearer JWT |
+| GET | `/profiles/me` | Perfil do usuário autenticado | Bearer JWT |
+| PATCH | `/profiles/me` | Atualizar perfil | Bearer JWT |
+| GET | `/profiles/username-available?u=` | Verificar username disponível | Bearer JWT |
+| GET | `/stats/me` | Estatísticas do usuário autenticado | Bearer JWT |
+| GET | `/stats/:id` | Estatísticas do jogador (público) | Não |
 | GET | `/achievements` | Listar conquistas | Não |
-| GET | `/achievements/user/:id` | Conquistas do jogador | Não |
+| GET | `/achievements/me` | Conquistas do usuário com status | Bearer JWT |
+| GET | `/achievements/:userId` | Conquistas do jogador (público) | Não |
 | GET | `/admin/users` | Listar usuários (admin) | Bearer JWT (admin) |
 | GET | `/admin/analytics` | Analytics (admin) | Bearer JWT (admin) |
 
@@ -70,7 +73,7 @@ Base URL: `https://api-theta-three-88.vercel.app/api`
 - Auto-save com continuidade entre dispositivos (offline-first)
 - Leaderboard global por dificuldade
 - Estatísticas individuais e perfil de jogador
-- Sistema de XP, níveis e conquistas (8 conquistas)
+- Sistema de XP, níveis e conquistas (12 conquistas)
 - Login anônimo, email ou OAuth (Google, GitHub)
 - Offline-first com sincronização automática
 - Internacionalização (PT-BR, EN)
@@ -121,7 +124,7 @@ A API roda em `http://localhost:3001`, o Web em `http://localhost:3000`.
 ### Testes
 
 ```bash
-pnpm test        # todos os testes (47)
+pnpm test        # todos os testes (223)
 pnpm lint        # lint
 pnpm typecheck   # verificação de tipos
 ```
@@ -154,7 +157,7 @@ To enable Google and GitHub login locally:
 pnpm --filter @minesweeper/api seed
 ```
 
-Cria 8 conquistas, usuário de teste, jogos, leaderboard e eventos de XP.
+Cria 12 conquistas, usuário de teste, jogos, leaderboard e eventos de XP.
 
 ---
 
