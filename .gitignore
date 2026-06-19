@@ -8,6 +8,7 @@ dist/
 .env.prod
 .DS_Store
 *.tsbuildinfo
+apps/mobile/src/env.ts
 
 
 ARCHITECTURE.md

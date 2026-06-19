@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react-native",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "target": "esnext",
+    "lib": ["es2022"],
+    "allowJs": true,
+    "paths": {
+      "@minesweeper/engine": ["../../packages/engine/src"],
+      "@minesweeper/hooks": ["../../packages/hooks/src"],
+      "@minesweeper/types": ["../../packages/types/src"],
+      "@minesweeper/utils": ["../../packages/utils/src"]
+    }
+  },
+  "include": ["src/**/*", "App.tsx", "index.js"]
+}
