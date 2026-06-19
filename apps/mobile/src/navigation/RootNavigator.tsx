@@ -1,47 +1,15 @@
 import React from 'react'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { useTheme } from '../contexts/ThemeContext'
-import { SmileyIcon } from '../components/icons/SmileyIcon'
-import { TrophyIcon } from '../components/icons/TrophyIcon'
-import { ProfileIcon } from '../components/icons/ProfileIcon'
 import { GameScreen } from '../screens/GameScreen'
 import { LeaderboardScreen } from '../screens/LeaderboardScreen'
 import { ProfileScreen } from '../screens/ProfileScreen'
 import { AuthScreen } from '../screens/AuthScreen'
 import { SetupUsernameScreen } from '../screens/SetupUsernameScreen'
-import type { RootStackParamList, MainTabParamList } from './types'
+import type { RootStackParamList } from './types'
 
 const Stack = createNativeStackNavigator<RootStackParamList>()
-const Tab = createBottomTabNavigator<MainTabParamList>()
-
-const tabIcons: Record<keyof MainTabParamList, (props: { color: string; size: number }) => React.ReactElement> = {
-  Game: ({ color, size }) => <SmileyIcon width={size} height={size} color={color} />,
-  Leaderboard: ({ color, size }) => <TrophyIcon width={size} height={size} color={color} />,
-  Profile: ({ color, size }) => <ProfileIcon width={size} height={size} color={color} />,
-}
-
-function MainTabs() {
-  const { colors } = useTheme()
-
-  return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ color, size }) => tabIcons[route.name]({ color, size }),
-        headerStyle: { backgroundColor: colors.surface },
-        headerTintColor: colors.text,
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textSecondary,
-        tabBarStyle: { backgroundColor: colors.bg, borderTopColor: colors.border },
-      })}
-    >
-      <Tab.Screen name="Game" component={GameScreen} options={{ headerShown: false }} />
-      <Tab.Screen name="Leaderboard" component={LeaderboardScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
-    </Tab.Navigator>
-  )
-}
 
 export function RootNavigator() {
   const { colors } = useTheme()
@@ -62,7 +30,9 @@ export function RootNavigator() {
       }}
     >
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Main" component={MainTabs} />
+        <Stack.Screen name="Game" component={GameScreen} />
+        <Stack.Screen name="Leaderboard" component={LeaderboardScreen} options={{ headerShown: true, headerTitle: 'Leaderboard', headerTintColor: colors.text, headerStyle: { backgroundColor: colors.surface } }} />
+        <Stack.Screen name="Profile" component={ProfileScreen} options={{ headerShown: true, headerTitle: 'Profile', headerTintColor: colors.text, headerStyle: { backgroundColor: colors.surface } }} />
         <Stack.Screen name="Auth" component={AuthScreen} options={{ headerShown: true, headerTitle: 'Auth' }} />
         <Stack.Screen name="SetupUsername" component={SetupUsernameScreen} options={{ headerShown: true, headerTitle: 'Setup' }} />
       </Stack.Navigator>
