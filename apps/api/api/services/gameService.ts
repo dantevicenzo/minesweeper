@@ -108,14 +108,11 @@ async function checkAndUnlockAchievements(
       case 'first_win':
         earned = winCount >= 1
         break
-      case 'speed_demon':
+      case 'speed_demon_easy':
         earned = game.difficulty === 'easy' && game.durationMs <= 30000
         break
-      case 'win_streak_5':
-        earned = winStreak >= 5
-        break
-      case 'explorer':
-        earned = winCount >= 50
+      case 'medium_win':
+        earned = game.difficulty === 'medium'
         break
       case 'expert_win':
         earned = game.difficulty === 'hard'
@@ -123,10 +120,26 @@ async function checkAndUnlockAchievements(
       case 'perfect_game':
         earned = game.flaggedCells === 0
         break
+      case 'win_streak_5':
+        earned = winStreak >= 5
+        break
+      case 'win_50':
+        earned = winCount >= 50
+        break
+      case 'win_100':
+        earned = winCount >= 100
+        break
+      case 'speed_demon_medium':
+        earned = game.difficulty === 'medium' && game.durationMs <= 60000
+        break
+      case 'speed_demon_hard':
+        earned = game.difficulty === 'hard' && game.durationMs <= 120000
+        break
       case 'level_10':
         earned = currentXp >= calcLevelInv(10)
         break
-      case 'social_player':
+      case 'level_25':
+        earned = currentXp >= calcLevelInv(25)
         break
     }
 
