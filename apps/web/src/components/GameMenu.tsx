@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { useAuth } from '../contexts/AuthContext'
 import { useI18n } from '../contexts/I18nContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -25,7 +24,6 @@ export function GameMenu({ onClose, onStartGame, onNewGame, currentDifficulty = 
   const { t, locale, setLocale } = useI18n()
   const { theme, setTheme } = useTheme()
   const { user, signOut } = useAuth()
-  const router = useRouter()
   const [difficulty, setDifficulty] = useState(currentDifficulty)
   const [customWidth, setCustomWidth] = useState(12)
   const [customHeight, setCustomHeight] = useState(12)
@@ -100,14 +98,6 @@ export function GameMenu({ onClose, onStartGame, onNewGame, currentDifficulty = 
         </div>
       )}
 
-      <button className={styles.menuBtn} onClick={() => { router.push('/leaderboard'); onClose() }}>
-        {t.home.leaderboard}
-      </button>
-
-      <button className={styles.menuBtn} onClick={() => { router.push('/profile'); onClose() }}>
-        {t.home.profile}
-      </button>
-
       <div className={styles.selectRow}>
         <label>{t.settings.language}</label>
         <select value={locale} onChange={e => setLocale(e.target.value as Locale)}>
@@ -129,6 +119,25 @@ export function GameMenu({ onClose, onStartGame, onNewGame, currentDifficulty = 
           {t.auth.signOut}
         </button>
       )}
+
+      <a
+        className={`${styles.menuBtn} ${styles.donateBtn}`}
+        href="https://buymeacoffee.com/dantevicenzo"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {t.home.donate}
+      </a>
+
+      <div className={styles.credits}>
+        <span className={styles.creditsText}>
+          {t.credits.developedBy} Dante Vicenzo · {t.credits.year}
+        </span>
+        <div className={styles.creditsLinks}>
+          <a href="https://github.com/dantevicenzo" target="_blank" rel="noopener noreferrer" aria-label="GitHub">GitHub</a>
+          <a href="https://linkedin.com/in/dantevicenzo" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">LinkedIn</a>
+        </div>
+      </div>
     </div>
   )
 }

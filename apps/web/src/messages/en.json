@@ -6,7 +6,12 @@
     "leaderboard": "Leaderboard",
     "profile": "Profile",
     "settings": "Settings",
-    "customGame": "Custom"
+    "customGame": "Custom",
+    "donate": "Buy me a coffee"
+  },
+  "credits": {
+    "developedBy": "Developed by",
+    "year": "2026"
   },
   "game": {
     "mines": "Mines",

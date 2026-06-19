@@ -6,7 +6,12 @@
     "leaderboard": "Ranking",
     "profile": "Perfil",
     "settings": "Configurações",
-    "customGame": "Personalizado"
+    "customGame": "Personalizado",
+    "donate": "Me pague um café"
+  },
+  "credits": {
+    "developedBy": "Desenvolvido por",
+    "year": "2026"
   },
   "game": {
     "mines": "Minas",
