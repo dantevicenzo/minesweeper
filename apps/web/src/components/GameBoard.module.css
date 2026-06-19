@@ -71,11 +71,25 @@
   font-weight: 700;
   color: var(--color-counter-text);
   background-color: var(--color-counter-bg);
-  padding: 2px 4px;
+  padding: 1px;
   min-width: 34px;
   text-align: center;
   border: 1px solid var(--color-cell-border-dark);
   letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+}
+
+.counterDigit {
+  width: 10px;
+  height: 18px;
+}
+
+.counterMinus {
+  font-size: 14px;
+  color: red;
 }
 
 .headerBtn {
@@ -124,7 +138,7 @@
 }
 
 .flagActive {
-  background: #dc2626;
+  background: #fca5a5;
   border-radius: 3px;
 }
 
