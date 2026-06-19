@@ -8,7 +8,7 @@ import { api } from '../../../lib/api'
 import styles from '../page.module.css'
 
 interface ProfileData {
-  profile: { xp: number; level: number; display_name: string; avatar_url: string | null }
+  profile: { xp: number; level: number; username: string; full_name: string | null; avatar_url: string | null }
   games: { total_games: number; wins: number; losses: number; avg_win_time_ms: number; best_time_ms: number }
 }
 
@@ -67,7 +67,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userId
   return (
     <main className={styles.page}>
       <Link href="/" className={styles.backLink}>{'< Back'}</Link>
-      <h1>{profile.display_name}</h1>
+      <h1>{profile.username}</h1>
+      {profile.full_name && <p className={styles.emailLabel}>{profile.full_name}</p>}
 
       <div className={styles.statGrid}>
         <div className={styles.statCard}>

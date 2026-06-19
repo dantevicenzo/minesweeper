@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation'
 import styles from './page.module.css'
 
 interface ProfileData {
-  profile: { xp: number; level: number; display_name: string; avatar_url: string | null }
+  profile: { xp: number; level: number; username: string; full_name: string | null; avatar_url: string | null }
   games: { total_games: number; wins: number; losses: number; avg_win_time_ms: number; best_time_ms: number }
 }
 

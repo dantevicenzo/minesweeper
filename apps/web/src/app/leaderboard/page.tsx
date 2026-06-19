@@ -13,7 +13,8 @@ interface Entry {
   duration_ms: number
   difficulty: string
   created_at: string
-  display_name: string
+  username: string
+  full_name?: string | null
   avatar_url: string | null
   rank?: number
   width?: number
@@ -25,7 +26,7 @@ interface MyEntry {
   id: string
   duration_ms: number
   rank: number
-  display_name: string
+  username: string
 }
 
 const PERIODS = ['all', 'today', 'week', 'month'] as const
@@ -196,7 +197,7 @@ export default function LeaderboardPage() {
             </thead>
             <tbody>
               {entries.map((entry, i) => {
-                const isMe = user && entry.display_name && myEntry?.display_name === entry.display_name
+                const isMe = user && entry.username && myEntry?.username === entry.username
                 return (
                   <tr key={entry.id} className={isMe ? styles.myRow : undefined}>
                     <td>
@@ -204,7 +205,7 @@ export default function LeaderboardPage() {
                     </td>
                     <td>
                       <Link href={`/profile/${entry.user_id}`} className={styles.playerLink}>
-                        {entry.display_name}
+                        {entry.username}
                       </Link>
                     </td>
                     <td>{(entry.duration_ms / 1000).toFixed(1)}s</td>

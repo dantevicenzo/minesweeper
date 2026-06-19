@@ -51,7 +51,7 @@ describe('api.stats', () => {
   it('GET /api/stats/:userId makes public request with auth header', async () => {
     ;(global.fetch as any).mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({ profile: { display_name: 'Player' } }),
+      json: () => Promise.resolve({ profile: { username: 'player', full_name: 'Player' } }),
     })
 
     const api = await getApi()
@@ -61,7 +61,7 @@ describe('api.stats', () => {
       expect.stringContaining('/api/stats/user-abc'),
       expect.anything(),
     )
-    expect(result).toEqual({ profile: { display_name: 'Player' } })
+    expect(result).toEqual({ profile: { username: 'player', full_name: 'Player' } })
   })
 })
 
