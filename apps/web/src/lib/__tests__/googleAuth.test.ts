@@ -32,27 +32,27 @@ describe('signInWithGoogle', () => {
   })
 
   describe('when GIS loads successfully', () => {
-    it('requests an ID token via OAuth popup and exchanges it via signInWithIdToken', async () => {
-      const mockRequestAccessToken = vi.fn()
+    it('calls initialize and prompt, then exchanges the token via signInWithIdToken', async () => {
       let capturedCallback:
-        | ((response: { id_token?: string; error?: string }) => void)
+        | ((response: { credential: string }) => void)
         | null = null
 
-      const mockInitTokenClient = vi.fn(
+      const mockInitialize = vi.fn(
         (config: {
           client_id: string
-          scope: string
-          callback: (response: { id_token?: string; error?: string }) => void
+          auto_select: boolean
+          callback: (response: { credential: string }) => void
         }) => {
           capturedCallback = config.callback
-          return { requestAccessToken: mockRequestAccessToken }
         },
       )
+      const mockPrompt = vi.fn()
 
       ;(globalThis as any).google = {
         accounts: {
-          oauth2: {
-            initTokenClient: mockInitTokenClient,
+          id: {
+            initialize: mockInitialize,
+            prompt: mockPrompt,
           },
         },
       }
@@ -60,23 +60,25 @@ describe('signInWithGoogle', () => {
       const { signInWithGoogle } = await import('../googleAuth')
       const promise = signInWithGoogle()
 
+      // Flush microtasks so loadGIS resolves and initialize/prompt execute
       await new Promise<void>((resolve) => setTimeout(resolve, 0))
 
-      expect(mockInitTokenClient).toHaveBeenCalledWith({
+      expect(mockInitialize).toHaveBeenCalledWith({
         client_id: VALID_CLIENT_ID,
-        scope: 'openid profile email',
+        auto_select: false,
+        nonce: expect.any(String),
         callback: expect.any(Function),
       })
+      expect(mockPrompt).toHaveBeenCalled()
 
-      expect(mockRequestAccessToken).toHaveBeenCalledTimes(1)
-
-      capturedCallback!({ id_token: 'test-id-token' })
+      capturedCallback!({ credential: 'test-id-token' })
 
       await promise
 
       expect(supabase.auth.signInWithIdToken).toHaveBeenCalledWith({
         provider: 'google',
         token: 'test-id-token',
+        nonce: expect.any(String),
       })
     })
   })
