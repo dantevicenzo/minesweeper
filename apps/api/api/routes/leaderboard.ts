@@ -9,12 +9,16 @@ const router = Router()
 function buildLeaderboardQuery(difficulty: string, period: string, custom: { where: string; params: any[] }) {
   const params: any[] = [difficulty]
 
+  const customHasParams = custom.params.length > 0
   let idx = 2
-  const customWhereSql = custom.where
-    .replace(/\$4/g, `$${idx++}`)
-    .replace(/\$5/g, `$${idx++}`)
-    .replace(/\$6/g, `$${idx++}`)
-  if (custom.params.length > 0) params.push(...custom.params)
+  let customWhereSql = custom.where
+  if (customHasParams) {
+    customWhereSql = custom.where
+      .replace(/\$4/g, `$${idx++}`)
+      .replace(/\$5/g, `$${idx++}`)
+      .replace(/\$6/g, `$${idx++}`)
+    params.push(...custom.params)
+  }
 
   let periodSql = ''
   if (period === 'today') {
