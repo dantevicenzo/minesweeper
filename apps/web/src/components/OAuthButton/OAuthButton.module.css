@@ -1,0 +1,37 @@
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 320px;
+  width: 100%;
+}
+
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid var(--color-border, #d4d4d4);
+  border-radius: 6px;
+  background: var(--color-surface, #fff);
+  color: var(--color-text, #111);
+  cursor: pointer;
+  width: 100%;
+}
+
+.button:not(:disabled):hover {
+  background: var(--color-bg, #f5f5f5);
+}
+
+.button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
