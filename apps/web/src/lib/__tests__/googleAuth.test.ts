@@ -31,60 +31,55 @@ describe('signInWithGoogle', () => {
     vi.unstubAllEnvs()
   })
 
-function makeIDToken(nonce?: string): string {
-  const header = btoa(JSON.stringify({ alg: 'RS256', typ: 'JWT' }))
-  const payload = btoa(JSON.stringify({ nonce }))
-  return `${header}.${payload}.signature`
-}
+  describe('when GIS loads successfully', () => {
+    it('requests an ID token via OAuth popup and exchanges it via signInWithIdToken', async () => {
+      const mockRequestAccessToken = vi.fn()
+      let capturedCallback:
+        | ((response: { id_token?: string; error?: string }) => void)
+        | null = null
 
-describe('when GIS loads successfully', () => {
-  it('extracts nonce from token and passes it to signInWithIdToken', async () => {
-    let capturedCallback: ((response: { credential: string }) => void) | null = null
-
-    const mockInitialize = vi.fn(
-      (config: {
-        client_id: string
-        auto_select: boolean
-        callback: (response: { credential: string }) => void
-      }) => {
-        capturedCallback = config.callback
-      },
-    )
-    const mockPrompt = vi.fn()
-
-    ;(globalThis as any).google = {
-      accounts: {
-        id: {
-          initialize: mockInitialize,
-          prompt: mockPrompt,
+      const mockInitTokenClient = vi.fn(
+        (config: {
+          client_id: string
+          scope: string
+          callback: (response: { id_token?: string; error?: string }) => void
+        }) => {
+          capturedCallback = config.callback
+          return { requestAccessToken: mockRequestAccessToken }
         },
-      },
-    }
+      )
 
-    const { signInWithGoogle } = await import('../googleAuth')
-    const promise = signInWithGoogle()
+      ;(globalThis as any).google = {
+        accounts: {
+          oauth2: {
+            initTokenClient: mockInitTokenClient,
+          },
+        },
+      }
 
-    await new Promise<void>((resolve) => setTimeout(resolve, 0))
+      const { signInWithGoogle } = await import('../googleAuth')
+      const promise = signInWithGoogle()
 
-    expect(mockInitialize).toHaveBeenCalledWith({
-      client_id: VALID_CLIENT_ID,
-      auto_select: false,
-      callback: expect.any(Function),
-    })
+      await new Promise<void>((resolve) => setTimeout(resolve, 0))
 
-    expect(mockPrompt).toHaveBeenCalled()
+      expect(mockInitTokenClient).toHaveBeenCalledWith({
+        client_id: VALID_CLIENT_ID,
+        scope: 'openid profile email',
+        callback: expect.any(Function),
+      })
 
-    capturedCallback!({ credential: makeIDToken('test-nonce') })
+      expect(mockRequestAccessToken).toHaveBeenCalledTimes(1)
 
-    await promise
+      capturedCallback!({ id_token: 'test-id-token' })
 
-    expect(supabase.auth.signInWithIdToken).toHaveBeenCalledWith({
-      provider: 'google',
-      token: makeIDToken('test-nonce'),
-      nonce: 'test-nonce',
+      await promise
+
+      expect(supabase.auth.signInWithIdToken).toHaveBeenCalledWith({
+        provider: 'google',
+        token: 'test-id-token',
+      })
     })
   })
-})
 
   describe('when GIS fails to load', () => {
     it('falls back to OAuth redirect', async () => {
