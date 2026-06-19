@@ -13,12 +13,14 @@ interface Stats {
   lostGames: number
   winRate: number
   gamesByDifficulty: Record<string, number>
-  topPlayers: Array<{ display_name: string; xp: number }>
+  topPlayers: Array<{ username: string; xp: number }>
 }
 
 interface User {
   id: string
-  display_name: string
+  username: string
+  full_name: string | null
+  email: string | null
   xp: number
   level: number
   is_admin: boolean
@@ -158,7 +160,7 @@ export default function DashboardPage() {
           <h3 style={{ marginTop: 16 }}>Top Players</h3>
           <ol>
             {stats.topPlayers.map((p, i) => (
-              <li key={i}>{p.display_name} — {p.xp} XP</li>
+              <li key={i}>{p.username} — {p.xp} XP</li>
             ))}
           </ol>
         </div>
@@ -168,7 +170,7 @@ export default function DashboardPage() {
         <h2>Users</h2>
         <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
           <input
-            placeholder="Search by name..."
+            placeholder="Search by username, email, or name..."
             value={search}
             onChange={e => setSearch(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter') handleSearch() }}
@@ -195,7 +197,7 @@ export default function DashboardPage() {
               <tbody>
                 {users.map(u => (
                   <tr key={u.id} style={{ opacity: u.banned ? 0.5 : 1 }}>
-                    <td>{u.display_name}</td>
+                    <td>{u.username}<br /><small>{u.email}</small></td>
                     <td>{u.level}</td>
                     <td>{u.xp}</td>
                     <td>
