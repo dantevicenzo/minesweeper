@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { AuthProvider } from '../contexts/AuthContext'
 import { I18nProvider } from '../contexts/I18nContext'
+import { ThemeProvider } from '../contexts/ThemeContext'
 import './globals.css'
 
 export const metadata = {
@@ -10,13 +11,15 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
-        <AuthProvider>
-          <I18nProvider>
-            {children}
-          </I18nProvider>
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <I18nProvider>
+              {children}
+            </I18nProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   )
