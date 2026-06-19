@@ -40,7 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               router.push('/setup-username')
             }
           })
-          .catch(() => {})
+          .catch((err) => console.error('[Auth] Failed to fetch profile:', err))
       }
     })
 
@@ -54,7 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               router.push('/setup-username')
             }
           })
-          .catch(() => {})
+          .catch((err) => console.error('[Auth] Failed to fetch profile:', err))
       }
     })
 
