@@ -15,19 +15,23 @@ if linkage != nil
 end
 
 target 'Minesweeper' do
-  # Use react-native CLI binary for config (avoids require().run() issue in monorepo)
+  # Use react-native CLI binary for config (monorepo compat)
   config_command = ["#{Pod::Config.instance.installation_root}/../node_modules/.bin/react-native", 'config']
   config = use_native_modules!(config_command)
 
+  # Resolve react-native path directly as fallback for monorepo
+  rn_path = config ? config[:reactNativePath] : Pod::Executable.execute_command('node', ['-p',
+    'require.resolve("react-native/package.json", {paths: [process.argv[1]]})', __dir__]).strip.sub('/package.json', '')
+
   use_react_native!(
-    :path => config[:reactNativePath],
+    :path => rn_path,
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
   post_install do |installer|
     react_native_post_install(
       installer,
-      config[:reactNativePath],
+      rn_path,
       :mac_catalyst_enabled => false,
     )
   end
