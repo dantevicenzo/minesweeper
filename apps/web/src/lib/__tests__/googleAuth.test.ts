@@ -66,6 +66,7 @@ describe('signInWithGoogle', () => {
       expect(mockInitialize).toHaveBeenCalledWith({
         client_id: VALID_CLIENT_ID,
         auto_select: false,
+        nonce: expect.any(String),
         callback: expect.any(Function),
       })
       expect(mockPrompt).toHaveBeenCalled()
@@ -77,23 +78,39 @@ describe('signInWithGoogle', () => {
       expect(supabase.auth.signInWithIdToken).toHaveBeenCalledWith({
         provider: 'google',
         token: 'test-id-token',
+        nonce: expect.any(String),
       })
     })
   })
 
   describe('when GIS fails to load', () => {
     it('falls back to OAuth redirect', async () => {
-      vi.spyOn(document, 'createElement').mockImplementation(() => {
-        throw new Error('Failed to create script element')
+      let triggerOnError: (() => void) | null = null
+
+      const script = document.createElement('script')
+      vi.spyOn(document, 'createElement').mockReturnValue(script)
+      vi.spyOn(document.head, 'appendChild').mockImplementation((el) => {
+        if (el === script) {
+          triggerOnError = () => script.onerror!(new Event('error'))
+        }
+        return el
       })
 
       const { signInWithGoogle } = await import('../googleAuth')
-      await signInWithGoogle()
+      const promise = signInWithGoogle()
+
+      await new Promise<void>((resolve) => setTimeout(resolve, 0))
+
+      triggerOnError!()
+
+      await new Promise<void>((resolve) => setTimeout(resolve, 0))
 
       expect(supabase.auth.signInWithOAuth).toHaveBeenCalledWith({
         provider: 'google',
         options: { redirectTo: '/auth/callback' },
       })
+
+      await promise
     })
   })
 

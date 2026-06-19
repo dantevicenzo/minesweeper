@@ -18,16 +18,23 @@ export async function signInWithGoogle(): Promise<void> {
   }
 
   const google = (globalThis as any).google
+  if (!google?.accounts?.id) {
+    throw new Error('Google Identity Services not available')
+  }
+
+  const nonce = generateNonce()
 
   return new Promise((resolve, reject) => {
     google.accounts.id.initialize({
       client_id: GOOGLE_CLIENT_ID,
       auto_select: false,
+      nonce,
       callback: async (response: { credential: string }) => {
         try {
           const { error } = await supabase.auth.signInWithIdToken({
             provider: 'google',
             token: response.credential,
+            nonce,
           })
           if (error) throw error
           resolve()
@@ -39,6 +46,12 @@ export async function signInWithGoogle(): Promise<void> {
 
     google.accounts.id.prompt()
   })
+}
+
+function generateNonce(): string {
+  const array = new Uint8Array(16)
+  crypto.getRandomValues(array)
+  return Array.from(array, (b) => b.toString(16).padStart(2, '0')).join('')
 }
 
 async function loadGIS(): Promise<void> {
