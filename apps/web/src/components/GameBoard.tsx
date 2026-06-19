@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useApiGame } from '../hooks/useApiGame'
 import { CellView } from './CellView'
-import { FlagIcon, GearIcon, TrophyIcon, ProfileIcon, SmilingIcon, GlassesIcon, WorriedIcon, XeyesIcon } from './icons'
+import { FlagIcon, GearIcon, TrophyIcon, ProfileIcon, SmilingIcon, GlassesIcon, WorriedIcon, XeyesIcon, TimerDigit } from './icons'
 import { ResultModal } from './ResultModal'
 import { useAuth } from '../contexts/AuthContext'
 import { useI18n } from '../contexts/I18nContext'
@@ -236,7 +236,9 @@ export function GameBoard({ width, height, mineCount, difficulty = 'easy', initi
         </div>
         <div className={styles.headerCenter}>
           <div className={styles.counter} role="timer" aria-label={`${t.game.mines}: ${mineDisplay}`}>
-            {formatCounter(mineDisplay)}
+            {formatCounter(mineDisplay).split('').map((ch, i) =>
+              ch === '-' ? <span key={i} className={styles.counterMinus}>-</span> : <TimerDigit key={i} digit={parseInt(ch)} className={styles.counterDigit} />
+            )}
           </div>
           <button
             ref={smileyRef}
@@ -250,7 +252,9 @@ export function GameBoard({ width, height, mineCount, difficulty = 'easy', initi
             {face === 'lost' && <XeyesIcon className={styles.smileyIcon} />}
           </button>
           <div className={styles.counter} role="timer" aria-label={`${t.game.time}: ${time}s`}>
-            {formatCounter(time)}
+            {formatCounter(time).split('').map((ch, i) =>
+              ch === '-' ? <span key={i} className={styles.counterMinus}>-</span> : <TimerDigit key={i} digit={parseInt(ch)} className={styles.counterDigit} />
+            )}
           </div>
         </div>
         <div className={styles.headerRight}>
