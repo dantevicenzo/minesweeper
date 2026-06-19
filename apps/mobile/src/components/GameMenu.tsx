@@ -161,7 +161,7 @@ export function GameMenu({ onClose, onStartGame, onNewGame, currentDifficulty = 
         <Text style={styles.donateBtnText}>{t.home.donate}</Text>
       </Pressable>
 
-      <View style={styles.credits}>
+      <View style={[styles.credits, { borderTopColor: colors.border }]}>
         <Text style={[styles.creditsText, { color: colors.textSecondary }]}>
           {t.credits.developedBy} Dante Vicenzo · {t.credits.year}
         </Text>
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
   input: { borderWidth: 1, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4, fontSize: 14, width: 80, textAlign: 'center' },
   customStartBtn: { padding: 8, borderRadius: 6, alignItems: 'center' },
   customStartBtnText: { color: '#fff', fontSize: 16 },
-  credits: { alignItems: 'center', gap: 6 },
+  credits: { alignItems: 'center', gap: 6, paddingTop: 12, borderTopWidth: 1 },
   creditsText: { fontSize: 12 },
   creditsLinks: { flexDirection: 'row', gap: 12 },
   creditsLink: { fontSize: 13 },
