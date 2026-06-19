@@ -55,7 +55,7 @@ router.get('/:userId', async (req, res: Response) => {
 
   try {
     const profile = await queryOne<any>(
-      `select id, display_name, avatar_url, xp, level from public.profiles where id = $1`,
+      `select id, username, full_name, avatar_url, xp, level from public.profiles where id = $1`,
       [userId]
     )
 

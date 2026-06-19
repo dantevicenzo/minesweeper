@@ -66,8 +66,8 @@ async function seed() {
     console.log('Test user created:', userId)
 
     await pool.query(
-      `update public.profiles set display_name = $1, xp = $2, level = $3 where id = $4`,
-      ['Player Teste', 250, 3, userId]
+      `update public.profiles set full_name = $1, username = $2, xp = $3, level = $4 where id = $5`,
+      ['Player Teste', 'player_teste', 250, 3, userId]
     )
     console.log('Test profile updated with XP/level')
 

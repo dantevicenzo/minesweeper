@@ -41,12 +41,17 @@ router.get('/users', requireAuth, async (req: AuthenticatedRequest, res: Respons
     let countParams: any[]
 
     if (search) {
-      sql = `select * from public.profiles where display_name ilike $1 order by created_at desc limit $2 offset $3`
+      sql = `select id, username, full_name, email, xp, level, is_admin, banned, banned_at, created_at, updated_at
+             from public.profiles
+             where username ilike $1 or email ilike $1 or full_name ilike $1
+             order by created_at desc limit $2 offset $3`
       params = [`%${search}%`, limit, offset]
-      countSql = `select count(*)::int as count from public.profiles where display_name ilike $1`
+      countSql = `select count(*)::int as count from public.profiles
+                  where username ilike $1 or email ilike $1 or full_name ilike $1`
       countParams = [`%${search}%`]
     } else {
-      sql = `select * from public.profiles order by created_at desc limit $1 offset $2`
+      sql = `select id, username, full_name, email, xp, level, is_admin, banned, banned_at, created_at, updated_at
+             from public.profiles order by created_at desc limit $1 offset $2`
       params = [limit, offset]
       countSql = `select count(*)::int as count from public.profiles`
       countParams = []
@@ -74,16 +79,20 @@ router.put('/users/:id', requireAuth, async (req: AuthenticatedRequest, res: Res
   if (!isAdmin) return
 
   const { id } = req.params
-  const { display_name, is_admin, banned } = req.body
+  const { username, full_name, is_admin, banned } = req.body
 
   try {
     const setClauses: string[] = []
     const params: any[] = []
     let paramIndex = 1
 
-    if (display_name !== undefined) {
-      setClauses.push(`display_name = $${paramIndex++}`)
-      params.push(display_name)
+    if (username !== undefined) {
+      setClauses.push(`username = $${paramIndex++}`)
+      params.push(username)
+    }
+    if (full_name !== undefined) {
+      setClauses.push(`full_name = $${paramIndex++}`)
+      params.push(full_name)
     }
     if (is_admin !== undefined) {
       setClauses.push(`is_admin = $${paramIndex++}`)
@@ -136,8 +145,8 @@ router.get('/stats', requireAuth, async (req: AuthenticatedRequest, res: Respons
       `select difficulty, count(*)::int as count from public.games group by difficulty`
     )
 
-    const topPlayers = await query<{ display_name: string; xp: number }>(
-      `select display_name, xp from public.profiles where banned = false order by xp desc limit 10`
+    const topPlayers = await query<{ username: string; xp: number }>(
+      `select username, xp from public.profiles where banned = false order by xp desc limit 10`
     )
 
     const total = gameStats?.total_games ?? 0

@@ -221,7 +221,7 @@ describe('Stats API', () => {
 
   it('returns player stats with auth', async () => {
     mockAuthFetch()
-    mockQueryOne.mockResolvedValueOnce({ id: 'test-user-id', display_name: 'Test', xp: 500, level: 3 })
+    mockQueryOne.mockResolvedValueOnce({ id: 'test-user-id', username: 'test', full_name: 'Test', xp: 500, level: 3 })
     mockQueryOne.mockResolvedValueOnce({ total_games: 10, wins: 7, losses: 3, avg_win_time_ms: 30000, best_time_ms: 15000 })
     mockQuery.mockResolvedValueOnce([])
     mockQuery.mockResolvedValueOnce([])

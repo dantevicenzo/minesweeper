@@ -66,7 +66,7 @@ router.get('/', async (req, res: Response) => {
     const countParams = [...q.params]
 
     const data = await query(
-      `select le.*, p.display_name, p.avatar_url, g.width, g.height, g.mine_count
+      `select le.*, p.username, p.full_name, p.avatar_url, g.width, g.height, g.mine_count
        from public.leaderboard_entries le
        join public.profiles p on p.id = le.user_id
        ${GAMES_JOIN}
