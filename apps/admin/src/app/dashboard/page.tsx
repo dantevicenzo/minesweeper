@@ -27,6 +27,7 @@ interface User {
   banned: boolean
   banned_at: string | null
   created_at: string
+  updated_at: string
 }
 
 interface Pagination {
@@ -185,19 +186,26 @@ export default function DashboardPage() {
             <table>
               <thead>
                 <tr>
-                  <th>Name</th>
+                  <th>ID</th>
+                  <th>Username</th>
+                  <th>Full Name</th>
+                  <th>Email</th>
                   <th>Level</th>
                   <th>XP</th>
                   <th>Admin</th>
                   <th>Status</th>
                   <th>Created</th>
+                  <th>Updated</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {users.map(u => (
                   <tr key={u.id} style={{ opacity: u.banned ? 0.5 : 1 }}>
-                    <td>{u.username}<br /><small>{u.email}</small></td>
+                    <td style={{ fontSize: 11, fontFamily: 'monospace' }}>{u.id.slice(0, 8)}…</td>
+                    <td>{u.username}</td>
+                    <td>{u.full_name ?? '—'}</td>
+                    <td>{u.email ?? '—'}</td>
                     <td>{u.level}</td>
                     <td>{u.xp}</td>
                     <td>
@@ -215,7 +223,8 @@ export default function DashboardPage() {
                         <span style={{ color: 'green' }}>Active</span>
                       )}
                     </td>
-                    <td>{new Date(u.created_at).toLocaleDateString()}</td>
+                    <td style={{ fontSize: 12 }}>{new Date(u.created_at).toLocaleDateString()}</td>
+                    <td style={{ fontSize: 12 }}>{new Date(u.updated_at).toLocaleDateString()}</td>
                     <td>
                       <button
                         onClick={() => toggleBan(u)}
