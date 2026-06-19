@@ -78,8 +78,8 @@ export function GameBoard({ width, height, mineCount, difficulty = 'easy', onOpe
 
   const gridW = width * CELL
   const gridH = height * CELL
-  const natW = gridW + PAD * 2 + BORDER * 2
-  const natH = HEADER_H + gridH + PAD * 2 + BORDER * 2 + 8
+  const natW = gridW + PAD * 2 + BORDER * 4
+  const natH = HEADER_H + gridH + PAD * 2 + BORDER * 4 + 8
 
   const availW = (space.w || 390) - WRAPPER_PADDING * 2
   const availH = (space.h || 700) - WRAPPER_PADDING * 2
@@ -91,7 +91,7 @@ export function GameBoard({ width, height, mineCount, difficulty = 'easy', onOpe
     <View style={[styles.wrapper, { backgroundColor: colors.bg }]} onLayout={e => setSpace({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
       <View style={styles.centerArea}>
         <View style={[styles.scaler, { width: scaledW, height: scaledH }]}>
-          <View style={{ width: natW, height: natH, transform: [{ scale }], transformOrigin: [0, 0] }}>
+          <View style={{ width: natW, height: natH, transform: [{ scale }], transformOrigin: '0px 0px 0px' }}>
             <View style={[styles.container, {
               backgroundColor: colors.cellBg,
               borderTopColor: colors.cellBorderLight, borderLeftColor: colors.cellBorderLight,
@@ -106,7 +106,7 @@ export function GameBoard({ width, height, mineCount, difficulty = 'easy', onOpe
                 onOpenProfile={onOpenProfile ?? (() => {})}
               />
               <View style={[styles.grid, {
-                width: gridW, height: gridH,
+                width: gridW + BORDER * 2, height: gridH + BORDER * 2,
                 backgroundColor: colors.cellBorderDark,
                 borderTopColor: colors.cellBorderDark, borderLeftColor: colors.cellBorderDark,
                 borderBottomColor: colors.cellBorderLight, borderRightColor: colors.cellBorderLight,

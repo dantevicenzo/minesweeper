@@ -30,43 +30,45 @@ export function CellView({ cell, gameStatus, flagMode, onPress, onLongPress }: C
   const revealed = cell.isRevealed && !cell.isExploded
   const exploded = cell.isExploded
 
-  const cellStyle: any[] = [styles.cell]
+  const raisedBorder = {
+    borderTopWidth: 3, borderLeftWidth: 3,
+    borderBottomWidth: 3, borderRightWidth: 3,
+    borderTopColor: colors.cellBorderLight,
+    borderLeftColor: colors.cellBorderLight,
+    borderBottomColor: colors.cellBorderDark,
+    borderRightColor: colors.cellBorderDark,
+  }
 
-  if (hidden) {
-    cellStyle.push({
-      backgroundColor: colors.cellBg,
-      borderTopWidth: 3, borderLeftWidth: 3,
-      borderBottomWidth: 3, borderRightWidth: 3,
-      borderTopColor: colors.cellBorderLight,
-      borderLeftColor: colors.cellBorderLight,
-      borderBottomColor: colors.cellBorderDark,
-      borderRightColor: colors.cellBorderDark,
-    })
-  } else if (revealed) {
-    cellStyle.push({
-      backgroundColor: colors.cellRevealed,
-      borderTopWidth: 1, borderLeftWidth: 1,
-      borderBottomWidth: 1, borderRightWidth: 1,
-      borderTopColor: colors.cellBorderDark,
-      borderLeftColor: colors.cellBorderDark,
-      borderBottomColor: colors.cellBorderLight,
-      borderRightColor: colors.cellBorderLight,
-    })
-  } else if (exploded) {
-    cellStyle.push({
-      backgroundColor: colors.cellMineExploded,
-      borderTopWidth: 1, borderLeftWidth: 1,
-      borderBottomWidth: 1, borderRightWidth: 1,
-      borderTopColor: colors.cellBorderDark,
-      borderLeftColor: colors.cellBorderDark,
-      borderBottomColor: colors.cellBorderLight,
-      borderRightColor: colors.cellBorderLight,
-    })
+  const pressedBorder = {
+    borderTopColor: colors.cellBorderDark,
+    borderLeftColor: colors.cellBorderDark,
+    borderBottomColor: colors.cellBorderLight,
+    borderRightColor: colors.cellBorderLight,
+  }
+
+  const insetBorder = {
+    borderTopWidth: 1, borderLeftWidth: 1,
+    borderBottomWidth: 1, borderRightWidth: 1,
+    borderTopColor: colors.cellBorderDark,
+    borderLeftColor: colors.cellBorderDark,
+    borderBottomColor: colors.cellBorderLight,
+    borderRightColor: colors.cellBorderLight,
   }
 
   return (
     <Pressable
-      style={cellStyle}
+      style={({ pressed }) => {
+        const style: any[] = [styles.cell]
+        if (hidden) {
+          style.push({ backgroundColor: colors.cellBg, ...raisedBorder })
+          if (pressed) style.push(pressedBorder)
+        } else if (revealed) {
+          style.push({ backgroundColor: colors.cellRevealed, ...insetBorder })
+        } else if (exploded) {
+          style.push({ backgroundColor: colors.cellMineExploded, ...insetBorder })
+        }
+        return style
+      }}
       onPress={handlePress}
       onLongPress={onLongPress}
       accessibilityRole="button"

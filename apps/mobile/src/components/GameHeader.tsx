@@ -20,7 +20,7 @@ export function GameHeader({ mineCount, flagCount, time, face, flagMode, onFlagM
   const { colors } = useTheme()
   const faceIcon = { default: <SmileyIcon width={18} height={18} />, worried: <WorriedIcon width={18} height={18} />, won: <GlassesIcon width={18} height={18} />, lost: <XeyesIcon width={18} height={18} /> }[face]
 
-  const raisedBtn = {
+  const raised = {
     borderTopWidth: 2, borderLeftWidth: 2,
     borderBottomWidth: 2, borderRightWidth: 2,
     borderTopColor: colors.cellBorderLight,
@@ -29,9 +29,14 @@ export function GameHeader({ mineCount, flagCount, time, face, flagMode, onFlagM
     borderRightColor: colors.cellBorderDark,
   }
 
-  const flagBtnStyle = flagMode
-    ? [raisedBtn, { backgroundColor: '#fca5a5', borderRadius: 3 }]
-    : [raisedBtn]
+  const pressed = {
+    borderTopColor: colors.cellBorderDark,
+    borderLeftColor: colors.cellBorderDark,
+    borderBottomColor: colors.cellBorderLight,
+    borderRightColor: colors.cellBorderLight,
+  }
+
+  const btnStyle = (isPressed: boolean) => isPressed ? [raised, pressed] : [raised]
 
   return (
     <View style={[styles.header, {
@@ -40,27 +45,27 @@ export function GameHeader({ mineCount, flagCount, time, face, flagMode, onFlagM
       borderBottomColor: colors.cellBorderLight, borderRightColor: colors.cellBorderLight,
     }]}>
       <View style={styles.leftGroup}>
-        <Pressable style={[styles.btn, ...flagBtnStyle]} onPress={onFlagModeToggle}>
+        <Pressable style={({ pressed: p }) => [styles.btn, ...btnStyle(p), flagMode ? { backgroundColor: '#fca5a5', borderRadius: 3 } : {}]} onPress={onFlagModeToggle}>
           <FlagIcon width={10} height={14} color={flagMode ? '#000' : colors.flag} />
         </Pressable>
-        <Pressable style={[styles.btn, raisedBtn]} onPress={onOpenLeaderboard}>
+        <Pressable style={({ pressed: p }) => [styles.btn, ...btnStyle(p)]} onPress={onOpenLeaderboard}>
           <TrophyIcon width={14} height={14} color={colors.textSecondary} />
         </Pressable>
       </View>
 
       <View style={styles.centerGroup}>
         <MineCounter value={mineCount - flagCount} />
-        <Pressable style={[styles.btn, raisedBtn]} onPress={onReset}>
+        <Pressable style={({ pressed: p }) => [styles.btn, ...btnStyle(p)]} onPress={onReset}>
           {faceIcon}
         </Pressable>
         <MineCounter value={time} />
       </View>
 
       <View style={styles.rightGroup}>
-        <Pressable style={[styles.btn, raisedBtn]} onPress={onOpenProfile}>
+        <Pressable style={({ pressed: p }) => [styles.btn, ...btnStyle(p)]} onPress={onOpenProfile}>
           <ProfileIcon width={14} height={14} color={colors.textSecondary} />
         </Pressable>
-        <Pressable style={[styles.btn, raisedBtn]} onPress={onOpenMenu}>
+        <Pressable style={({ pressed: p }) => [styles.btn, ...btnStyle(p)]} onPress={onOpenMenu}>
           <GearIcon width={12} height={12} color={colors.textSecondary} />
         </Pressable>
       </View>
