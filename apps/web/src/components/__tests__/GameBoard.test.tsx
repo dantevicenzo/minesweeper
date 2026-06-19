@@ -2,6 +2,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, cleanup } from '@testing-library/react'
 import { GameBoard } from '../GameBoard'
 
+vi.mock('../../contexts/AuthContext', () => ({
+  useAuth: vi.fn(() => ({ user: null })),
+}))
+
 vi.mock('../../hooks/useApiGame', () => ({
   useApiGame: vi.fn(),
 }))
@@ -17,6 +21,11 @@ vi.mock('../../contexts/I18nContext', () => ({
         newGame: 'New Game',
         minesweeperBoard: 'Minesweeper board',
         boardLabel: 'Game grid. Use arrow keys to navigate, Enter to reveal, F to flag.',
+        stats: 'Statistics',
+        board: 'Board',
+        clicks: 'Clicks',
+        xpEarned: 'XP Earned',
+        playAgain: 'Play Again',
       },
       home: {
         settings: 'Settings',
@@ -53,7 +62,13 @@ vi.mock('../CellView', () => ({
   CellView: vi.fn(() => null),
 }))
 
+vi.mock('../ResultModal', () => ({
+  ResultModal: vi.fn(() => null),
+}))
+
 import { useApiGame } from '../../hooks/useApiGame'
+import { useAuth } from '../../contexts/AuthContext'
+import { ResultModal } from '../ResultModal'
 
 function createMockGame(overrides: Record<string, unknown> = {}) {
   return {
@@ -209,5 +224,91 @@ describe('GameBoard', () => {
     render(<GameBoard width={9} height={9} mineCount={10} />)
     const region = screen.getByRole('region')
     expect(region.getAttribute('aria-label')).toBe('Minesweeper board')
+  })
+})
+
+describe('GameBoard with ResultModal', () => {
+  beforeEach(() => {
+    vi.mocked(ResultModal).mockClear()
+  })
+
+  it('does not show modal when game is idle', () => {
+    vi.mocked(useApiGame).mockReturnValue({
+      game: createMockGame({ status: 'idle' }),
+      dispatch: vi.fn(),
+      reset: vi.fn(),
+    } as any)
+
+    render(<GameBoard width={9} height={9} mineCount={10} />)
+    expect(vi.mocked(ResultModal)).not.toHaveBeenCalled()
+  })
+
+  it('shows modal when game is won', () => {
+    const reset = vi.fn()
+    vi.mocked(useApiGame).mockReturnValue({
+      game: createMockGame({ status: 'won', flagCount: 3, startTime: Date.now() - 45000 }),
+      dispatch: vi.fn(),
+      reset,
+    } as any)
+
+    render(<GameBoard width={9} height={9} mineCount={10} difficulty="easy" />)
+    expect(vi.mocked(ResultModal)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: 'won',
+        mineCount: 10,
+        flagCount: 3,
+        difficulty: 'easy',
+        width: 9,
+        height: 9,
+      }),
+      undefined,
+    )
+  })
+
+  it('shows modal when game is lost', () => {
+    const reset = vi.fn()
+    vi.mocked(useApiGame).mockReturnValue({
+      game: createMockGame({ status: 'lost', flagCount: 2, startTime: Date.now() - 30000 }),
+      dispatch: vi.fn(),
+      reset,
+    } as any)
+
+    render(<GameBoard width={9} height={9} mineCount={10} difficulty="medium" />)
+    expect(vi.mocked(ResultModal)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: 'lost',
+        mineCount: 10,
+        flagCount: 2,
+        difficulty: 'medium',
+      }),
+      undefined,
+    )
+  })
+
+  it('passes xpEarned=100 for easy win with logged user', () => {
+    vi.mocked(useAuth).mockReturnValue({ user: { id: 'test' } } as any)
+    vi.mocked(useApiGame).mockReturnValue({
+      game: createMockGame({ status: 'won', flagCount: 3, startTime: Date.now() - 45000 }),
+      dispatch: vi.fn(),
+      reset: vi.fn(),
+    } as any)
+
+    render(<GameBoard width={9} height={9} mineCount={10} difficulty="easy" />)
+    const lastCall = vi.mocked(ResultModal).mock.calls[vi.mocked(ResultModal).mock.calls.length - 1]
+    expect(lastCall[0].xpEarned).toBe(100)
+  })
+
+  it('calls reset when onPlayAgain is triggered', () => {
+    const reset = vi.fn()
+    vi.mocked(useApiGame).mockReturnValue({
+      game: createMockGame({ status: 'won', flagCount: 3, startTime: Date.now() - 45000 }),
+      dispatch: vi.fn(),
+      reset,
+    } as any)
+
+    render(<GameBoard width={9} height={9} mineCount={10} difficulty="easy" />)
+    const lastCall = vi.mocked(ResultModal).mock.calls[vi.mocked(ResultModal).mock.calls.length - 1]
+    lastCall[0].onPlayAgain()
+    expect(reset).toHaveBeenCalledTimes(1)
   })
 })

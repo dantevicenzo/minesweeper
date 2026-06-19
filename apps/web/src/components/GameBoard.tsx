@@ -4,8 +4,10 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useApiGame } from '../hooks/useApiGame'
 import { CellView } from './CellView'
+import { ResultModal } from './ResultModal'
+import { useAuth } from '../contexts/AuthContext'
 import { useI18n } from '../contexts/I18nContext'
-import type { GameState } from '@minesweeper/engine'
+import type { GameAction, GameState } from '@minesweeper/engine'
 import styles from './GameBoard.module.css'
 
 interface GameBoardProps {
@@ -53,6 +55,9 @@ export function GameBoard({ width, height, mineCount, difficulty = 'easy', initi
   const { t } = useI18n()
   const router = useRouter()
   const { game, dispatch, reset } = useApiGame(width, height, mineCount, difficulty, initialState)
+  const { user } = useAuth()
+  const clickCountRef = useRef(0)
+  const [showResult, setShowResult] = useState(false)
   const [time, setTime] = useState(0)
   const [face, setFace] = useState<'🙂' | '😮' | '😎' | '💀'>('🙂')
   const [focusRow, setFocusRow] = useState(0)
@@ -123,6 +128,14 @@ export function GameBoard({ width, height, mineCount, difficulty = 'easy', initi
     }
   }, [game.status])
 
+  useEffect(() => {
+    if (game.status === 'won' || game.status === 'lost') {
+      setShowResult(true)
+    } else {
+      setShowResult(false)
+    }
+  }, [game.status])
+
   const announceRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -133,6 +146,17 @@ export function GameBoard({ width, height, mineCount, difficulty = 'easy', initi
       }
     }
   }, [game.status, t])
+
+  const wrappedDispatch = useCallback((action: GameAction) => {
+    clickCountRef.current += 1
+    dispatch(action)
+  }, [dispatch])
+
+  const wrappedReset = useCallback(() => {
+    setShowResult(false)
+    clickCountRef.current = 0
+    reset()
+  }, [reset])
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     let row = focusRow
@@ -158,12 +182,12 @@ export function GameBoard({ width, height, mineCount, difficulty = 'easy', initi
       case 'Enter':
       case ' ':
         e.preventDefault()
-        dispatch({ type: 'reveal', row: focusRow, col: focusCol })
+        wrappedDispatch({ type: 'reveal', row: focusRow, col: focusCol })
         return
       case 'f':
       case 'F':
         e.preventDefault()
-        dispatch({ type: 'flag', row: focusRow, col: focusCol })
+        wrappedDispatch({ type: 'flag', row: focusRow, col: focusCol })
         return
       default:
         return
@@ -175,9 +199,11 @@ export function GameBoard({ width, height, mineCount, difficulty = 'easy', initi
       const cell = gridRef.current?.querySelector(`[data-row="${row}"][data-col="${col}"]`) as HTMLElement | null
       cell?.focus()
     }
-  }, [focusRow, focusCol, width, height, dispatch])
+  }, [focusRow, focusCol, width, height, wrappedDispatch])
 
   const mineDisplay = mineCount - game.flagCount
+  const xpMap: Record<string, number> = { easy: 100, medium: 150, hard: 200 }
+  const xpEarned = user && game.status === 'won' ? (xpMap[difficulty] ?? 100) : undefined
 
   return (
     <div className={styles.wrapper} ref={wrapperRef}>
@@ -214,7 +240,7 @@ export function GameBoard({ width, height, mineCount, difficulty = 'easy', initi
           <button
             ref={smileyRef}
             className={styles.smiley}
-            onClick={reset}
+            onClick={wrappedReset}
             aria-label={t.game.newGame}
           >
             {face}
@@ -260,12 +286,12 @@ export function GameBoard({ width, height, mineCount, difficulty = 'easy', initi
               gameStatus={game.status}
               isFocused={r === focusRow && c === focusCol}
               flagMode={flagMode}
-              onLeftClick={() => dispatch({ type: 'reveal', row: r, col: c })}
+              onLeftClick={() => wrappedDispatch({ type: 'reveal', row: r, col: c })}
               onRightClick={(e) => {
                 e.preventDefault()
-                dispatch({ type: 'flag', row: r, col: c })
+                wrappedDispatch({ type: 'flag', row: r, col: c })
               }}
-              onChordClick={() => dispatch({ type: 'chord', row: r, col: c })}
+              onChordClick={() => wrappedDispatch({ type: 'chord', row: r, col: c })}
               onMouseDown={() => setFace('😮')}
               onMouseUp={() => { if (game.status === 'idle' || game.status === 'playing') setFace('🙂') }}
               onFocus={() => { setFocusRow(r); setFocusCol(c) }}
@@ -282,6 +308,20 @@ export function GameBoard({ width, height, mineCount, difficulty = 'easy', initi
       />
     </div>
     </div>
+    {showResult && (
+      <ResultModal
+        status={game.status as 'won' | 'lost'}
+        time={time}
+        difficulty={difficulty}
+        mineCount={mineCount}
+        flagCount={game.flagCount}
+        clickCount={clickCountRef.current}
+        width={width}
+        height={height}
+        xpEarned={xpEarned}
+        onPlayAgain={wrappedReset}
+      />
+    )}
     </div>
   )
 }
