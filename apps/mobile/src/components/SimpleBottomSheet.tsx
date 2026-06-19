@@ -32,7 +32,7 @@ export function SimpleBottomSheet({ isOpen, onClose, title, children }: SimpleBo
       <Pressable style={styles.backdrop} onPress={onClose}>
         <Animated.View style={[styles.sheet, { backgroundColor: colors.surface, transform: [{ translateY }] }]}>
           <Pressable onPress={() => {}}>
-            <View style={styles.handle} />
+            <View style={[styles.handle, { backgroundColor: colors.border }]} />
             {title && <Text style={[styles.title, { color: colors.text }]}>{title}</Text>}
             {children}
           </Pressable>
@@ -51,21 +51,20 @@ const styles = StyleSheet.create({
   sheet: {
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    padding: 16,
+    padding: 12,
     maxHeight: '75%',
   },
   handle: {
     width: 36,
     height: 4,
     borderRadius: 2,
-    backgroundColor: '#ccc',
     alignSelf: 'center',
-    marginBottom: 12,
+    marginBottom: 16,
   },
   title: {
     fontSize: 18,
     fontWeight: '700',
-    marginBottom: 12,
-    textAlign: 'center',
+    paddingHorizontal: 8,
+    marginBottom: 8,
   },
 })

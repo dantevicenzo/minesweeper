@@ -24,7 +24,9 @@ export function ResultModal({ status, time, mineCount, flagCount, clickCount, wi
     <Modal visible transparent animationType="fade" onRequestClose={onPlayAgain}>
       <View style={styles.backdrop}>
         <View style={[styles.modal, { backgroundColor: colors.surface }]}>
-          <View style={styles.emoji}>{status === 'won' ? <GlassesIcon /> : <XeyesIcon />}</View>
+          <View style={styles.emoji}>
+            {status === 'won' ? <GlassesIcon width={44} height={44} /> : <XeyesIcon width={44} height={44} />}
+          </View>
           <Text style={[styles.title, { color: colors.text }]}>{status === 'won' ? t.game.win : t.game.lose}</Text>
 
           <View style={styles.section}>
@@ -42,7 +44,7 @@ export function ResultModal({ status, time, mineCount, flagCount, clickCount, wi
             </View>
           )}
 
-          <Pressable style={[styles.btn, { backgroundColor: colors.primary }]} onPress={onPlayAgain}>
+          <Pressable style={({ pressed }) => [styles.btn, { backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1 }]} onPress={onPlayAgain}>
             <Text style={styles.btnText}>{t.game.playAgain}</Text>
           </Pressable>
         </View>
@@ -68,9 +70,11 @@ const styles = StyleSheet.create({
   },
   modal: {
     borderRadius: 12, padding: 24, minWidth: 220, maxWidth: '90%',
-    alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 32,
+    alignItems: 'center',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3, shadowRadius: 32, elevation: 8,
   },
-  emoji: { marginBottom: 4 },
+  emoji: { height: 44, justifyContent: 'center', alignItems: 'center', marginBottom: 4 },
   title: { fontSize: 18, fontWeight: '700', marginBottom: 16 },
   section: { marginBottom: 12, width: '100%' },
   sectionTitle: { fontSize: 11, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 },

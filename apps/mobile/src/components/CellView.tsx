@@ -26,21 +26,43 @@ export function CellView({ cell, gameStatus, flagMode, onPress, onLongPress }: C
     }
   }
 
-  const cellStyle = [
-    styles.cell,
-    cell.isRevealed
-      ? { backgroundColor: colors.cellRevealed, borderWidth: 1, borderColor: colors.cellBorderDark }
-      : {
-          backgroundColor: colors.cellBg,
-          borderTopWidth: 3, borderLeftWidth: 3,
-          borderBottomWidth: 3, borderRightWidth: 3,
-          borderTopColor: colors.cellBorderLight,
-          borderLeftColor: colors.cellBorderLight,
-          borderBottomColor: colors.cellBorderDark,
-          borderRightColor: colors.cellBorderDark,
-        },
-    cell.isExploded && { backgroundColor: colors.cellMineExploded },
-  ]
+  const hidden = !cell.isRevealed
+  const revealed = cell.isRevealed && !cell.isExploded
+  const exploded = cell.isExploded
+
+  const cellStyle: any[] = [styles.cell]
+
+  if (hidden) {
+    cellStyle.push({
+      backgroundColor: colors.cellBg,
+      borderTopWidth: 3, borderLeftWidth: 3,
+      borderBottomWidth: 3, borderRightWidth: 3,
+      borderTopColor: colors.cellBorderLight,
+      borderLeftColor: colors.cellBorderLight,
+      borderBottomColor: colors.cellBorderDark,
+      borderRightColor: colors.cellBorderDark,
+    })
+  } else if (revealed) {
+    cellStyle.push({
+      backgroundColor: colors.cellRevealed,
+      borderTopWidth: 1, borderLeftWidth: 1,
+      borderBottomWidth: 1, borderRightWidth: 1,
+      borderTopColor: colors.cellBorderDark,
+      borderLeftColor: colors.cellBorderDark,
+      borderBottomColor: colors.cellBorderLight,
+      borderRightColor: colors.cellBorderLight,
+    })
+  } else if (exploded) {
+    cellStyle.push({
+      backgroundColor: colors.cellMineExploded,
+      borderTopWidth: 1, borderLeftWidth: 1,
+      borderBottomWidth: 1, borderRightWidth: 1,
+      borderTopColor: colors.cellBorderDark,
+      borderLeftColor: colors.cellBorderDark,
+      borderBottomColor: colors.cellBorderLight,
+      borderRightColor: colors.cellBorderLight,
+    })
+  }
 
   return (
     <Pressable

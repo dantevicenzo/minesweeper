@@ -66,12 +66,12 @@ const timerDigits: Record<number, TimerDigitData> = {
   },
 }
 
-export function TimerDigit({ digit, width = 10, height = 18, testID }: { digit: number } & IconProps) {
+export function TimerDigit({ digit, width = 10, height = 18, color = '#ff0000', testID }: { digit: number } & IconProps) {
   const data = timerDigits[digit] ?? timerDigits[0]
   return (
     <Svg width={width} height={height} viewBox="0 0 61.552 117.509" testID={testID}>
-      <Path fill="#cc0000" d={data.outline} transform={data.transform} />
-      {data.inner ? <Path fill="maroon" fillOpacity={0.3} d={data.inner} transform={data.transform} /> : null}
+      <Path fill={color} d={data.outline} transform={data.transform} />
+      {data.inner ? <Path fill={color} fillOpacity={0.3} d={data.inner} transform={data.transform} /> : null}
     </Svg>
   )
 }
