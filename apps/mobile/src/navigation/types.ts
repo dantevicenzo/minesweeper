@@ -1,5 +1,6 @@
 export type RootStackParamList = {
   Auth: undefined
+  SetupUsername: undefined
   Main: undefined
 }
 

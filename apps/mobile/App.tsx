@@ -1,20 +1,19 @@
-import React from 'react'
-import { View, Text, StyleSheet } from 'react-native'
+import { SafeAreaProvider } from 'react-native-safe-area-context'
+import { ThemeProvider } from './src/contexts/ThemeContext'
+import { I18nProvider } from './src/contexts/I18nContext'
+import { AuthProvider } from './src/contexts/AuthContext'
+import { RootNavigator } from './src/navigation/RootNavigator'
 
-const App: React.FC = () => {
+export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Minesweeper</Text>
-    </View>
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <I18nProvider>
+          <AuthProvider>
+            <RootNavigator />
+          </AuthProvider>
+        </I18nProvider>
+      </ThemeProvider>
+    </SafeAreaProvider>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-})
-
-export default App

@@ -1,5 +1,4 @@
 import React from 'react'
-import { View, Text } from 'react-native'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
@@ -7,19 +6,15 @@ import { useTheme } from '../contexts/ThemeContext'
 import { SmileyIcon } from '../components/icons/SmileyIcon'
 import { TrophyIcon } from '../components/icons/TrophyIcon'
 import { ProfileIcon } from '../components/icons/ProfileIcon'
+import { GameScreen } from '../screens/GameScreen'
+import { LeaderboardScreen } from '../screens/LeaderboardScreen'
+import { ProfileScreen } from '../screens/ProfileScreen'
+import { AuthScreen } from '../screens/AuthScreen'
+import { SetupUsernameScreen } from '../screens/SetupUsernameScreen'
 import type { RootStackParamList, MainTabParamList } from './types'
 
 const Stack = createNativeStackNavigator<RootStackParamList>()
 const Tab = createBottomTabNavigator<MainTabParamList>()
-
-const PlaceholderScreen = ({ route }: any) => {
-  const { colors } = useTheme()
-  return (
-    <View style={{ flex: 1, backgroundColor: colors.bg, justifyContent: 'center', alignItems: 'center' }}>
-      <Text style={{ color: colors.text }}>{route.name}</Text>
-    </View>
-  )
-}
 
 const tabIcons: Record<keyof MainTabParamList, (props: { color: string; size: number }) => React.ReactElement> = {
   Game: ({ color, size }) => <SmileyIcon width={size} height={size} color={color} />,
@@ -41,9 +36,9 @@ function MainTabs() {
         tabBarStyle: { backgroundColor: colors.bg, borderTopColor: colors.border },
       })}
     >
-      <Tab.Screen name="Game" component={PlaceholderScreen} />
-      <Tab.Screen name="Leaderboard" component={PlaceholderScreen} />
-      <Tab.Screen name="Profile" component={PlaceholderScreen} />
+      <Tab.Screen name="Game" component={GameScreen} options={{ headerShown: false }} />
+      <Tab.Screen name="Leaderboard" component={LeaderboardScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   )
 }
@@ -68,11 +63,8 @@ export function RootNavigator() {
     >
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Main" component={MainTabs} />
-        <Stack.Screen
-          name="Auth"
-          component={PlaceholderScreen}
-          options={{ headerShown: true, headerTitle: 'Auth', headerStyle: { backgroundColor: colors.surface }, headerTintColor: colors.text }}
-        />
+        <Stack.Screen name="Auth" component={AuthScreen} options={{ headerShown: true, headerTitle: 'Auth' }} />
+        <Stack.Screen name="SetupUsername" component={SetupUsernameScreen} options={{ headerShown: true, headerTitle: 'Setup' }} />
       </Stack.Navigator>
     </NavigationContainer>
   )

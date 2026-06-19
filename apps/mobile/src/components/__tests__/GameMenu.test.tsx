@@ -3,7 +3,7 @@ import { GameMenu } from '../GameMenu'
 import { ThemeProvider } from '../../contexts/ThemeContext'
 import { I18nProvider } from '../../contexts/I18nContext'
 
-const mockAuth = {
+const mockAuth: { user: { id: string; email: string } | null; signOut: jest.Mock } = {
   user: null,
   signOut: jest.fn(),
 }
