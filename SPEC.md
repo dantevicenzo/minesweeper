@@ -453,8 +453,7 @@ Gerenciado pelo cliente Supabase. Endpoints padrão de sign-up, sign-in, sign-ou
 
 ### CA-004 — Salvamento e Sincronização
 - [ ] Partida em andamento é salva automaticamente (localStorage + API debounced).
-- [ ] Botão "Continue" na home quando há partida salva.
-- [ ] Partida é restaurada exatamente como estava ao clicar em "Continue".
+- [ ] Ao abrir o app com partida salva, o estado é restaurado automaticamente no tabuleiro.
 - [ ] Offline-first: jogar sem internet funciona, chamadas são enfileiradas e sincronizam ao reconectar.
 - [ ] Progresso não é perdido entre dispositivos (dado mesmo login).
 
