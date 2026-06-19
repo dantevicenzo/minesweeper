@@ -30,7 +30,12 @@
     "customHeight": "Height",
     "customMines": "Mines",
     "minesweeperBoard": "Minesweeper board",
-    "boardLabel": "Game grid. Use arrow keys to navigate, Enter to reveal, F to flag."
+    "boardLabel": "Game grid. Use arrow keys to navigate, Enter to reveal, F to flag.",
+    "stats": "Statistics",
+    "board": "Board",
+    "clicks": "Clicks",
+    "xpEarned": "XP Earned",
+    "playAgain": "Play Again"
   },
   "leaderboard": {
     "title": "Leaderboard",

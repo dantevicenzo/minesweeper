@@ -30,7 +30,12 @@
     "customHeight": "Altura",
     "customMines": "Minas",
     "minesweeperBoard": "Tabuleiro de Campo Minado",
-    "boardLabel": "Grade do jogo. Use as setas para navegar, Enter para revelar, F para bandeira."
+    "boardLabel": "Grade do jogo. Use as setas para navegar, Enter para revelar, F para bandeira.",
+    "stats": "Estatísticas",
+    "board": "Tabuleiro",
+    "clicks": "Cliques",
+    "xpEarned": "EXP Ganho",
+    "playAgain": "Jogar Novamente"
   },
   "leaderboard": {
     "title": "Ranking",
