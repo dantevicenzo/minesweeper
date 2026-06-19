@@ -6,6 +6,7 @@ import leaderboardRouter from './routes/leaderboard'
 import statsRouter from './routes/stats'
 import achievementsRouter from './routes/achievements'
 import adminRouter from './routes/admin'
+import profilesRouter from './routes/profiles'
 
 if (process.env.SENTRY_DSN) {
   Sentry.init({
@@ -27,6 +28,7 @@ app.use('/api/leaderboard', leaderboardRouter)
 app.use('/api/stats', statsRouter)
 app.use('/api/achievements', achievementsRouter)
 app.use('/api/admin', adminRouter)
+app.use('/api/profiles', profilesRouter)
 
 const port = process.env.PORT ?? 3001
 
