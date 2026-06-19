@@ -1,0 +1,114 @@
+{
+  "home": {
+    "title": "Minesweeper",
+    "newGame": "New Game",
+    "leaderboard": "Leaderboard",
+    "profile": "Profile",
+    "settings": "Settings",
+    "customGame": "Custom",
+    "donate": "Buy me a coffee"
+  },
+  "credits": {
+    "developedBy": "Developed by",
+    "year": "2026"
+  },
+  "game": {
+    "mines": "Mines",
+    "time": "Time",
+    "win": "You Win!",
+    "lose": "Game Over",
+    "newGame": "New Game",
+    "back": "Back to Menu",
+    "difficulty": {
+      "easy": "Easy",
+      "medium": "Medium",
+      "hard": "Hard",
+      "custom": "Custom"
+    },
+    "customWidth": "Width",
+    "customHeight": "Height",
+    "customMines": "Mines",
+    "minesweeperBoard": "Minesweeper board",
+    "boardLabel": "Game grid. Use arrow keys to navigate, Enter to reveal, F to flag.",
+    "stats": "Statistics",
+    "board": "Board",
+    "clicks": "Clicks",
+    "xpEarned": "XP Earned",
+    "playAgain": "Play Again"
+  },
+  "leaderboard": {
+    "title": "Leaderboard",
+    "rank": "Rank",
+    "player": "Player",
+    "time": "Time",
+    "date": "Date",
+    "noEntries": "No entries yet",
+    "difficulty": "Difficulty",
+    "period": "Period",
+    "allTime": "All Time",
+    "today": "Today",
+    "week": "This Week",
+    "month": "This Month",
+    "yourPosition": "Your position"
+  },
+  "profile": {
+    "title": "Profile",
+    "stats": "Statistics",
+    "gamesPlayed": "Games Played",
+    "won": "Won",
+    "lost": "Lost",
+    "winRate": "Win Rate",
+    "bestTime": "Best Time",
+    "xp": "XP",
+    "level": "Level",
+    "achievements": "Achievements",
+    "unlocked": "unlocked",
+    "viewPublic": "View public profile"
+  },
+  "achievements": {
+    "first_win": { "name": "First Win", "description": "Win your first game" },
+    "speed_demon_easy": { "name": "Speed Demon", "description": "Win Easy mode in under 30 seconds" },
+    "medium_win": { "name": "Challenger", "description": "Win a Medium difficulty game" },
+    "expert_win": { "name": "Expert", "description": "Win a Hard difficulty game" },
+    "perfect_game": { "name": "Perfect Game", "description": "Win without using any flags" },
+    "win_streak_5": { "name": "On Fire", "description": "Win 5 games in a row" },
+    "win_50": { "name": "Veteran", "description": "Win 50 games" },
+    "win_100": { "name": "Legendary", "description": "Win 100 games" },
+    "speed_demon_medium": { "name": "Lightning", "description": "Win Medium mode in under 60 seconds" },
+    "speed_demon_hard": { "name": "Relentless", "description": "Win Hard mode in under 120 seconds" },
+    "level_10": { "name": "Dedicated", "description": "Reach level 10" },
+    "level_25": { "name": "Master", "description": "Reach level 25" }
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signOut": "Sign Out",
+    "email": "Email",
+    "password": "Password",
+    "google": "Continue with Google",
+    "apple": "Continue with Apple",
+    "github": "Continue with GitHub",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "appleSoon": "Coming soon",
+    "oauthError": "OAuth sign-in failed. Please try again."
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark"
+  },
+  "setupUsername": {
+    "title": "Choose your username",
+    "username": "Username",
+    "fullName": "Full Name",
+    "submit": "Save",
+    "checking": "Checking availability...",
+    "available": "Available!",
+    "taken": "Already taken",
+    "invalid": "Invalid username (3-20 chars, letters, numbers, underscore)",
+    "banned": "This username is not allowed"
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "home": {
+    "title": "Campo Minado",
+    "newGame": "Novo Jogo",
+    "leaderboard": "Ranking",
+    "profile": "Perfil",
+    "settings": "Configurações",
+    "customGame": "Personalizado",
+    "donate": "Me pague um café"
+  },
+  "credits": {
+    "developedBy": "Desenvolvido por",
+    "year": "2026"
+  },
+  "game": {
+    "mines": "Minas",
+    "time": "Tempo",
+    "win": "Você Venceu!",
+    "lose": "Fim de Jogo",
+    "newGame": "Novo Jogo",
+    "back": "Voltar ao Menu",
+    "difficulty": {
+      "easy": "Fácil",
+      "medium": "Médio",
+      "hard": "Difícil",
+      "custom": "Personalizado"
+    },
+    "customWidth": "Largura",
+    "customHeight": "Altura",
+    "customMines": "Minas",
+    "minesweeperBoard": "Tabuleiro de Campo Minado",
+    "boardLabel": "Grade do jogo. Use as setas para navegar, Enter para revelar, F para bandeira.",
+    "stats": "Estatísticas",
+    "board": "Tabuleiro",
+    "clicks": "Cliques",
+    "xpEarned": "EXP Ganho",
+    "playAgain": "Jogar Novamente"
+  },
+  "leaderboard": {
+    "title": "Ranking",
+    "rank": "Posição",
+    "player": "Jogador",
+    "time": "Tempo",
+    "date": "Data",
+    "noEntries": "Nenhuma entrada ainda",
+    "difficulty": "Dificuldade",
+    "period": "Período",
+    "allTime": "Todo o Tempo",
+    "today": "Hoje",
+    "week": "Esta Semana",
+    "month": "Este Mês",
+    "yourPosition": "Sua posição"
+  },
+  "profile": {
+    "title": "Perfil",
+    "stats": "Estatísticas",
+    "gamesPlayed": "Partidas Jogadas",
+    "won": "Vitórias",
+    "lost": "Derrotas",
+    "winRate": "Taxa de Vitórias",
+    "bestTime": "Melhor Tempo",
+    "xp": "EXP",
+    "level": "Nível",
+    "achievements": "Conquistas",
+    "unlocked": "desbloqueadas",
+    "viewPublic": "Ver perfil público"
+  },
+  "achievements": {
+    "first_win": { "name": "Primeira Vitória", "description": "Vença sua primeira partida" },
+    "speed_demon_easy": { "name": "Demônio da Velocidade", "description": "Vença o Fácil em menos de 30 segundos" },
+    "medium_win": { "name": "Desafiante", "description": "Vença uma partida Médio" },
+    "expert_win": { "name": "Especialista", "description": "Vença uma partida Difícil" },
+    "perfect_game": { "name": "Partida Perfeita", "description": "Vença sem usar bandeiras" },
+    "win_streak_5": { "name": "Em Chamas", "description": "Vença 5 partidas consecutivas" },
+    "win_50": { "name": "Veterano", "description": "Vença 50 partidas" },
+    "win_100": { "name": "Lendário", "description": "Vença 100 partidas" },
+    "speed_demon_medium": { "name": "Relâmpago", "description": "Vença o Médio em menos de 60 segundos" },
+    "speed_demon_hard": { "name": "Implacável", "description": "Vença o Difícil em menos de 120 segundos" },
+    "level_10": { "name": "Dedicado", "description": "Alcance o nível 10" },
+    "level_25": { "name": "Mestre", "description": "Alcance o nível 25" }
+  },
+  "auth": {
+    "signIn": "Entrar",
+    "signUp": "Cadastrar",
+    "signOut": "Sair",
+    "email": "Email",
+    "password": "Senha",
+    "google": "Continuar com Google",
+    "apple": "Continuar com Apple",
+    "github": "Continuar com GitHub",
+    "noAccount": "Não tem conta?",
+    "hasAccount": "Já tem conta?",
+    "appleSoon": "Em breve",
+    "oauthError": "Falha na autenticação OAuth. Tente novamente."
+  },
+  "settings": {
+    "title": "Configurações",
+    "language": "Idioma",
+    "theme": "Tema",
+    "light": "Claro",
+    "dark": "Escuro"
+  },
+  "setupUsername": {
+    "title": "Escolha seu nome de usuário",
+    "username": "Nome de usuário",
+    "fullName": "Nome completo",
+    "submit": "Salvar",
+    "checking": "Verificando disponibilidade...",
+    "available": "Disponível!",
+    "taken": "Já está em uso",
+    "invalid": "Nome inválido (3-20 caracteres, letras, números, sublinhado)",
+    "banned": "Este nome de usuário não é permitido"
+  }
+}
