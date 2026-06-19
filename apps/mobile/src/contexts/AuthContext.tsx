@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       webClientId: env.GOOGLE_SIGN_IN_CLIENT_ID,
     })
     await GoogleSignin.hasPreviousSignIn()
-    const { idToken } = await GoogleSignin.signIn()
+    const { idToken } = await GoogleSignin.signIn() as unknown as { idToken: string }
     const { error } = await supabase.auth.signInWithIdToken({ provider: 'google', token: idToken })
     if (error) throw error
   }, [])

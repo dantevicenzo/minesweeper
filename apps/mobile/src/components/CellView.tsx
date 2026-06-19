@@ -52,7 +52,7 @@ export function CellView({ cell, gameStatus, flagMode, onPress, onLongPress }: C
     >
       {cell.isRevealed && cell.hasMine && <MineIcon />}
       {cell.isRevealed && !cell.hasMine && cell.adjacentMines > 0 && (
-        <NumberIcon number={cell.adjacentMines} color={colors.number[cell.adjacentMines] ?? colors.text} />
+        <NumberIcon number={cell.adjacentMines as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8} color={colors.number[cell.adjacentMines] ?? colors.text} />
       )}
       {!cell.isRevealed && cell.isFlagged && <FlagIcon testID="FlagIcon" />}
     </Pressable>
