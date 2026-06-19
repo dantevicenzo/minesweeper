@@ -10,6 +10,13 @@ dist/
 *.tsbuildinfo
 apps/mobile/src/env.ts
 
+# React Native build artifacts
+apps/mobile/ios/Pods/
+apps/mobile/ios/build/
+apps/mobile/android/build/
+apps/mobile/android/app/build/
+apps/mobile/android/.gradle/
+
 
 ARCHITECTURE.md
 DEVELOPMENT_GUIDELINES.md
