@@ -87,6 +87,12 @@ router.put('/users/:id', requireAuth, async (req: AuthenticatedRequest, res: Res
     let paramIndex = 1
 
     if (username !== undefined) {
+      const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,20}$/
+      const BANNED_WORDS = ['admin', 'root', 'system', 'null', 'undefined', 'auth', 'api', 'support', 'me', 'mine', 'minesweeper', 'official']
+      if (!USERNAME_REGEX.test(username) || BANNED_WORDS.includes(username.toLowerCase())) {
+        res.status(400).json({ error: 'invalid_username' })
+        return
+      }
       setClauses.push(`username = $${paramIndex++}`)
       params.push(username)
     }

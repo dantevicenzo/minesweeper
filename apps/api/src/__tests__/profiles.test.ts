@@ -219,3 +219,36 @@ describe('PATCH /api/profiles/me', () => {
     expect(res.status).toBe(409)
   })
 })
+
+describe('requireNotBanned middleware', () => {
+  afterAll(() => vi.restoreAllMocks())
+
+  it('returns 403 for banned user on GET /me', async () => {
+    mockAuthFetch()
+    mockQueryOne.mockResolvedValueOnce({ banned: true })
+    const res = await createTestServer('/api/profiles/me', {
+      headers: { Authorization: 'Bearer valid-token' },
+    })
+    expect(res.status).toBe(403)
+  })
+
+  it('returns 403 for banned user on GET /username-available', async () => {
+    mockAuthFetch()
+    mockQueryOne.mockResolvedValueOnce({ banned: true })
+    const res = await createTestServer('/api/profiles/username-available?u=test', {
+      headers: { Authorization: 'Bearer valid-token' },
+    })
+    expect(res.status).toBe(403)
+  })
+
+  it('returns 403 for banned user on PATCH /me', async () => {
+    mockAuthFetch()
+    mockQueryOne.mockResolvedValueOnce({ banned: true })
+    const res = await createTestServer('/api/profiles/me', {
+      method: 'PATCH',
+      headers: { Authorization: 'Bearer valid-token', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: 'alice' }),
+    })
+    expect(res.status).toBe(403)
+  })
+})

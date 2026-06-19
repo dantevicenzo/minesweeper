@@ -2,10 +2,33 @@ import { Router } from 'express'
 import { queryOne } from '../utils/supabase'
 import { requireAuth, requireNotBanned } from '../middleware/auth'
 import type { AuthenticatedRequest } from '../middleware/auth'
-import type { Response } from 'express'
+import type { Response, NextFunction } from 'express'
 import type { Profile } from '@minesweeper/types'
 
 const router = Router()
+
+const rateLimits = new Map<string, { count: number; resetAt: number }>()
+const RATE_LIMIT_WINDOW = 60_000
+const RATE_LIMIT_MAX = 10
+
+function rateLimit(req: AuthenticatedRequest, res: Response, next: NextFunction): void {
+  const now = Date.now()
+  const entry = rateLimits.get(req.userId!)
+
+  if (!entry || now > entry.resetAt) {
+    rateLimits.set(req.userId!, { count: 1, resetAt: now + RATE_LIMIT_WINDOW })
+    next()
+    return
+  }
+
+  if (entry.count >= RATE_LIMIT_MAX) {
+    res.status(429).json({ error: 'Too many requests. Please slow down.' })
+    return
+  }
+
+  entry.count++
+  next()
+}
 
 const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,20}$/
 const BANNED_WORDS = ['admin', 'root', 'system', 'null', 'undefined', 'auth', 'api', 'support', 'me', 'mine', 'minesweeper', 'official']
@@ -38,7 +61,7 @@ router.get('/me', requireAuth, requireNotBanned, async (req: AuthenticatedReques
   }
 })
 
-router.get('/username-available', requireAuth, requireNotBanned, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/username-available', requireAuth, requireNotBanned, rateLimit, async (req: AuthenticatedRequest, res: Response) => {
   const username = (req.query.u as string) ?? ''
 
   const { valid, reason } = validateUsername(username)
@@ -58,7 +81,7 @@ router.get('/username-available', requireAuth, requireNotBanned, async (req: Aut
   }
 })
 
-router.patch('/me', requireAuth, requireNotBanned, async (req: AuthenticatedRequest, res: Response) => {
+router.patch('/me', requireAuth, requireNotBanned, rateLimit, async (req: AuthenticatedRequest, res: Response) => {
   const { username, full_name } = req.body ?? {}
 
   if (typeof username !== 'string') {
