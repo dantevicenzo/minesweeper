@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { useApiGame } from '../hooks/useApiGame'
 import { CellView } from './CellView'
 import { useI18n } from '../contexts/I18nContext'
@@ -27,7 +28,7 @@ function formatCounter(n: number): string {
 const CELL = 28
 const PAD = 10
 const BORDER = 3
-const HEADER_H = 50
+const HEADER_H = 42
 const GRID_BORDER = 3
 
 function naturalWidth(cols: number): number {
@@ -50,6 +51,7 @@ function calcScale(cols: number, rows: number, availW: number, availH: number): 
 
 export function GameBoard({ width, height, mineCount, difficulty = 'easy', initialState, flagMode = false, onFlagModeChange, onOpenMenu }: GameBoardProps) {
   const { t } = useI18n()
+  const router = useRouter()
   const { game, dispatch, reset } = useApiGame(width, height, mineCount, difficulty, initialState)
   const [time, setTime] = useState(0)
   const [face, setFace] = useState<'🙂' | '😮' | '😎' | '💀'>('🙂')
@@ -189,26 +191,6 @@ export function GameBoard({ width, height, mineCount, difficulty = 'easy', initi
     >
       <div className={styles.header}>
         <div className={styles.headerLeft}>
-          <div className={styles.counter} role="timer" aria-label={`${t.game.mines}: ${mineDisplay}`}>
-            {formatCounter(mineDisplay)}
-          </div>
-          <button
-            className={styles.headerBtn}
-            onClick={onOpenMenu}
-            aria-label="Menu"
-          >
-            ⚙️
-          </button>
-        </div>
-        <button
-          ref={smileyRef}
-          className={styles.smiley}
-          onClick={reset}
-          aria-label={t.game.newGame}
-        >
-          {face}
-        </button>
-        <div className={styles.headerRight}>
           <button
             className={`${styles.headerBtn} ${flagMode ? styles.flagActive : ''}`}
             onClick={() => onFlagModeChange?.(!flagMode)}
@@ -217,9 +199,45 @@ export function GameBoard({ width, height, mineCount, difficulty = 'easy', initi
           >
             🚩
           </button>
+          <button
+            className={styles.headerBtn}
+            onClick={() => router.push('/leaderboard')}
+            aria-label={t.home.leaderboard}
+          >
+            🏆
+          </button>
+        </div>
+        <div className={styles.headerCenter}>
+          <div className={styles.counter} role="timer" aria-label={`${t.game.mines}: ${mineDisplay}`}>
+            {formatCounter(mineDisplay)}
+          </div>
+          <button
+            ref={smileyRef}
+            className={styles.smiley}
+            onClick={reset}
+            aria-label={t.game.newGame}
+          >
+            {face}
+          </button>
           <div className={styles.counter} role="timer" aria-label={`${t.game.time}: ${time}s`}>
             {formatCounter(time)}
           </div>
+        </div>
+        <div className={styles.headerRight}>
+          <button
+            className={styles.headerBtn}
+            onClick={() => router.push('/profile')}
+            aria-label={t.home.profile}
+          >
+            👤
+          </button>
+          <button
+            className={styles.headerBtn}
+            onClick={onOpenMenu}
+            aria-label={t.home.settings}
+          >
+            ⚙️
+          </button>
         </div>
       </div>
       <div

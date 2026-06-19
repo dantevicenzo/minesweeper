@@ -18,18 +18,34 @@ vi.mock('../../contexts/I18nContext', () => ({
         minesweeperBoard: 'Minesweeper board',
         boardLabel: 'Game grid. Use arrow keys to navigate, Enter to reveal, F to flag.',
       },
+      home: {
+        settings: 'Settings',
+        profile: 'Profile',
+        leaderboard: 'Leaderboard',
+      },
     },
   }),
+}))
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn() }),
 }))
 
 vi.mock('../GameBoard.module.css', () => ({
   default: {
     container: 'container',
     header: 'header',
+    headerLeft: 'headerLeft',
+    headerCenter: 'headerCenter',
+    headerRight: 'headerRight',
+    headerBtn: 'headerBtn',
+    flagActive: 'flagActive',
     counter: 'counter',
     smiley: 'smiley',
     grid: 'grid',
     srOnly: 'srOnly',
+    wrapper: 'wrapper',
+    scaler: 'scaler',
   },
 }))
 
