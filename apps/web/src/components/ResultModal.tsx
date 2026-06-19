@@ -25,6 +25,13 @@ export function ResultModal({ status, time, difficulty, mineCount, flagCount, cl
     btnRef.current?.focus()
   }, [])
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Tab') {
+      e.preventDefault()
+      btnRef.current?.focus()
+    }
+  }
+
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onPlayAgain()
@@ -36,7 +43,7 @@ export function ResultModal({ status, time, difficulty, mineCount, flagCount, cl
   return (
     <>
       <div className={styles.backdrop} />
-      <div className={styles.modal} role="dialog" aria-modal="true" aria-labelledby="result-title">
+      <div className={styles.modal} role="dialog" aria-modal="true" aria-labelledby="result-title" onKeyDown={handleKeyDown}>
         <div className={styles.emoji}>{status === 'won' ? '😎' : '💀'}</div>
         <h2 id="result-title" className={styles.title}>{status === 'won' ? t.game.win : t.game.lose}</h2>
 

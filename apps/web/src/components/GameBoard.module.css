@@ -1,4 +1,5 @@
 .wrapper {
+  position: relative;
   flex: 1;
   overflow: hidden;
   display: flex;
@@ -102,9 +103,13 @@
   border-right: 2px solid var(--color-cell-border-light);
 }
 
+.headerFlagIcon {
+  width: 10px;
+  height: 14px;
+}
+
 .flagActive {
   background: #dc2626;
-  color: white;
   border-radius: 3px;
 }
 

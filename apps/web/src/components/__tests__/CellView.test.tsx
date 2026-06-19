@@ -10,8 +10,9 @@ vi.mock('../CellView.module.css', () => ({
     mine: 'mine',
     mineExploded: 'mineExploded',
     flagged: 'flagged',
-    n1: 'n1', n2: 'n2', n3: 'n3', n4: 'n4',
-    n5: 'n5', n6: 'n6', n7: 'n7', n8: 'n8',
+    mineIcon: 'mineIcon',
+    flagIcon: 'flagIcon',
+    numberIcon: 'numberIcon',
   },
 }))
 
@@ -65,7 +66,7 @@ describe('CellView', () => {
     renderCell(cell)
     const btn = screen.getByRole('gridcell')
     expect(btn.getAttribute('aria-label')).toBe('flagged')
-    expect(btn.textContent).toBe('🚩')
+    expect(btn.querySelector('svg')).toBeTruthy()
   })
 
   it('renders revealed empty cell', () => {
@@ -81,7 +82,7 @@ describe('CellView', () => {
     renderCell(cell)
     const btn = screen.getByRole('gridcell')
     expect(btn.getAttribute('aria-label')).toBe('3')
-    expect(btn.textContent).toBe('3')
+    expect(btn.querySelector('svg')).toBeTruthy()
   })
 
   it('renders mine cell', () => {
@@ -89,14 +90,14 @@ describe('CellView', () => {
     renderCell(cell)
     const btn = screen.getByRole('gridcell')
     expect(btn.getAttribute('aria-label')).toBe('mine')
-    expect(btn.textContent).toBe('●')
+    expect(btn.querySelector('svg')).toBeTruthy()
   })
 
   it('renders exploded mine cell', () => {
     const cell = createCell({ isRevealed: true, hasMine: true, isExploded: true })
     renderCell(cell)
     const btn = screen.getByRole('gridcell')
-    expect(btn.textContent).toBe('●')
+    expect(btn.querySelector('svg')).toBeTruthy()
   })
 
   it('calls onLeftClick on click for hidden cell', () => {

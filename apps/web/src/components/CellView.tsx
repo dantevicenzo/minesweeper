@@ -1,8 +1,9 @@
 'use client'
 
 import type { Cell } from '@minesweeper/engine'
-import type { MouseEvent } from 'react'
+import type { MouseEvent, ReactNode } from 'react'
 import styles from './CellView.module.css'
+import { MineIcon, FlagIcon, numberIcons } from './icons'
 
 interface CellViewProps {
   cell: Cell
@@ -19,16 +20,7 @@ interface CellViewProps {
   onFocus: () => void
 }
 
-const numberClass: Record<number, string> = {
-  1: styles.n1,
-  2: styles.n2,
-  3: styles.n3,
-  4: styles.n4,
-  5: styles.n5,
-  6: styles.n6,
-  7: styles.n7,
-  8: styles.n8,
-}
+const numberIconRecord: Record<number, typeof numberIcons[1]> = numberIcons
 
 export function CellView({ cell, row, col, gameStatus, isFocused, flagMode = false, onLeftClick, onRightClick, onChordClick, onMouseDown, onMouseUp, onFocus }: CellViewProps) {
   const handleClick = () => {
@@ -41,7 +33,7 @@ export function CellView({ cell, row, col, gameStatus, isFocused, flagMode = fal
     }
   }
 
-  let content: string | number = ''
+  let content: ReactNode = null
   let className = styles.cell
 
   if (cell.isRevealed) {
@@ -50,17 +42,17 @@ export function CellView({ cell, row, col, gameStatus, isFocused, flagMode = fal
       if (cell.isExploded) {
         className += ` ${styles.mineExploded}`
       }
-      content = '●'
+      content = <MineIcon className={styles.mineIcon} />
     } else {
       className += ` ${styles.revealed}`
       if (cell.adjacentMines > 0) {
-        content = cell.adjacentMines
-        className += ` ${numberClass[cell.adjacentMines] ?? ''}`
+        const NumIcon = numberIconRecord[cell.adjacentMines]
+        content = <NumIcon className={styles.numberIcon} />
       }
     }
   } else if (cell.isFlagged) {
     className += ` ${styles.hidden} ${styles.flagged}`
-    content = '🚩'
+    content = <FlagIcon className={styles.flagIcon} />
   } else {
     className += ` ${styles.hidden}`
   }

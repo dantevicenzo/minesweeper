@@ -230,6 +230,8 @@ describe('GameBoard', () => {
 describe('GameBoard with ResultModal', () => {
   beforeEach(() => {
     vi.mocked(ResultModal).mockClear()
+    vi.mocked(useAuth).mockReset()
+    vi.mocked(useAuth).mockReturnValue({ user: null } as any)
   })
 
   it('does not show modal when game is idle', () => {
@@ -296,6 +298,54 @@ describe('GameBoard with ResultModal', () => {
     render(<GameBoard width={9} height={9} mineCount={10} difficulty="easy" />)
     const lastCall = vi.mocked(ResultModal).mock.calls[vi.mocked(ResultModal).mock.calls.length - 1]
     expect(lastCall[0].xpEarned).toBe(100)
+  })
+
+  it('passes xpEarned=150 for medium win with logged user', () => {
+    vi.mocked(useAuth).mockReturnValue({ user: { id: 'test' } } as any)
+    vi.mocked(useApiGame).mockReturnValue({
+      game: createMockGame({ status: 'won', flagCount: 3, startTime: Date.now() - 45000 }),
+      dispatch: vi.fn(),
+      reset: vi.fn(),
+    } as any)
+    render(<GameBoard width={16} height={16} mineCount={40} difficulty="medium" />)
+    const lastCall = vi.mocked(ResultModal).mock.calls.slice(-1)[0]
+    expect(lastCall[0].xpEarned).toBe(150)
+  })
+
+  it('passes xpEarned=200 for hard win with logged user', () => {
+    vi.mocked(useAuth).mockReturnValue({ user: { id: 'test' } } as any)
+    vi.mocked(useApiGame).mockReturnValue({
+      game: createMockGame({ status: 'won', flagCount: 3, startTime: Date.now() - 45000 }),
+      dispatch: vi.fn(),
+      reset: vi.fn(),
+    } as any)
+    render(<GameBoard width={30} height={16} mineCount={99} difficulty="hard" />)
+    const lastCall = vi.mocked(ResultModal).mock.calls.slice(-1)[0]
+    expect(lastCall[0].xpEarned).toBe(200)
+  })
+
+  it('does not pass xpEarned on loss even when logged', () => {
+    vi.mocked(useAuth).mockReturnValue({ user: { id: 'test' } } as any)
+    vi.mocked(useApiGame).mockReturnValue({
+      game: createMockGame({ status: 'lost', flagCount: 2, startTime: Date.now() - 30000 }),
+      dispatch: vi.fn(),
+      reset: vi.fn(),
+    } as any)
+    render(<GameBoard width={9} height={9} mineCount={10} difficulty="easy" />)
+    const lastCall = vi.mocked(ResultModal).mock.calls.slice(-1)[0]
+    expect(lastCall[0].xpEarned).toBeUndefined()
+  })
+
+  it('does not pass xpEarned when user is not logged in', () => {
+    vi.mocked(useAuth).mockReturnValue({ user: null } as any)
+    vi.mocked(useApiGame).mockReturnValue({
+      game: createMockGame({ status: 'won', flagCount: 3, startTime: Date.now() - 45000 }),
+      dispatch: vi.fn(),
+      reset: vi.fn(),
+    } as any)
+    render(<GameBoard width={9} height={9} mineCount={10} difficulty="easy" />)
+    const lastCall = vi.mocked(ResultModal).mock.calls.slice(-1)[0]
+    expect(lastCall[0].xpEarned).toBeUndefined()
   })
 
   it('calls reset when onPlayAgain is triggered', () => {

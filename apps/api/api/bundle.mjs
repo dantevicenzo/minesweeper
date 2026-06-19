@@ -15468,13 +15468,13 @@ var DEFAULT_TRANSPORT_BUFFER_SIZE = 64;
 function createTransport(options, makeRequest, buffer = makePromiseBuffer(
   options.bufferSize || DEFAULT_TRANSPORT_BUFFER_SIZE
 )) {
-  let rateLimits = {};
+  let rateLimits2 = {};
   const flush2 = (timeout) => buffer.drain(timeout);
   function send(envelope) {
     const filteredEnvelopeItems = [];
     forEachEnvelopeItem(envelope, (item, type) => {
       const dataCategory = envelopeItemTypeToDataCategory(type);
-      if (isRateLimited(rateLimits, dataCategory)) {
+      if (isRateLimited(rateLimits2, dataCategory)) {
         options.recordDroppedEvent("ratelimit_backoff", dataCategory);
       } else {
         filteredEnvelopeItems.push(item);
@@ -15505,7 +15505,7 @@ function createTransport(options, makeRequest, buffer = makePromiseBuffer(
         if (DEBUG_BUILD && response.statusCode !== void 0 && (response.statusCode < 200 || response.statusCode >= 300)) {
           debug.warn(`Sentry responded with status code ${response.statusCode} to sent event.`);
         }
-        rateLimits = updateRateLimits(rateLimits, response);
+        rateLimits2 = updateRateLimits(rateLimits2, response);
         return response;
       },
       (error3) => {
@@ -21751,9 +21751,9 @@ function patchExpressModule(optionsOrExports, maybeGetOptions) {
       "use",
       function appUseTrace(...args) {
         const route = originalApplicationUse.apply(this, args);
-        const router6 = isExpressWithRouterPrototype(express2) ? this.router : this._router;
-        if (router6) {
-          const layer = router6.stack[router6.stack.length - 1];
+        const router7 = isExpressWithRouterPrototype(express2) ? this.router : this._router;
+        if (router7) {
+          const layer = router7.stack[router7.stack.length - 1];
           if (layer) {
             patchLayer(getOptions, layer, getLayerPath(args));
           }
@@ -35435,8 +35435,8 @@ var KoaInstrumentation = class extends import_instrumentation39.InstrumentationB
    */
   _patchRouterDispatch(dispatchLayer) {
     diag2.debug("Patching @koa/router dispatch");
-    const router6 = dispatchLayer.router;
-    const routesStack = router6?.stack ?? [];
+    const router7 = dispatchLayer.router;
+    const routesStack = router7?.stack ?? [];
     for (const pathLayer of routesStack) {
       const path = pathLayer.path;
       const pathStack = pathLayer.stack;
@@ -38211,14 +38211,11 @@ async function checkAndUnlockAchievements(game, winCount, winStreak, currentXp) 
       case "first_win":
         earned = winCount >= 1;
         break;
-      case "speed_demon":
+      case "speed_demon_easy":
         earned = game.difficulty === "easy" && game.durationMs <= 3e4;
         break;
-      case "win_streak_5":
-        earned = winStreak >= 5;
-        break;
-      case "explorer":
-        earned = winCount >= 50;
+      case "medium_win":
+        earned = game.difficulty === "medium";
         break;
       case "expert_win":
         earned = game.difficulty === "hard";
@@ -38226,10 +38223,26 @@ async function checkAndUnlockAchievements(game, winCount, winStreak, currentXp) 
       case "perfect_game":
         earned = game.flaggedCells === 0;
         break;
+      case "win_streak_5":
+        earned = winStreak >= 5;
+        break;
+      case "win_50":
+        earned = winCount >= 50;
+        break;
+      case "win_100":
+        earned = winCount >= 100;
+        break;
+      case "speed_demon_medium":
+        earned = game.difficulty === "medium" && game.durationMs <= 6e4;
+        break;
+      case "speed_demon_hard":
+        earned = game.difficulty === "hard" && game.durationMs <= 12e4;
+        break;
       case "level_10":
         earned = currentXp >= calcLevelInv(10);
         break;
-      case "social_player":
+      case "level_25":
+        earned = currentXp >= calcLevelInv(25);
         break;
     }
     if (earned) {
@@ -38506,7 +38519,7 @@ router2.get("/", async (req, res) => {
     const listParams = [...q.params, limit, offset];
     const countParams = [...q.params];
     const data = await query(
-      `select le.*, p.display_name, p.avatar_url, g.width, g.height, g.mine_count
+      `select le.*, p.username, p.full_name, p.avatar_url, g.width, g.height, g.mine_count
        from public.leaderboard_entries le
        join public.profiles p on p.id = le.user_id
        ${GAMES_JOIN}
@@ -38616,7 +38629,7 @@ router3.get("/:userId", async (req, res) => {
   const { userId } = req.params;
   try {
     const profile = await queryOne(
-      `select id, display_name, avatar_url, xp, level from public.profiles where id = $1`,
+      `select id, username, full_name, avatar_url, xp, level from public.profiles where id = $1`,
       [userId]
     );
     if (!profile) {
@@ -38670,6 +38683,26 @@ router4.get("/me", requireAuth, requireNotBanned, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+router4.get("/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const all = await query(`select * from public.achievements order by key`);
+    const earned = await query(
+      `select achievement_id, unlocked_at from public.user_achievements where user_id = $1`,
+      [userId]
+    );
+    const earnedSet = new Set(earned.map((e) => e.achievement_id));
+    const earnedMap = new Map(earned.map((e) => [e.achievement_id, e.unlocked_at]));
+    const data = all.map((a) => ({
+      ...a,
+      unlocked: earnedSet.has(a.id),
+      unlockedAt: earnedMap.get(a.id) ?? null
+    }));
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 var achievements_default = router4;
 
 // api/routes/admin.ts
@@ -38703,12 +38736,17 @@ router5.get("/users", requireAuth, async (req, res) => {
     let countSql;
     let countParams;
     if (search) {
-      sql = `select * from public.profiles where display_name ilike $1 order by created_at desc limit $2 offset $3`;
+      sql = `select id, username, full_name, email, xp, level, is_admin, banned, banned_at, created_at, updated_at
+             from public.profiles
+             where username ilike $1 or email ilike $1 or full_name ilike $1
+             order by created_at desc limit $2 offset $3`;
       params = [`%${search}%`, limit, offset];
-      countSql = `select count(*)::int as count from public.profiles where display_name ilike $1`;
+      countSql = `select count(*)::int as count from public.profiles
+                  where username ilike $1 or email ilike $1 or full_name ilike $1`;
       countParams = [`%${search}%`];
     } else {
-      sql = `select * from public.profiles order by created_at desc limit $1 offset $2`;
+      sql = `select id, username, full_name, email, xp, level, is_admin, banned, banned_at, created_at, updated_at
+             from public.profiles order by created_at desc limit $1 offset $2`;
       params = [limit, offset];
       countSql = `select count(*)::int as count from public.profiles`;
       countParams = [];
@@ -38732,14 +38770,24 @@ router5.put("/users/:id", requireAuth, async (req, res) => {
   const isAdmin = await requireAdmin(req, res);
   if (!isAdmin) return;
   const { id } = req.params;
-  const { display_name, is_admin, banned } = req.body;
+  const { username, full_name, is_admin, banned } = req.body;
   try {
     const setClauses = [];
     const params = [];
     let paramIndex = 1;
-    if (display_name !== void 0) {
-      setClauses.push(`display_name = $${paramIndex++}`);
-      params.push(display_name);
+    if (username !== void 0) {
+      const USERNAME_REGEX2 = /^[a-zA-Z0-9_]{3,20}$/;
+      const BANNED_WORDS2 = ["admin", "root", "system", "null", "undefined", "auth", "api", "support", "me", "mine", "minesweeper", "official"];
+      if (!USERNAME_REGEX2.test(username) || BANNED_WORDS2.includes(username.toLowerCase())) {
+        res.status(400).json({ error: "invalid_username" });
+        return;
+      }
+      setClauses.push(`username = $${paramIndex++}`);
+      params.push(username);
+    }
+    if (full_name !== void 0) {
+      setClauses.push(`full_name = $${paramIndex++}`);
+      params.push(full_name);
     }
     if (is_admin !== void 0) {
       setClauses.push(`is_admin = $${paramIndex++}`);
@@ -38784,7 +38832,7 @@ router5.get("/stats", requireAuth, async (req, res) => {
       `select difficulty, count(*)::int as count from public.games group by difficulty`
     );
     const topPlayers = await query(
-      `select display_name, xp from public.profiles where banned = false order by xp desc limit 10`
+      `select username, xp from public.profiles where banned = false order by xp desc limit 10`
     );
     const total = gameStats?.total_games ?? 0;
     res.json({
@@ -38801,6 +38849,120 @@ router5.get("/stats", requireAuth, async (req, res) => {
   }
 });
 var admin_default = router5;
+
+// api/routes/profiles.ts
+import { Router as Router6 } from "express";
+var router6 = Router6();
+var rateLimits = /* @__PURE__ */ new Map();
+var RATE_LIMIT_WINDOW = 6e4;
+var RATE_LIMIT_MAX = 10;
+function rateLimit(req, res, next) {
+  const now = Date.now();
+  const entry = rateLimits.get(req.userId);
+  if (!entry || now > entry.resetAt) {
+    rateLimits.set(req.userId, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
+    next();
+    return;
+  }
+  if (entry.count >= RATE_LIMIT_MAX) {
+    res.status(429).json({ error: "Too many requests. Please slow down." });
+    return;
+  }
+  entry.count++;
+  next();
+}
+var USERNAME_REGEX = /^[a-zA-Z0-9_]{3,20}$/;
+var BANNED_WORDS = ["admin", "root", "system", "null", "undefined", "auth", "api", "support", "me", "mine", "minesweeper", "official"];
+function isBannedWord(username) {
+  return BANNED_WORDS.includes(username.toLowerCase());
+}
+function validateUsername(username) {
+  if (!USERNAME_REGEX.test(username)) return { valid: false, reason: "invalid" };
+  if (isBannedWord(username)) return { valid: false, reason: "banned" };
+  return { valid: true };
+}
+var PROFILE_COLUMNS = `id, username, full_name, email, avatar_url, xp, level, banned, created_at, updated_at`;
+router6.get("/me", requireAuth, requireNotBanned, async (req, res) => {
+  try {
+    const profile = await queryOne(
+      `select ${PROFILE_COLUMNS} from public.profiles where id = $1`,
+      [req.userId]
+    );
+    if (!profile) {
+      res.status(404).json({ error: "Profile not found" });
+      return;
+    }
+    res.json({ profile });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+router6.get("/username-available", requireAuth, requireNotBanned, rateLimit, async (req, res) => {
+  const username = req.query.u ?? "";
+  const { valid, reason } = validateUsername(username);
+  if (!valid) {
+    res.json({ available: false, reason });
+    return;
+  }
+  try {
+    const existing = await queryOne(
+      `select id from public.profiles where lower(username) = lower($1) limit 1`,
+      [username]
+    );
+    res.json({ available: !existing, reason: existing ? "taken" : void 0 });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+router6.patch("/me", requireAuth, requireNotBanned, rateLimit, async (req, res) => {
+  const { username, full_name } = req.body ?? {};
+  if (typeof username !== "string") {
+    res.status(400).json({ error: "invalid_username" });
+    return;
+  }
+  const { valid, reason } = validateUsername(username);
+  if (!valid) {
+    res.status(400).json({ error: reason === "banned" ? "banned_username" : "invalid_username" });
+    return;
+  }
+  if (full_name !== void 0 && typeof full_name !== "string") {
+    res.status(400).json({ error: "invalid_full_name" });
+    return;
+  }
+  if (typeof full_name === "string" && full_name.length > 80) {
+    res.status(400).json({ error: "invalid_full_name" });
+    return;
+  }
+  try {
+    const existing = await queryOne(
+      `select id from public.profiles where lower(username) = lower($1) and id <> $2 limit 1`,
+      [username, req.userId]
+    );
+    if (existing) {
+      res.status(409).json({ error: "username_taken" });
+      return;
+    }
+    const profile = await queryOne(
+      `update public.profiles
+       set username = $1, full_name = coalesce($2, full_name), updated_at = now()
+       where id = $3
+       returning ${PROFILE_COLUMNS}`,
+      [username, full_name ?? null, req.userId]
+    );
+    if (!profile) {
+      res.status(404).json({ error: "Profile not found" });
+      return;
+    }
+    res.json({ profile });
+  } catch (err) {
+    if (err.code === "23505") {
+      res.status(409).json({ error: "username_taken" });
+      return;
+    }
+    res.status(500).json({ error: err.message });
+  }
+});
+var profiles_default = router6;
 
 // api/index.ts
 if (process.env.SENTRY_DSN) {
@@ -38819,6 +38981,7 @@ app.use("/api/leaderboard", leaderboard_default);
 app.use("/api/stats", stats_default);
 app.use("/api/achievements", achievements_default);
 app.use("/api/admin", admin_default);
+app.use("/api/profiles", profiles_default);
 var port = process.env.PORT ?? 3001;
 var shouldListen = !(process.env.NODE_ENV === "test" || process.env.VITEST === "true" || process.env.VERCEL === "1");
 if (shouldListen) {

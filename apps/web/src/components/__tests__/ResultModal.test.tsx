@@ -103,4 +103,11 @@ describe('ResultModal', () => {
     const dialog = screen.getByRole('dialog')
     expect(dialog.getAttribute('aria-modal')).toBe('true')
   })
+
+  it('calls onPlayAgain on Escape key', () => {
+    const onPlayAgain = vi.fn()
+    render(<ResultModal {...defaultProps} onPlayAgain={onPlayAgain} />)
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(onPlayAgain).toHaveBeenCalledTimes(1)
+  })
 })

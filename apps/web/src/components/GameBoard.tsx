@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useApiGame } from '../hooks/useApiGame'
 import { CellView } from './CellView'
+import { FlagIcon } from './icons'
 import { ResultModal } from './ResultModal'
 import { useAuth } from '../contexts/AuthContext'
 import { useI18n } from '../contexts/I18nContext'
@@ -203,7 +204,7 @@ export function GameBoard({ width, height, mineCount, difficulty = 'easy', initi
 
   const mineDisplay = mineCount - game.flagCount
   const xpMap: Record<string, number> = { easy: 100, medium: 150, hard: 200 }
-  const xpEarned = user && game.status === 'won' ? (xpMap[difficulty] ?? 100) : undefined
+  const xpEarned = user && game.status === 'won' ? (xpMap[difficulty] ?? 200) : undefined
 
   return (
     <div className={styles.wrapper} ref={wrapperRef}>
@@ -223,7 +224,7 @@ export function GameBoard({ width, height, mineCount, difficulty = 'easy', initi
             aria-label="Toggle flag mode"
             aria-pressed={flagMode}
           >
-            🚩
+            <FlagIcon className={styles.headerFlagIcon} />
           </button>
           <button
             className={styles.headerBtn}
