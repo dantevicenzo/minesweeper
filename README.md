@@ -116,6 +116,7 @@ A API roda em `http://localhost:3001`, o Web em `http://localhost:3000`.
 | `NEXT_PUBLIC_SUPABASE_URL` | Sim | URL do projeto Supabase |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Sim | Chave anônima do Supabase |
 | `NEXT_PUBLIC_API_URL` | Sim | URL base da API |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Sim (Google OAuth) | Client ID do Google (GIS client-side) |
 | `SUPABASE_DB_URL` | Sim (API) | Connection string PostgreSQL |
 | `SUPABASE_SERVICE_KEY` | Sim (API) | Service role key do Supabase |
 | `SUPABASE_URL` | Sim (API) | URL do projeto Supabase (admin) |
@@ -136,18 +137,29 @@ To enable Google and GitHub login locally:
 1. Create OAuth credentials in the provider consoles:
    - **Google**: https://console.cloud.google.com/apis/credentials
    - **GitHub**: https://github.com/settings/developers
-2. Add the following redirect URI to each provider's authorized redirect URIs:
+
+2. For **Google**, add the app's domain as an **Authorized JavaScript Origin** in your Google Cloud Console OAuth client:
+   - `https://minesweeper-web-iota.vercel.app` (production)
+   - `http://localhost:3000` (local development)
+
+3. Add the following redirect URI to **GitHub's** authorized redirect URIs:
    ```
    http://localhost:3000/auth/callback
    ```
-3. Set the following in your `.env.local` (Supabase will pick these up via `env(...)` in `supabase/config.toml`):
+
+4. Set the following in your `.env.local`:
    ```
    SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID=<your-client-id>
    SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET=<your-secret>
    SUPABASE_AUTH_EXTERNAL_GITHUB_CLIENT_ID=<your-client-id>
    SUPABASE_AUTH_EXTERNAL_GITHUB_SECRET=<your-secret>
+   NEXT_PUBLIC_GOOGLE_CLIENT_ID=<your-client-id>
    ```
-4. Restart Supabase: `supabase stop && supabase start`.
+   > `NEXT_PUBLIC_GOOGLE_CLIENT_ID` must match `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID`. It's used client-side by Google Identity Services.
+
+5. Restart Supabase: `supabase stop && supabase start`.
+
+> **Note:** Google now uses Google Identity Services (GIS) popup on the app's domain instead of a redirect through Supabase. The consent screen will show the app's domain. GitHub continues to use the redirect flow.
 
 **Apple** is wired but `enabled = false` in `supabase/config.toml` until an Apple Developer Program ($99/yr) is active. To enable: obtain a Client ID + Secret, set `SUPABASE_AUTH_EXTERNAL_APPLE_SECRET`, set `enabled = true` and fill `client_id` + `redirect_uri` (must be `https://...`).
 
