@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, cleanup } from '@testing-library/react'
+import { render, cleanup, screen, fireEvent } from '@testing-library/react'
 import type { ReactNode } from 'react'
 
 const mocks = vi.hoisted(() => ({
@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   signInWithPassword: vi.fn(),
   signInWithOAuth: vi.fn(),
   signOut: vi.fn(),
+  signInWithGoogle: vi.fn(),
   profilesMe: vi.fn(),
   push: vi.fn(),
 }))
@@ -36,7 +37,11 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: mocks.push }),
 }))
 
-import { AuthProvider } from '../AuthContext'
+vi.mock('../../lib/googleAuth', () => ({
+  signInWithGoogle: mocks.signInWithGoogle,
+}))
+
+import { AuthProvider, useAuth } from '../AuthContext'
 
 function renderWithProvider(ui: ReactNode) {
   return render(<AuthProvider>{ui}</AuthProvider>)
@@ -89,5 +94,41 @@ describe('AuthProvider username gate', () => {
     renderWithProvider(<div>child</div>)
     await new Promise(r => setTimeout(r, 10))
     expect(mocks.push).not.toHaveBeenCalledWith('/setup-username')
+  })
+})
+
+describe('signInWithProvider', () => {
+  function TestHarness() {
+    const { signInWithProvider } = useAuth()
+    return (
+      <div>
+        <button onClick={() => signInWithProvider('google')}>Google</button>
+        <button onClick={() => signInWithProvider('github')}>GitHub</button>
+      </div>
+    )
+  }
+
+  describe('google', () => {
+    it('calls signInWithGoogle from googleAuth lib', async () => {
+      mocks.getSession.mockResolvedValue({ data: { session: null } })
+      mocks.signInWithGoogle.mockResolvedValue(undefined)
+      renderWithProvider(<TestHarness />)
+      fireEvent.click(screen.getByText('Google'))
+      await new Promise(r => setTimeout(r, 0))
+      expect(mocks.signInWithGoogle).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('github', () => {
+    it('calls signInWithOAuth for non-google providers', async () => {
+      mocks.getSession.mockResolvedValue({ data: { session: null } })
+      mocks.signInWithOAuth.mockResolvedValue({ error: null })
+      renderWithProvider(<TestHarness />)
+      fireEvent.click(screen.getByText('GitHub'))
+      expect(mocks.signInWithOAuth).toHaveBeenCalledWith({
+        provider: 'github',
+        options: { redirectTo: '/auth/callback' },
+      })
+    })
   })
 })
