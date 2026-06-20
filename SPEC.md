@@ -402,7 +402,7 @@ Gerenciado pelo cliente Supabase. Endpoints padrão de sign-up, sign-in, sign-ou
    a. Modal de resultado (ResultModal) exibe tempo, estatísticas, XP.
    b. Se logado: partida salva no backend, leaderboard atualizado, XP/conquistas processados.
    c. Opção: "Jogar Novamente".
-8. Se sair durante a partida: estado auto-salvo, restaurado ao próximo clique em "Novo Jogo".
+8. Se sair durante a partida: estado auto-salvo localmente. Nota: auto-restore automático foi descontinuado — o estado salvo serve apenas para referência futura.
 
 ### Fluxo — Autenticação
 1. Usuário pode jogar anonimamente.
@@ -433,49 +433,49 @@ Gerenciado pelo cliente Supabase. Endpoints padrão de sign-up, sign-in, sign-ou
 ## Critérios de Aceitação
 
 ### CA-001 — Jogo Funcional
-- [ ] Tabuleiro é gerado corretamente para todas as dificuldades.
-- [ ] Primeiro clique nunca é mina.
-- [ ] Flood fill revela região vazia corretamente.
-- [ ] Bandeiras funcionam e contador de minas restantes é preciso.
-- [ ] Chord click revela vizinhos corretos.
-- [ ] Vitória detectada quando todas as células seguras estão reveladas.
-- [ ] Derrota detectada ao clicar em mina, com animação de explosão.
-- [ ] Timer funciona corretamente (inicia no primeiro clique, para na vitória/derrota).
+- [x] Tabuleiro é gerado corretamente para todas as dificuldades.
+- [x] Primeiro clique nunca é mina.
+- [x] Flood fill revela região vazia corretamente.
+- [x] Bandeiras funcionam e contador de minas restantes é preciso.
+- [x] Chord click revela vizinhos corretos.
+- [x] Vitória detectada quando todas as células seguras estão reveladas.
+- [x] Derrota detectada ao clicar em mina, com animação de explosão.
+- [x] Timer funciona corretamente (inicia no primeiro clique, para na vitória/derrota).
 
 ### CA-002 — Contas e Autenticação
-- [ ] Jogar anonimamente funciona sem pedir cadastro.
-- [ ] Cadastro por email+senha funciona.
+- [x] Jogar anonimamente funciona sem pedir cadastro.
+- [x] Cadastro por email+senha funciona.
 - [x] Login OAuth (Google/Apple/GitHub) funciona. (Google + GitHub ativos com botões funcionais; Apple desabilitado na UI com tooltip "Coming soon" — pendente Apple Developer Program)
 - [ ] Vinculação de conta anônima preserva progresso. (Fora do escopo OAuth — fase futura)
-- [ ] Sessão persiste entre fechar e reabrir o app.
+- [x] Sessão persiste entre fechar e reabrir o app.
 
 ### CA-003 — Leaderboard
-- [ ] Partidas vencidas com conta aparecem no leaderboard.
-- [ ] Ranking ordenado por tempo (menor primeiro).
-- [ ] Posição do usuário é destacada.
-- [ ] Filtros por dificuldade e período funcionam.
+- [x] Partidas vencidas com conta aparecem no leaderboard.
+- [x] Ranking ordenado por tempo (menor primeiro).
+- [x] Posição do usuário é destacada.
+- [x] Filtros por dificuldade e período funcionam.
 
 ### CA-004 — Salvamento e Sincronização
-- [ ] Partida em andamento é salva automaticamente (localStorage + API debounced).
-- [ ] Ao abrir o app com partida salva, o estado é restaurado automaticamente no tabuleiro.
-- [ ] Offline-first: jogar sem internet funciona, chamadas são enfileiradas e sincronizam ao reconectar.
-- [ ] Progresso não é perdido entre dispositivos (dado mesmo login).
+- [x] Partida em andamento é salva automaticamente (localStorage + API debounced).
+- [-] ~~Ao abrir o app com partida salva, o estado é restaurado automaticamente no tabuleiro.~~ (Descontinuado — ver Inconsistências)
+- [x] Offline-first: jogar sem internet funciona, chamadas são enfileiradas e sincronizam ao reconectar.
+- [x] Progresso não é perdido entre dispositivos (dado mesmo login).
 
 ### CA-005 — Internacionalização
-- [ ] Trocar idioma altera todos os textos da interface.
-- [ ] Idioma é detectado automaticamente.
-- [ ] Seleção de idioma persiste entre sessões.
+- [x] Trocar idioma altera todos os textos da interface.
+- [x] Idioma é detectado automaticamente.
+- [x] Seleção de idioma persiste entre sessões.
 
 ### CA-006 — Admin
-- [ ] Apenas admins acessam /admin.
-- [ ] Listagem de usuários com busca funciona.
-- [ ] Banir/desbanir usuário funciona.
-- [ ] Dashboard exibe métricas corretas.
+- [x] Apenas admins acessam /admin.
+- [x] Listagem de usuários com busca funciona.
+- [x] Banir/desbanir usuário funciona.
+- [x] Dashboard exibe métricas corretas.
 
 ### CA-007 — Acessibilidade
-- [ ] Todas as ações são realizáveis por teclado (web).
-- [ ] Leitores de tela anunciam estado das células e ações.
-- [ ] Contraste mínimo atende 4.5:1.
+- [x] Todas as ações são realizáveis por teclado (web).
+- [x] Leitores de tela anunciam estado das células e ações.
+- [x] Contraste mínimo atende 4.5:1.
 
 ---
 
@@ -609,6 +609,10 @@ Jogadores podem tentar manipular tempos ou estados de partida. **Mitigação**: 
 2. **Compartilhamento social**: marcado indiretamente em "Experiência completa" mas depois removido explicitamente.
 3. **Admin Dashboard**: `apps/admin` existe na FOLDER_STRUCTURE mas seu propósito preciso foi validado durante a descoberta como "user management + analytics".
 
+## Funcionalidades Descontinuadas
+
+1. **Auto-restore de partida**: a funcionalidade de restaurar automaticamente partidas salvas ao abrir o app foi descontinuada. O estado continua sendo salvo localmente (localStorage) e na nuvem (debounced) durante a partida, mas o carregamento automático ao iniciar não está mais disponível. Motivo: complexidade de UX — o comportamento surpreendia jogadores que esperavam um tabuleiro novo.
+
 ---
 
 ## Recomendações Técnicas
@@ -638,7 +642,7 @@ Escolha a biblioteca que melhor se integra com Next.js App Router (recomendaçã
 | Prioridade | Task | Status |
 |---|---|---|---|
 | P1 | Fase 5 completa (deploy, custom, acessibilidade, sentry, performance, admin, leaderboard, anti-cheat, CI/CD) | ✅ Feito |
-| P2 | Testes: 223 testes (engine 29, hooks 7, utils 18, api 59, web 109, admin 1) | ✅ Feito |
+| P2 | Testes: 218 testes (engine 29, hooks 7, utils 18, api 59, web 104, admin 1) | ✅ Feito |
 | P2 | Conquistas: 12 implementadas com avaliação server-side | ✅ Feito |
 | P2 | Perfis: CRUD de perfil, verificação de username | ✅ Feito |
 | P3 | Mobile (React Native) | Futuro |
