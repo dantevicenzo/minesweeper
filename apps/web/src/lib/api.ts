@@ -25,6 +25,14 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 
     if (!res.ok) {
       const body = await res.json().catch(() => ({}))
+      if (res.status >= 500) {
+        const { enqueue } = await import('./sync')
+        enqueue({
+          method: options?.method ?? 'GET',
+          path,
+          body: options?.body ? JSON.parse(options.body as string) : undefined,
+        })
+      }
       throw new Error(body.error ?? `HTTP ${res.status}`)
     }
 

@@ -17,26 +17,8 @@ export function saveGameLocally(data: SavedGame): void {
   }
 }
 
-export function loadSavedGame(): SavedGame | null {
-  try {
-    const raw = localStorage.getItem(SAVED_GAME_KEY)
-    if (!raw) return null
-    return JSON.parse(raw) as SavedGame
-  } catch {
-    return null
-  }
-}
-
 export function clearSavedGame(): void {
   try {
     localStorage.removeItem(SAVED_GAME_KEY)
   } catch {}
-}
-
-export function hasSavedGame(): boolean {
-  try {
-    return localStorage.getItem(SAVED_GAME_KEY) !== null
-  } catch {
-    return false
-  }
 }

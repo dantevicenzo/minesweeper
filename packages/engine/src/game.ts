@@ -68,6 +68,11 @@ export function applyAction(state: GameState, action: GameAction): GameState {
 
   const updatedStartTime = state.startTime ?? newStartTime
 
+  const isEnded = newStatus === 'won' || newStatus === 'lost'
+  const newElapsedTime = isEnded && updatedStartTime
+    ? Date.now() - updatedStartTime
+    : state.elapsedTime
+
   return {
     board: newBoard,
     status: newStatus,
@@ -76,7 +81,7 @@ export function applyAction(state: GameState, action: GameAction): GameState {
     mineCount: state.mineCount,
     flagCount: newFlagCount,
     startTime: updatedStartTime,
-    elapsedTime: state.elapsedTime,
+    elapsedTime: newElapsedTime,
     minesPlaced: newMinesPlaced,
   }
 }

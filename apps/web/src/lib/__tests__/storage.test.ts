@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { saveGameLocally, loadSavedGame, clearSavedGame, hasSavedGame } from '../storage'
+import { saveGameLocally, clearSavedGame } from '../storage'
 
 beforeEach(() => {
   localStorage.clear()
@@ -15,36 +15,17 @@ describe('storage', () => {
     updatedAt: 1000,
   }
 
-  it('saves and loads a game', () => {
-    saveGameLocally(sampleData)
-    const loaded = loadSavedGame()
-    expect(loaded).toEqual(sampleData)
+  it('saves game to localStorage without throwing', () => {
+    expect(() => saveGameLocally(sampleData)).not.toThrow()
+    const raw = localStorage.getItem('minesweeper_saved_game')
+    expect(raw).not.toBeNull()
+    expect(JSON.parse(raw!)).toEqual(sampleData)
   })
 
-  it('returns null when no saved game', () => {
-    expect(loadSavedGame()).toBeNull()
-  })
-
-  it('clears a saved game', () => {
+  it('clears saved game from localStorage', () => {
     saveGameLocally(sampleData)
     clearSavedGame()
-    expect(loadSavedGame()).toBeNull()
-  })
-
-  it('hasSavedGame returns true when game saved', () => {
-    saveGameLocally(sampleData)
-    expect(hasSavedGame()).toBe(true)
-  })
-
-  it('hasSavedGame returns false when no game saved', () => {
-    expect(hasSavedGame()).toBe(false)
-  })
-
-  it('overwrites existing saved game', () => {
-    saveGameLocally(sampleData)
-    const updated = { ...sampleData, difficulty: 'hard', updatedAt: 2000 }
-    saveGameLocally(updated)
-    expect(loadSavedGame()).toEqual(updated)
+    expect(localStorage.getItem('minesweeper_saved_game')).toBeNull()
   })
 
   it('handles localStorage being full', () => {
@@ -53,10 +34,5 @@ describe('storage', () => {
 
     expect(() => saveGameLocally(sampleData)).not.toThrow()
     setItem.mockRestore()
-  })
-
-  it('handles corrupt localStorage data', () => {
-    localStorage.setItem('minesweeper_saved_game', 'not-json')
-    expect(loadSavedGame()).toBeNull()
   })
 })
