@@ -29,3 +29,7 @@ DESIGN.md
 Prompts/*
 .vercel
 visual-reference.png
+.sdd/
+.vscode/
+docs/superpowers/
+apps/api/api/bundle.js
