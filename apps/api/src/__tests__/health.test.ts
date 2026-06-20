@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { createServer } from 'node:http'
-import app from '../../api/index'
+import app from '../main'
 
 function request(path: string, options?: RequestInit): Promise<Response> {
   return new Promise((resolve, reject) => {

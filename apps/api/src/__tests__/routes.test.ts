@@ -4,13 +4,13 @@ import { createServer } from 'node:http'
 const mockQuery = vi.fn()
 const mockQueryOne = vi.fn()
 
-vi.mock('../../api/utils/supabase', () => ({
+vi.mock('../utils/supabase', () => ({
   query: mockQuery,
   queryOne: mockQueryOne,
 }))
 
 async function createTestServer(path: string, options?: RequestInit) {
-  const { default: app } = await import('../../api/index')
+  const { default: app } = await import('../main')
   return new Promise<Response>((resolve, reject) => {
     const server = createServer(app)
     server.listen(0, () => {

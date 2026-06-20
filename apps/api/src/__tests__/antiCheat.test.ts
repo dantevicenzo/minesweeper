@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { validateGameTime, validateTimeConsistency } from '../../api/services/antiCheat'
+import { validateGameTime, validateTimeConsistency } from '../services/antiCheat'
 
 describe('AntiCheat — validateGameTime', () => {
   it('allows reasonable easy game time', () => {

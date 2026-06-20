@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { requireAuth, optionalAuth, requireNotBanned } from '../../api/middleware/auth'
+import { requireAuth, optionalAuth, requireNotBanned } from '../middleware/auth'
 
-vi.mock('../../api/utils/supabase', () => ({
+vi.mock('../utils/supabase', () => ({
   queryOne: vi.fn(),
   query: vi.fn(),
 }))
@@ -143,7 +143,7 @@ describe('requireNotBanned', () => {
   })
 
   it('calls next when no userId', async () => {
-    const { queryOne } = await import('../../api/utils/supabase')
+    const { queryOne } = await import('../utils/supabase')
     const req: any = {}
     const next = vi.fn()
 
@@ -154,7 +154,7 @@ describe('requireNotBanned', () => {
   })
 
   it('calls next when user is not banned', async () => {
-    const { queryOne } = await import('../../api/utils/supabase')
+    const { queryOne } = await import('../utils/supabase')
     ;(queryOne as any).mockResolvedValue({ banned: false })
 
     const req: any = { userId: 'user-123' }
@@ -166,7 +166,7 @@ describe('requireNotBanned', () => {
   })
 
   it('returns 403 when user is banned', async () => {
-    const { queryOne } = await import('../../api/utils/supabase')
+    const { queryOne } = await import('../utils/supabase')
     ;(queryOne as any).mockResolvedValue({ banned: true })
 
     const req: any = { userId: 'user-123' }

@@ -2,5 +2,8 @@
   "version": 2,
   "rewrites": [
     { "source": "/(.*)", "destination": "/api/bundle" }
-  ]
+  ],
+  "installCommand": "cd ../.. && pnpm install --no-frozen-lockfile",
+  "buildCommand": "cd ../.. && pnpm exec turbo run build --filter=@minesweeper/api",
+  "outputDirectory": "api"
 }
