@@ -10,10 +10,10 @@ Campo Minado clássico multiplataforma com contas sincronizadas, ranking global,
 
 | Aplicação | URL |
 |---|---|
-| Web (jogadores) | https://minesweeper-web-iota.vercel.app |
-| Admin (painel) | https://minesweeper-admin-orcin.vercel.app |
-| API | https://api-theta-three-88.vercel.app |
-| API Health | https://api-theta-three-88.vercel.app/api/health |
+| Web (jogadores) | https://minesweeper.dantevicenzo.com |
+| Admin (painel) | https://admin.minesweeper.dantevicenzo.com |
+| API | https://api.minesweeper.dantevicenzo.com |
+| API Health | https://api.minesweeper.dantevicenzo.com/api/health |
 
 ### Credenciais de teste (admin, apenas local)
 
@@ -29,7 +29,7 @@ O seed cria um usuário de teste com email `test@minesweeper.local` e senha `tes
 
 ## API
 
-Base URL: `https://api-theta-three-88.vercel.app/api`
+Base URL: `https://api.minesweeper.dantevicenzo.com/api`
 
 ### Endpoints
 
